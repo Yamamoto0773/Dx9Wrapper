@@ -222,6 +222,14 @@ ModelManifest.xml
 
 DEFINE/
 DEBUG.txt
+*.txt
+
+testResource/
 
 *.iobj
 *.ipdb
+
+
+main.cpp
+origin.cpp
+Source.h
