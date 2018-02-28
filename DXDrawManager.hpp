@@ -21,7 +21,13 @@
 #include<string>
 #include<sstream>
 #include<iomanip>
+#include<vector>
 
+#include "DXTextureManager.hpp"
+
+
+#define TEXTURERES_MAXCET 	(256)	// 作成可能なリソース数
+#define TEXTURE_MAXCNT		(256)	// 登録可能なテクスチャ数
 
 
 // ブレンドモードを指定する時の列挙体
@@ -38,8 +44,9 @@ enum class BLENDMODE{
 
 class DXDrawManager {
 private:
-	std::unique_ptr<IDirect3D9>			d3d9;
-	std::unique_ptr<IDirect3DDevice9>	d3ddev9;
+	static std::unique_ptr<IDirect3D9>			d3d9;
+	static std::unique_ptr<IDirect3DDevice9>	d3ddev9;
+
 	D3DCAPS9							d3dcaps9;
 
 	// DirectXを初期化する時に使う構造体
@@ -50,10 +57,24 @@ private:
 
 	bool isRightHand;
 	unsigned long backGroundColor;
-	
-	
-	std::string errMsg;
-	std::unique_ptr<std::string> logMsg;
+
+
+
+	// テクスチャ関係
+	std::vector<std::unique_ptr<DXTextureManager>> texRes;
+
+	// トリミング情報
+	struct ClipInfo {
+		bool isValid;
+		size_t resouceID;
+		size_t x;
+		size_t y;
+		size_t w;
+		size_t h;
+	} texClip[TEXTURE_MAXCNT];
+
+
+	LogManager* log;
 	
 public:
 	// ---------------------------------------
@@ -67,8 +88,8 @@ public:
 	// ウィンドウver.
 	static DXDrawManager* CreateWind(
 		HWND hwnd,
-		unsigned int screenW,
-		unsigned int screenH
+		size_t screenW,
+		size_t screenH
 		);
 
 
@@ -76,7 +97,24 @@ public:
 	// ---------------------------------------
 	// テクスチャの登録などを行う関数
 
+	// 画像ファイルからテクスチャを登録
+	bool AddTexture(
+		size_t texID,
+		const std::string& fileName
+		);
 
+	// 画像ファイルからトリミングしてテクスチャを登録
+	bool AddTexture(
+		size_t texID,
+		const std::string& fileName,
+		size_t x,
+		size_t y,
+		size_t w,
+		size_t h
+		);
+		
+	// テクスチャの削除
+	bool DelTexture(size_t texID);
 	
 
 
@@ -87,7 +125,7 @@ public:
 	void SetHand(bool isRight);
 
 	// 描画をクリアする時の色(背景色)の指定 (各色成分は0-255の範囲で指定)
-	void SetBackGround(unsigned	int r, unsigned int g, unsigned int b);
+	void SetBackGround(size_t r, size_t g, size_t b);
 	// 描画をクリアする時の色(背景色)の指定 (rgbを24bitで指定)
 	void SetBackGround(unsigned long rgb);
 
@@ -102,16 +140,10 @@ public:
 	
 	// ---------------------------------------
 	// メッセージのゲッター＆セッター
-	// 最新のエラーメッセージを取得
-	const char* GetErrMsg() const;
 	
 	// メッセージのゲッター＆セッター
-	// ログメッセージを書き込む文字配列の指定
-	void SetLogMsgBuffer(std::string* ptr);
-
-
-
-
+	// ログの書き込み先の指定
+	void SetLogWriteDest(LogManager* dest);
 
 
 	// ---------------------------------------
@@ -130,16 +162,13 @@ private:
 	bool Create(
 		HWND hwnd,
 		bool isfull,
-		unsigned int w,
-		unsigned int h
+		size_t w,
+		size_t h
 		);
 
 	void Delete();
 	void Clear();
 
-	// エラーメッセージを上書き保存
-	void WriteErrMsg(const char *msg,...);
-	// ログの書き込み
-	void WriteLogMsg(const char *msg,...);
+	int GetTexResourceID(const std::string& fileName);
 
 };

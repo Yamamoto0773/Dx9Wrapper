@@ -4,6 +4,8 @@
 #define Successful (1)
 #define Failed (0)
 
+#define WRITELOG(x) { if (log != nullptr) { log->tlnwrite(x); } }
+
 
 DXDrawManager* DXDrawManager::CreateFull(HWND hwnd) {
 	static DXDrawManager *ptr = new DXDrawManager();
@@ -17,7 +19,7 @@ DXDrawManager* DXDrawManager::CreateFull(HWND hwnd) {
 }
 
 
-DXDrawManager* DXDrawManager::CreateWind(HWND hwnd, unsigned int screenW, unsigned int screenH) {
+DXDrawManager* DXDrawManager::CreateWind(HWND hwnd, size_t screenW, size_t screenH) {
 	static DXDrawManager *ptr = new DXDrawManager();
 	if (ptr->Create(hwnd, true, 0, 0) == Failed) {
 		delete ptr;
@@ -27,12 +29,96 @@ DXDrawManager* DXDrawManager::CreateWind(HWND hwnd, unsigned int screenW, unsign
 	return ptr;
 }
 
+bool DXDrawManager::AddTexture(size_t texID, const std::string& fileName) {
+	if (texID < 0 || texID >= TEXTURE_MAXCNT) {
+		return false;
+	}
+
+	// 既に生成された画像ファイルであるかチェック
+	int resID = GetTexResourceID(fileName);
+
+	if (resID == -1) {
+		// テクスチャ生成
+		if (texRes.size() >= TEXTURERES_MAXCET) {
+			return false;
+		}
+
+		DXTextureManager *ptr = DXTextureManager::Create(d3ddev9.get(), fileName);
+		if (ptr == nullptr) {
+			return false;
+		}
+
+		// 追加
+		std::unique_ptr<DXTextureManager> add(ptr);
+		texRes.push_back(add);
+
+		resID = texRes.size()-1;
+	}
+
+	// トリミング情報を保存
+	texClip[texID].isValid	= true;
+	texClip[texID].resouceID= resID;
+	texClip[texID].x		= 0;
+	texClip[texID].y		= 0;
+	texClip[texID].w		= texRes[ resID ]->GetWidth();
+	texClip[texID].h		= texRes[ resID ]->GetHeight();
+
+	return true;
+}
+
+bool DXDrawManager::AddTexture(size_t texID, const std::string& fileName, size_t x, size_t y, size_t w, size_t h) {
+	if (texID < 0 || texID >= TEXTURE_MAXCNT) {
+		return false;
+	}
+
+	// 既に生成された画像ファイルであるかチェック
+	int resID = GetTexResourceID(fileName);
+
+	if (resID == -1) {
+		// テクスチャ生成
+		if (texRes.size() >= TEXTURERES_MAXCET) {
+			return false;
+		}
+
+		DXTextureManager *ptr = DXTextureManager::Create(d3ddev9.get(), fileName);
+		if (ptr == nullptr) {
+			return false;
+		}
+
+		// 追加
+		std::unique_ptr<DXTextureManager> add(ptr);
+		texRes.push_back(add);
+
+		resID = texRes.size()-1;
+	}
+
+	// トリミング情報を保存
+	texClip[texID].isValid	= true;
+	texClip[texID].resouceID= resID;
+	texClip[texID].x		= x;
+	texClip[texID].y		= y;
+	texClip[texID].w		= w;
+	texClip[texID].h		= h;
+
+	return true;
+}
+
+bool DXDrawManager::DelTexture(size_t texID) {
+	if (texID < 0 || texID >= TEXTURE_MAXCNT) {
+		return false;
+	}
+
+	ZeroMemory(&texClip[texID], sizeof(ClipInfo));
+
+	return true;
+}
+
 
 void DXDrawManager::SetHand(bool isRight) {
 	isRightHand = isRight;
 }
 
-void DXDrawManager::SetBackGround(unsigned int r, unsigned int g, unsigned int b) {
+void DXDrawManager::SetBackGround(size_t r, size_t g, size_t b) {
 	// 最大値を255までにする
 	r &= 0xff;
 	g &= 0xff;
@@ -54,8 +140,10 @@ void DXDrawManager::SetTextureFilter(D3DTEXTUREFILTERTYPE type) {
 void DXDrawManager::SetBlendMode(BLENDMODE mode) {
 	switch (mode) {
 		case BLENDMODE::NORMAL:
+			blendMode = mode;
 			break;
 		case BLENDMODE::ADD:
+			blendMode = mode;
 			break;
 		default:
 			break;
@@ -63,60 +151,10 @@ void DXDrawManager::SetBlendMode(BLENDMODE mode) {
 
 }
 
-const char* DXDrawManager::GetErrMsg() const{
-	return errMsg.c_str();
-}
 
 
-void DXDrawManager::SetLogMsgBuffer(std::string* ptr) {
-	if (ptr) logMsg.reset(ptr);
-}
-
-
-void DXDrawManager::WriteErrMsg(const char *msg, ...) {
-	char str[256];
-
-	va_list list;
-	va_start(list, msg);
-	vsnprintf(str, 256, msg, list);
-	va_end(list);
-
-
-	errMsg.erase(errMsg.cbegin(), errMsg.cend());
-	errMsg += str;
-	WriteLogMsg(str);
-}
-
-
-void DXDrawManager::WriteLogMsg(const char *msg, ...) {
-	if (!logMsg) return;
-
-	using namespace std;
-
-	char str[256];
-
-	// 可変長引数を文字列に変換
-	va_list list;
-	va_start(list, msg);
-	vsnprintf(str, 256, msg, list);
-	va_end(list);
-
-	// タイムスタンプ作成
-	stringstream strTime;
-	SYSTEMTIME time;
-	GetLocalTime(&time);
-	strTime << setw(2) << setfill('0') << '['
-		<< time.wYear%100 << '/'
-		<< time.wMonth << '/'
-		<< time.wDay << ' '
-		<< time.wHour << ':'
-		<< time.wMinute << ':'
-		<< time.wSecond << '.'
-		<< time.wMilliseconds << '] ';
-	*logMsg += strTime.str();
-
-	*logMsg += msg;
-	*logMsg += '\n';
+void DXDrawManager::SetLogWriteDest(LogManager * dest) {
+	log = dest;
 }
 
 
@@ -126,7 +164,7 @@ DXDrawManager::DXDrawManager() {
 DXDrawManager::~DXDrawManager() {
 }
 
-bool DXDrawManager::Create(HWND hwnd, bool isfull, unsigned int w, unsigned int h) {
+bool DXDrawManager::Create(HWND hwnd, bool isfull, size_t w, size_t h) {
 	Delete();
 	Clear();
 
@@ -136,7 +174,7 @@ bool DXDrawManager::Create(HWND hwnd, bool isfull, unsigned int w, unsigned int 
 	// Direct3D9オブジェクトの取得
 	d3d9.reset(Direct3DCreate9(D3D_SDK_VERSION));
 	if (d3d9 == nullptr) {
-		WriteErrMsg("Failed to Create D3D9 Object");
+		WRITELOG("Failed to Create D3D9 Object");
 		return false;
 	}
 
@@ -144,7 +182,7 @@ bool DXDrawManager::Create(HWND hwnd, bool isfull, unsigned int w, unsigned int 
 	// ハードウェアの能力の取得
 	ret = d3d9->GetDeviceCaps(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, &d3dcaps9);
 	if (FAILED(ret)) {
-		WriteErrMsg("Failed to Get D3DCAPS9");
+		WRITELOG("Failed to Get D3DCAPS9");
 		return false;
 	}
 
@@ -160,7 +198,7 @@ bool DXDrawManager::Create(HWND hwnd, bool isfull, unsigned int w, unsigned int 
 		D3DDISPLAYMODE dispMode;
 		ret = d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &dispMode);
 		if (FAILED(ret)) {
-			WriteErrMsg("Failed to Get D3DDISPLAYMODE");
+			WRITELOG("Failed to Get D3DDISPLAYMODE");
 			return false;
 		}
 		d3dpresent.BackBufferFormat			= dispMode.Format;
@@ -174,7 +212,6 @@ bool DXDrawManager::Create(HWND hwnd, bool isfull, unsigned int w, unsigned int 
 	d3dpresent.AutoDepthStencilFormat		= D3DFMT_D24S8;
 	d3dpresent.FullScreen_RefreshRateInHz	= D3DPRESENT_RATE_DEFAULT;
 	d3dpresent.PresentationInterval			= D3DPRESENT_INTERVAL_DEFAULT;
-
 
 
 
@@ -216,17 +253,17 @@ bool DXDrawManager::Create(HWND hwnd, bool isfull, unsigned int w, unsigned int 
 			d3ddev9.reset(ptr);
 
 			switch (i) {
-				case 0: WriteLogMsg("Succeeded to Create D3DDevice9 (DeviceType:GPU VertexProcessing:Hardware)"); break;
-				case 1: WriteLogMsg("Succeeded to Create D3DDevice9 (DeviceType:GPU VertexProcessing:Software)"); break;
-				case 2: WriteLogMsg("Succeeded to Create D3DDevice9 (DeviceType:CPU VertexProcessing:Hardware)"); break;
-				case 3: WriteLogMsg("Succeeded to Create D3DDevice9 (DeviceType:CPU VertexProcessing:Software)"); break;
+				case 0: WRITELOG("Succeeded to Create D3DDevice9 (DeviceType:GPU VertexProcessing:Hardware)"); break;
+				case 1: WRITELOG("Succeeded to Create D3DDevice9 (DeviceType:GPU VertexProcessing:Software)"); break;
+				case 2: WRITELOG("Succeeded to Create D3DDevice9 (DeviceType:CPU VertexProcessing:Hardware)"); break;
+				case 3: WRITELOG("Succeeded to Create D3DDevice9 (DeviceType:CPU VertexProcessing:Software)"); break;
 			}
 
 			break;	// 作成終了
 		}	
 
 		if (i==3) {	// 最終ループなら
-			WriteErrMsg("Failed to Create D3DDevice9");
+			log->tlnwrite("Failed to Create D3DDevice9");
 			return false;
 		}
 	}
@@ -259,16 +296,25 @@ bool DXDrawManager::Create(HWND hwnd, bool isfull, unsigned int w, unsigned int 
 void DXDrawManager::Delete() {
 	d3d9.reset();
 	d3ddev9.reset();
-	logMsg.reset();
 }
 
 void DXDrawManager::Clear() {
 	isRightHand = true;
 	backGroundColor = 0xffffff;
 	blendMode = BLENDMODE::NORMAL;
-	logMsg->clear();
-	logMsg->reserve(512);
-	errMsg.clear();
-	errMsg.reserve(128);
+	
+	texRes.clear();
+
 	ZeroMemory(&d3dcaps9, sizeof(d3dcaps9));
+}
+
+
+int DXDrawManager::GetTexResourceID(const std::string& fileName) {
+	for (size_t i=0; i<texRes.size(); i++) {
+		if (texRes[i]->GetFileName() == fileName) {
+			return i;
+		}
+	}
+
+	return -1;
 }
