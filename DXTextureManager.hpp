@@ -34,12 +34,14 @@ private:
 
 public:
 
+	DXTextureManager();
+	~DXTextureManager();
+
 	// テクスチャ生成
-	static DXTextureManager* Create(IDirect3DDevice9* dev, const std::string& fileName);
+	bool Create(IDirect3DDevice9* dev, const std::string& fileName);
 
-	// テクスチャの削除
+	// テクスチャの明示的削除
 	void Delete();
-
 
 	// テクスチャの幅を取得
 	unsigned long GetWidth() const { return width; }
@@ -50,19 +52,16 @@ public:
 	const std::string& GetFileName() const { return fileName; }
 
 	// Direct3DTexture9ポインタを取得
-	const IDirect3DTexture9* GetPointer() const { return d3dtex9.get(); };
+	IDirect3DTexture9* GetPointer() const { return d3dtex9.get(); };
 
 
 	void SetLogWriteDest(LogManager* dest);
 
 private:
-	DXTextureManager(const DXTextureManager&) = delete;	// コピー不可
-	DXTextureManager& operator=(const DXTextureManager&) = delete; // 代入不可
-	DXTextureManager();
-	~DXTextureManager();
+	DXTextureManager(const DXTextureManager&) = delete;
+	DXTextureManager& operator=(const DXTextureManager&) = delete;
 
 	bool CreateD3DTex9(IDirect3DDevice9* dev, const std::string& fileName);
-
 
 	bool Lock(D3DLOCKED_RECT *rect);
 	bool Unlock();

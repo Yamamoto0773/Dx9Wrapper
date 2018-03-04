@@ -3,19 +3,30 @@
 #define Successful (1)
 #define Failed (0)
 
-DXTextureManager *DXTextureManager::Create(IDirect3DDevice9* dev, const std::string& fileName) {
-	static DXTextureManager *ptr = new DXTextureManager();
 
-	if (ptr->CreateD3DTex9(dev, fileName) == Failed) {
-		delete ptr;
-		ptr = nullptr;
+DXTextureManager::DXTextureManager() {
+}
+
+DXTextureManager::~DXTextureManager() {
+	Delete();
+}
+
+
+bool DXTextureManager::Create(IDirect3DDevice9* dev, const std::string& fileName) {
+	if (dev == nullptr) {
+		return nullptr;
+	}
+	
+	if (CreateD3DTex9(dev, fileName) == Failed) {
+		return false;
 	}
 
-	return ptr;
+	return true;
 }
 
 void DXTextureManager::Delete() {
-	Clear();
+	d3dtex9.reset();
+	fileName.clear();
 }
 
 void DXTextureManager::SetLogWriteDest(LogManager* dest) {
@@ -26,11 +37,7 @@ void DXTextureManager::SetLogWriteDest(LogManager* dest) {
 	log = dest;
 }
 
-DXTextureManager::DXTextureManager() {
-}
 
-DXTextureManager::~DXTextureManager() {
-}
 
 bool DXTextureManager::CreateD3DTex9(IDirect3DDevice9* dev, const std::string& fileName) {
 	Clear();
@@ -65,6 +72,8 @@ bool DXTextureManager::CreateD3DTex9(IDirect3DDevice9* dev, const std::string& f
 	d3dtex9.reset(ptr);
 
 	this->fileName = fileName;
+	width = imgInfo.Width;
+	height = imgInfo.Height;
 
 	return true;
 }
@@ -95,8 +104,6 @@ bool DXTextureManager::Unlock() {
 }
 
 void DXTextureManager::Clear() {
-	d3dtex9.reset();
-	fileName.clear();
 	width = 0;
 	height = 0;
 	isLocked = false;

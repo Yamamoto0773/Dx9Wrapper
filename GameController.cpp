@@ -41,7 +41,7 @@ bool GameController::Update() {
 
 	// キーボード入力
 	unsigned char keyboard[256];
-	bool IsValidKeybd = di.GetKeyboard(keyboard);
+	BOOL IsValidKeybd = di.GetKeyboard(keyboard);
 
 	if (!IsValidKeybd) {
 		return false;
@@ -49,7 +49,7 @@ bool GameController::Update() {
 
 	// midiキーボード入力
 	MIDIKEYSTATE midiKey[MIDIKEYCNT];
-	bool IsValidMidi = mi.GetKeyState(midiKey);
+	BOOL IsValidMidi = mi.GetKeyState(midiKey);
 
 
 	if (IsValidMidi) {

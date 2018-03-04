@@ -488,6 +488,7 @@ int DXTextANSI::DrawTEXT(RECT * rect, int fontSize, int charInterval, DWORD form
 	// シェーダ開始
 	UINT numPass = 0;
 	lpEffect->Begin(&numPass, 0);
+	lpEffect->BeginPass(0);
 
 	for (int i=0; i<charCnt; i++) {
 
@@ -518,14 +519,15 @@ int DXTextANSI::DrawTEXT(RECT * rect, int fontSize, int charInterval, DWORD form
 		lpEffect->SetMatrix("matWorldViewProj", &matWorldViewProj);	// ワールドビュー射影変換行列を設定
 		lpEffect->SetFloatArray("color", colorRGBA, 4);				// 色指定
 		lpEffect->SetTexture("tex", lpFontTex[code-0x20]);			// テクスチャ指定
-
+		lpEffect->CommitChanges();
 		// 描画開始
-		lpEffect->BeginPass(0);
+		
 		lpDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);			// 描画
-		lpEffect->EndPass();
+		
 		
 	}
 	// シェーダ終了
+	lpEffect->EndPass();
 	lpEffect->End();
 
 
