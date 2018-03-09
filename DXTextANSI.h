@@ -50,7 +50,7 @@ private:
 	
 	IDirect3DTexture9		*lpFontTex[CHARACTERKIND];
 
-	CHARDATA				mCharData[CHARACTERKIND];
+	CharInfo				mCharData[CHARACTERKIND];
 
 public:
 	DXTextANSI();

@@ -19,18 +19,26 @@
 
 
 #include<memory>
-#include<string>
+#include<atlbase.h>
 #include<vector>
 
-#include "DXTextureManager.hpp"
 
-class DXManager;
+#include "DirectXFont.hpp"
+#include "DXTextANSI.h"
+
+
+namespace dxFont {
+	class DirectXFont;
+	struct PointF;
+	struct RectF;
+}
+
 
 
 namespace drawMng {
 
-	static const int TEXTURERES_MAXCET = 256;	// 作成可能なリソース数
-	static const int TEXTURE_MAXCNT = 256;	// 登録可能なテクスチャ数
+	static const int TEXTURERES_MAXCNT = 1024;	// 作成可能なリソース数
+	static const int TEXTURE_MAXCNT = 1024;	// 登録可能なテクスチャ数
 
 	// ブレンドモードを指定する時の列挙体
 	enum class BLENDMODE {
@@ -53,23 +61,54 @@ namespace drawMng {
 		CENTER
 	};
 
-	// テクスチャの種類
-	enum class TexType {
-		EMPTY = 0,	// 空テクスチャ　※図形の描画など
-		IMAGEFILE, // 画像ファイル
-		FONTA, // ASCII文字
-		FONT,	// 文字
-		MOVIE
+
+	struct Size {
+		size_t w;
+		size_t h;
+	};
+
+	struct UVCoord {
+		float left;
+		float top;
+		float w;
+		float h;
+	};
+
+	
+
+
+	// 描画時の設定
+	struct DrawFormat {
+		IDirect3DTexture9 *tex;	// テクスチャへのポインタ
+		struct Pos {
+			float x, y;
+		}pos;			// 描画位置(左上)
+		struct Pos2 {
+			float x, y;
+		}origin;		// 原点
+		Size size;			// テクスチャサイズ
+		UVCoord uv;			// uv座標
+		float rotRad;		// 回転角度(ラジアン)
+		float xscale;		// x方向の倍率
+		float yscale;		// y方向の倍率
+		struct Color {
+			float r;
+			float g;
+			float b;
+			float a;
+		}color;				// 色R,G,B,A(0.0f - 1.0f)
+		BLENDMODE blendMode;	// ブレンドモード
 	};
 
 
 
-	class DXDrawManager {
-		friend class DXManager;
+	class DXDrawManager : public std::enable_shared_from_this<DXDrawManager> {
+		
+		static std::shared_ptr<DXDrawManager> instance;
 
 	private:
-		std::unique_ptr<IDirect3D9>			d3d9;
-		std::unique_ptr<IDirect3DDevice9>	d3ddev9;
+		CComPtr<IDirect3D9>			d3d9;
+		CComPtr<IDirect3DDevice9>	d3ddev9;
 
 		D3DCAPS9									d3dcaps9;
 
@@ -77,72 +116,67 @@ namespace drawMng {
 		// どんな値を設定したか取っておいた方がいいので、メンバ変数とする。
 		D3DPRESENT_PARAMETERS						d3dpresent;
 
-		std::unique_ptr<IDirect3DVertexBuffer9>		vertex;
-		std::unique_ptr<ID3DXEffect>				effect;		// シェーダ
-		std::unique_ptr<IDirect3DVertexDeclaration9>verDecl;	// 頂点宣言
+		CComPtr<IDirect3DVertexBuffer9>		vertex;
+		CComPtr<ID3DXEffect>				effect;		// シェーダ
+		CComPtr<IDirect3DVertexDeclaration9>verDecl;	// 頂点宣言
 
 	private:
-		// テクスチャ関係
-		std::vector<std::unique_ptr<DXTextureManager>> texRes;
-
-		std::unique_ptr<
-
+		// 画像ファイル用のテクスチャ
+		std::vector<std::unique_ptr<TextureFile>> texRes;
+		// 切り抜き情報
+		struct TexClip {
+			bool isValid;
+			size_t resourceID;
+			Size size;
+			UVCoord uv;
+		}texClip[TEXTURE_MAXCNT];
+		
 	private:
+		// 現在の状態を保持する変数
 		BLENDMODE blendMode;
 		bool isDrawStarted;
 		bool isLost;
 		bool isRightHand;
 		unsigned long backGroundColor;
-
-		std::vector<size_t> drawQueue;
 		
-		// 描画時の設定
-		struct DrawFmt {
-			bool isValid;		// 有効か
-			TexType texType;	// テクスチャの種類
-			size_t resouceID;	// 画像ファイルの通し番号
-			struct Pos {
-				float x;
-				float y;
-			}pos;				// 描画位置(左上)
-			struct Size {
-				size_t w;
-				size_t h;
-			} size;				// テクスチャサイズ
-			float uv_left, uv_top;	// 左上のuv座標
-			float uv_w, uv_h;		// 幅高(uv値)
-			float rotRad;		// 回転角度(ラジアン)
-			float xscale;		// x方向の倍率
-			float yscale;		// y方向の倍率
-			struct Color {
-				float r;
-				float g;
-				float b;
-				float a;
-			}color;				// 色R,G,B,A(0.0f - 1.0f)
-			BLENDMODE blendMode;	// ブレンドモード
-		} drawFmt[TEXTURE_MAXCNT];
 
+
+	private:
+		// 描画キュー
+		static std::vector<DrawFormat> drawQueue;
 
 		static LogManager* log;
 
+
 	public:
-		// ---------------------------------------
-		// インスタンス化用の関数
-		// フルスクリーンver.
-		static DXDrawManager* CreateFull(
+		~DXDrawManager();
+	private:
+		// コピー不可
+		DXDrawManager(const DXDrawManager&) = delete;	
+		DXDrawManager& operator=(const DXDrawManager&) = delete;
+		DXDrawManager();
+	protected:
+		
+
+	public:
+		
+
+		static bool CreateFull(
 			HWND hwnd
 			);
 
 		// インスタンス化用の関数
 		// ウィンドウver.
-		static DXDrawManager* CreateWind(
+		static bool CreateWind(
 			HWND hwnd,
 			size_t screenW,
 			size_t screenH
 			);
 
 		
+		static DXDrawManager& GetInstance() { return *(instance.get()); };
+
+
 		// ---------------------------------------
 		// テクスチャの管理などを行う関数
 
@@ -161,14 +195,19 @@ namespace drawMng {
 			size_t w,
 			size_t h
 			);
+	
 
 		// テクスチャの削除
 		bool DelTexture(size_t texID);
 
-
-
 		// ---------------------------------------
-		// テクスチャの描画を行う関数
+		// 描画を行う関数
+
+		// テクスチャを描画
+		bool DrawAll();
+
+		// 前回までの描画をクリア
+		bool ClearBackGround();
 
 		// 描画開始
 		bool DrawBegin();
@@ -176,15 +215,29 @@ namespace drawMng {
 		// 描画終了
 		bool DrawEnd();
 
+
+
 		// 指定番号のテクスチャを描画対象に追加
-		bool DrawTexture(size_t texID, float x, float y, DRAWTEX_COORD coord, float alpha=1.0f);
-		bool DrawTexture(size_t texID, float x, float y, DRAWTEX_COORD coord, float xscale=1.0f, float yscale=1.0f, float alpha=1.0f, int rotDeg=0);
+		bool DrawTexture(
+			size_t texID,
+			float x,
+			float y, 
+			DRAWTEX_COORD coord,
+			float alpha=1.0f
+			);
+		bool DrawTexture(
+			size_t texID,
+			float x,
+			float y, 
+			DRAWTEX_COORD coord,
+			float xscale=1.0f,
+			float yscale=1.0f, 
+			float alpha=1.0f,
+			int rotDeg=0
+			);
+		
 
-		// テクスチャを描画
-		bool DrawAll();
-
-		bool ClearBackGround();
-
+		void AddDrawQueue(DrawFormat fmt) { drawQueue.push_back(fmt); };
 
 		// ---------------------------------------
 		// 描画の設定を行う関数
@@ -206,6 +259,22 @@ namespace drawMng {
 
 
 		// ---------------------------------------
+		// 拡張機能
+
+		// フォントの作成
+		std::unique_ptr<dxFont::DirectXFont> CreateDirectXFont(
+			const wchar_t*	fontName,
+			size_t			fontSize,
+			dxFont::FontWeight	fontWeight = dxFont::FontWeight::NORMAL,
+			bool			isItalic = false,
+			bool			isUnderLine = false,
+			bool			isStrikeOut = false,
+			AntialiasLevel	level = AntialiasLevel::_15STEPS
+			);
+
+
+
+		// ---------------------------------------
 
 		// ログの書き込み先の指定
 		static void SetLogWriteDest(LogManager* dest);
@@ -213,20 +282,14 @@ namespace drawMng {
 
 		// ---------------------------------------
 		// Direct3D9オブジェクトの生ポインタ取得
-		IDirect3D9* _GetDirect3D9() const { return d3d9.get(); }
+		IDirect3D9* _GetDirect3D9() { return d3d9.p; }
 		// Direct3DDevice9オブジェクトの生ポインタ取得
-		IDirect3DDevice9* _GetDirect3DDev9() const { return d3ddev9.get(); }
-		
-
+		IDirect3DDevice9* _GetDirect3DDev9() const { return d3ddev9.p; }
 		
 
 	private:
-		DXDrawManager(const DXDrawManager&) = delete;	// コピー不可
-		DXDrawManager& operator=(const DXDrawManager&) = delete; // 代入不可
-		DXDrawManager();
-		~DXDrawManager();
 		
-
+	
 		bool Create(
 			HWND hwnd,
 			bool isfull,
@@ -241,24 +304,5 @@ namespace drawMng {
 
 	};
 
-
 }
 
-
-class DXManager {
-private:
-	static drawMng::DXDrawManager* inst;
-
-public:
-	DXManager();
-	~DXManager();
-
-
-	bool createWindow(HWND hwnd, size_t screenW, size_t screenH);
-	bool createFull(HWND hwnd);
-
-	drawMng::DXDrawManager* getInst() { return inst; }
-
-	// 明示的に削除
-	void destroy();
-};

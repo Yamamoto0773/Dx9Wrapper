@@ -145,31 +145,31 @@ BOOL DXTextANSI::Create(int fontSize, int fontWeight, WCHAR * fontName, bool ita
 
 
 		// 文字情報を保存
-		mCharData[i].iWidth			= (gm.gmBlackBoxX + 3) / 4 * 4;
-		mCharData[i].iHeight		= gm.gmBlackBoxY;
-		mCharData[i].iAreaWidth		= gm.gmCellIncX;
-		mCharData[i].iAreaHeight	= tm.tmHeight;
-		mCharData[i].iOriginX		= gm.gmptGlyphOrigin.x;
-		mCharData[i].iOriginY		= gm.gmptGlyphOrigin.y-tm.tmAscent;		// 左上原点
+		mCharData[i].sizeW			= (gm.gmBlackBoxX + 3) / 4 * 4;
+		mCharData[i].sizeH		= gm.gmBlackBoxY;
+		mCharData[i].AreaW		= gm.gmCellIncX;
+		mCharData[i].AreaH	= tm.tmHeight;
+		mCharData[i].originX		= gm.gmptGlyphOrigin.x;
+		mCharData[i].originY		= gm.gmptGlyphOrigin.y-tm.tmAscent;		// 左上原点
 
 
 		// テクスチャ生成
-		lpDev->CreateTexture(mCharData[i].iWidth, mCharData[i].iHeight, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &lpFontTex[i], NULL);
+		lpDev->CreateTexture(mCharData[i].sizeW, mCharData[i].sizeH, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &lpFontTex[i], NULL);
 
 		// テクスチャにフォントビットマップを書き込み
 		D3DLOCKED_RECT lockedRect;
 		lpFontTex[i]->LockRect(0, &lockedRect, NULL, 0);  // ロック
 		DWORD *texBuf = (DWORD*)lockedRect.pBits;   // テクスチャメモリへのポインタ
 
-		for (int y = 0; y < mCharData[i].iHeight; y++) {
-			for (int x = 0; x < mCharData[i].iWidth; x++) {
+		for (int y = 0; y < mCharData[i].sizeH; y++) {
+			for (int x = 0; x < mCharData[i].sizeW; x++) {
 				DWORD alpha;
 				if (code == ' ')	// スペースの場合は何も描画しない
 					alpha = 0;
 				else
-					alpha = pMono[y * mCharData[i].iWidth + x] * 255 / 16;	// 16階調を256階調に変換
+					alpha = pMono[y * mCharData[i].sizeW + x] * 255 / 16;	// 16階調を256階調に変換
 
-				texBuf[y * mCharData[i].iWidth + x] = (alpha << 24) & 0xff000000;
+				texBuf[y * mCharData[i].sizeW + x] = (alpha << 24) & 0xff000000;
 			}
 		}
 
@@ -276,7 +276,7 @@ int DXTextANSI::CalcTextPosition(RECT * rect, float inScale, int charInterval, D
 
 	while (lineHead < strlen(s)) {
 		float lineLen = 0.0f;
-		float lineHeight = mCharData[0].iAreaHeight*inScale;
+		float lineHeight = mCharData[0].AreaH*inScale;
 
 		// 縦方向にはみ出したら
 		if (offsetY + lineHeight > rectY) {
@@ -302,13 +302,13 @@ int DXTextANSI::CalcTextPosition(RECT * rect, float inScale, int charInterval, D
 			}
 
 			// 横方向にはみ出したら
-			if (lineLen + mCharData[code-0x20].iAreaWidth*inScale > rectX) {
+			if (lineLen + mCharData[code-0x20].AreaW*inScale > rectX) {
 				if ((format&0x0F) != TEXTALIGN_NONE && (format&0xF0) == TEXTSCALE_NONE) {
 					break;
 				}
 			}
 
-			lineLen += mCharData[code-0x20].iAreaWidth*inScale + charInterval;
+			lineLen += mCharData[code-0x20].AreaW*inScale + charInterval;
 			canPut = true;
 		}
 
@@ -368,7 +368,7 @@ int DXTextANSI::CalcTextPosition(RECT * rect, float inScale, int charInterval, D
 			pt[charCnt].x = rect->left + (int)offsetX;
 			pt[charCnt].y = rect->top + (int)offsetY;
 
-			offsetX += (mCharData[code-0x20].iAreaWidth*inScale + charInterval)*(*outScale);
+			offsetX += (mCharData[code-0x20].AreaW*inScale + charInterval)*(*outScale);
 		}
 
 
@@ -508,8 +508,8 @@ int DXTextANSI::DrawTEXT(RECT * rect, int fontSize, int charInterval, DWORD form
 
 
 		// ワールドビュー射影変換行列を作成
-		D3DXMatrixScaling(&localScale, (float)mCharData[code-0x20].iWidth*scaleX, (float)mCharData[code-0x20].iHeight*scaleY, 1.0f);				// ポリゴンを文字の大きさにする
-		D3DXMatrixTranslation(&localOffset, (float)mCharData[code-0x20].iOriginX*scaleX, (float)mCharData[code-0x20].iOriginY*scaleY, 0.0f);		// ポリゴンを文字の原点に移動
+		D3DXMatrixScaling(&localScale, (float)mCharData[code-0x20].sizeW*scaleX, (float)mCharData[code-0x20].sizeH*scaleY, 1.0f);				// ポリゴンを文字の大きさにする
+		D3DXMatrixTranslation(&localOffset, (float)mCharData[code-0x20].originX*scaleX, (float)mCharData[code-0x20].originY*scaleY, 0.0f);		// ポリゴンを文字の原点に移動
 		D3DXMATRIX localMat = localScale*localOffset;
 		D3DXMatrixTranslation(&worldOffset, (float)pt[i].x -0.5f, (float)pt[i].y +0.5f, 0.0f);
 		world = localMat * worldOffset;

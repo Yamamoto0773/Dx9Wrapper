@@ -8,31 +8,45 @@
 #define Failed (0)
 
 #define WRITELOG(x) { if (log != nullptr) { log->tlnwrite(x); } }
+#define SAFE_RELEASE(x) { if (x != nullptr) {x->Release(); } }
 
 namespace drawMng {
 
 	LogManager* DXDrawManager::log;
+	std::vector<DrawFormat> DXDrawManager::drawQueue;
+	std::shared_ptr<DXDrawManager> DXDrawManager::instance;
 
-	DXDrawManager* DXDrawManager::CreateFull(HWND hwnd) {
-		DXDrawManager *ptr = new DXDrawManager();
 
-		if (ptr->Create(hwnd, true, 0, 0) == Failed) {
-			delete ptr;
-			ptr = nullptr;
-		}
+	DXDrawManager::DXDrawManager() {
+		Delete();
+	}
 
-		return ptr;
+	DXDrawManager::~DXDrawManager() {
+		Delete();
 	}
 
 
-	DXDrawManager* DXDrawManager::CreateWind(HWND hwnd, size_t screenW, size_t screenH) {
-		DXDrawManager *ptr = new DXDrawManager();
-		if (ptr->Create(hwnd, false, screenW, screenH) == Failed) {
-			delete ptr;
-			ptr = nullptr;
+	bool DXDrawManager::CreateFull(HWND hwnd) {
+		instance.reset(new DXDrawManager());
+
+		if (instance->Create(hwnd, true, 0, 0) == Failed) {
+			instance.reset();
+			return false;
 		}
 
-		return ptr;
+		return true;
+	}
+
+
+	bool DXDrawManager::CreateWind(HWND hwnd, size_t screenW, size_t screenH) {
+		instance.reset(new DXDrawManager());
+
+		if (instance->Create(hwnd, false, screenW, screenH) == Failed) {
+			instance.reset();
+			return false;
+		}
+
+		return true;
 	}
 
 	bool DXDrawManager::AddTexture(size_t texID, const std::string& fileName) {
@@ -48,35 +62,26 @@ namespace drawMng {
 
 		if (resID == -1) {
 			// テクスチャ生成
-			if (texRes.size() >= TEXTURERES_MAXCET) {
+			if (texRes.size() >= TEXTURERES_MAXCNT) {
 				return false;
 			}
 
 			// 追加
-			texRes.push_back( std::make_unique<DXTextureManager>() );
-			if (!texRes.back()->Create(d3ddev9.get(), fileName)) {
+			texRes.push_back(std::make_unique<TextureFile>());
+			if (!texRes.back()->Create(d3ddev9, fileName)) {
 				return false;
 			}
+			texRes.back()->SetName(fileName);
 
 			resID = texRes.size()-1;
 		}
 
 		// 描画情報を保存
-		drawFmt[texID].isValid	= true;
-		drawFmt[texID].resouceID= resID;
-		drawFmt[texID].pos.x	= 0.0f;
-		drawFmt[texID].pos.y	= 0.0f;
-		drawFmt[texID].size.w	= texRes[resID]->GetWidth();
-		drawFmt[texID].size.h	= texRes[resID]->GetHeight();
-		drawFmt[texID].uv_left	= 0.0f;
-		drawFmt[texID].uv_top	= 0.0f;
-		drawFmt[texID].uv_w		= 1.0f;
-		drawFmt[texID].uv_h		= 1.0f;
-		drawFmt[texID].rotRad	= 0.0f;
-		drawFmt[texID].xscale	= 1.0f;
-		drawFmt[texID].yscale	= 1.0f;
-		drawFmt[texID].color	= {0.0f, 0.0f, 0.0f, 1.0f};
-		drawFmt[texID].blendMode=blendMode;
+		texClip[texID].isValid	= true;
+		texClip[texID].resourceID = resID;
+		texClip[texID].size.w	= texRes[resID]->GetWidth();
+		texClip[texID].size.h	= texRes[resID]->GetHeight();
+		texClip[texID].uv		= {0.0f, 0.0f, 1.0f, 1.0f};
 
 
 		return true;
@@ -95,15 +100,16 @@ namespace drawMng {
 
 		if (resID == -1) {
 			// テクスチャ生成
-			if (texRes.size() >= TEXTURERES_MAXCET) {
+			if (texRes.size() >= TEXTURERES_MAXCNT) {
 				return false;
 			}
 
 			// 追加
-			texRes.push_back( std::make_unique<DXTextureManager>() );
-			if (!texRes.back()->Create(d3ddev9.get(), fileName)) {
+			texRes.push_back(std::make_unique<TextureFile>());
+			if (!texRes.back()->Create(d3ddev9, fileName)) {
 				return false;
 			}
+			texRes.back()->SetName(fileName);
 
 			resID = texRes.size()-1;
 		}
@@ -112,34 +118,39 @@ namespace drawMng {
 		int texW = texRes[resID]->GetWidth();
 		int texH = texRes[resID]->GetHeight();
 
-		drawFmt[texID].isValid	= true;
-		drawFmt[texID].resouceID= resID;
-		drawFmt[texID].pos.x	= 0.0f;
-		drawFmt[texID].pos.y	= 0.0f;
-		drawFmt[texID].size.w	= w;
-		drawFmt[texID].size.h	= h;
-		drawFmt[texID].uv_left	= (float)x/texW;
-		drawFmt[texID].uv_top	= (float)y/texH;
-		drawFmt[texID].uv_w		= (float)w/texW;
-		drawFmt[texID].uv_h		= (float)h/texH;
-		drawFmt[texID].rotRad	= 0.0f;
-		drawFmt[texID].xscale	= 1.0f;
-		drawFmt[texID].yscale	= 1.0f;
-		drawFmt[texID].color	= {0.0f, 0.0f, 0.0f, 1.0f};
-		drawFmt[texID].blendMode=blendMode;
+		texClip[texID].isValid	= true;
+		texClip[texID].resourceID = resID;
+		texClip[texID].size.w	= w;
+		texClip[texID].size.h	= h;
+		texClip[texID].uv.left	= (float)x/texW;
+		texClip[texID].uv.top	= (float)y/texH;
+		texClip[texID].uv.w		= (float)w/texW;
+		texClip[texID].uv.h		= (float)h/texH;
 
 		return true;
 	}
 
+
+	std::unique_ptr<dxFont::DirectXFont> DXDrawManager::CreateDirectXFont(const wchar_t * fontName, size_t fontSize, dxFont::FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
+		using namespace dxFont;
+
+		std::unique_ptr<DirectXFont> uptr;
+		uptr = DirectXFont::Create(shared_from_this(), fontName, fontSize, fontWeight, isItalic, isUnderLine, isStrikeOut, level);
+
+		return std::move(uptr);
+	}
+
+	
 	bool DXDrawManager::DelTexture(size_t texID) {
 		if (texID < 0 || texID >= TEXTURE_MAXCNT) {
 			return false;
 		}
 
-		ZeroMemory(&drawFmt[texID], sizeof(DrawFmt));
+		ZeroMemory(&texClip[texID], sizeof(DrawFormat));
 
 		return true;
 	}
+
 
 	bool DXDrawManager::DrawBegin() {
 		if (!d3ddev9) {
@@ -190,46 +201,55 @@ namespace drawMng {
 		if (texID < 0 || texID >= TEXTURE_MAXCNT) {
 			return false;
 		}
-		if (!drawFmt[texID].isValid) {
+		if (!texClip[texID].isValid) {
 			return false;
 		}
 
 		rotDeg%=360;
 
-		drawFmt[texID].rotRad	= (float)(rotDeg*M_PI/180.0f);
-		drawFmt[texID].xscale	= xscale;
-		drawFmt[texID].yscale	= yscale;
-		drawFmt[texID].color	= {0.0f, 0.0f, 0.0f, alpha};
-		drawFmt[texID].blendMode=blendMode;
-			
-	
+		DrawFormat fmt;
+
+		fmt.origin.x = texClip[texID].size.w/2.0f;
+		fmt.origin.y  = texClip[texID].size.h/2.0f;
+
+		fmt.tex = texRes.at(texClip[texID].resourceID)->GetPointer();
+		fmt.size = texClip[texID].size;
+		fmt.uv = texClip[texID].uv;
+
+		fmt.rotRad	= (float)(rotDeg*M_PI/180.0f);
+		fmt.xscale	= xscale;
+		fmt.yscale	= yscale;
+		fmt.color	= {0.0f, 0.0f, 0.0f, alpha};
+		fmt.blendMode=blendMode;
+
+
 		// 描画位置の登録
 		switch (coord) {
 			case DRAWTEX_COORD::TOP_L:
-				drawFmt[texID].pos.x	= x + drawFmt[texID].size.w*(xscale-1.0f)/2.0f;
-				drawFmt[texID].pos.y	= y + drawFmt[texID].size.h*(yscale-1.0f)/2.0f;
+				fmt.pos.x	= x + texClip[texID].size.w*(xscale-1.0f)/2.0f;
+				fmt.pos.y	= y + texClip[texID].size.h*(yscale-1.0f)/2.0f;
 				break;
 			case DRAWTEX_COORD::TOP_R:
-				drawFmt[texID].pos.x	= x - drawFmt[texID].size.w*(xscale+1.0f)/2.0f;
-				drawFmt[texID].pos.y	= y + drawFmt[texID].size.h*(yscale-1.0f)/2.0f;
+				fmt.pos.x	= x - texClip[texID].size.w*(xscale+1.0f)/2.0f;
+				fmt.pos.y	= y + texClip[texID].size.h*(yscale-1.0f)/2.0f;
 				break;
 			case DRAWTEX_COORD::BOTTOM_R:
-				drawFmt[texID].pos.x	= x - drawFmt[texID].size.w*(xscale+1.0f)/2.0f;
-				drawFmt[texID].pos.y	= y - drawFmt[texID].size.h*(yscale+1.0f)/2.0f;
+				fmt.pos.x	= x - texClip[texID].size.w*(xscale+1.0f)/2.0f;
+				fmt.pos.y	= y - texClip[texID].size.h*(yscale+1.0f)/2.0f;
 				break;
 			case DRAWTEX_COORD::BOTTOM_L:
-				drawFmt[texID].pos.x	= x + drawFmt[texID].size.w*(xscale-1.0f)/2.0f;
-				drawFmt[texID].pos.y	= y - drawFmt[texID].size.h*(yscale+1.0f)/2.0f;
+				fmt.pos.x	= x + texClip[texID].size.w*(xscale-1.0f)/2.0f;
+				fmt.pos.y	= y - texClip[texID].size.h*(yscale+1.0f)/2.0f;
 				break;
 			case DRAWTEX_COORD::CENTER:
-				drawFmt[texID].pos.x	= x - drawFmt[texID].size.w/2.0f;
-				drawFmt[texID].pos.y	= y - drawFmt[texID].size.h/2.0f;
+				fmt.pos.x	= x - texClip[texID].size.w/2.0f;
+				fmt.pos.y	= y - texClip[texID].size.h/2.0f;
 				break;
 			default:
 				break;
 		}
 
-		drawQueue.push_back(texID);
+		drawQueue.push_back(fmt);
 
 		return true;
 	}
@@ -254,7 +274,7 @@ namespace drawMng {
 			return false;
 		}
 
-	
+
 		// デフォルトステートのセット
 		d3ddev9->SetRenderState(D3DRS_LIGHTING, FALSE);							// ライティング無効
 		if (isRightHand)
@@ -273,9 +293,9 @@ namespace drawMng {
 		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 
 		// 板ポリゴンを登録
-		d3ddev9->SetStreamSource(0, vertex.get(), 0, sizeof(float)*5);
+		d3ddev9->SetStreamSource(0, vertex, 0, sizeof(float)*5);
 		// 頂点宣言を登録
-		d3ddev9->SetVertexDeclaration(verDecl.get());
+		d3ddev9->SetVertexDeclaration(verDecl);
 
 		// 2D描画用射影変換行列
 		D3DXMATRIX proj;
@@ -291,54 +311,53 @@ namespace drawMng {
 
 		// 描画リストのテクスチャを一気に描画する
 		float colorRGBA[4];
-		for (size_t que : drawQueue) {
-			if (drawFmt[que].isValid) {
+		for (DrawFormat fmt : drawQueue) {
 
-				// ブレンドモードを設定
-				switch ( drawFmt[que].blendMode ) {
-					case BLENDMODE::NORMAL:
-						d3ddev9->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-						d3ddev9->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-						break;
-					case BLENDMODE::ADD:
-						d3ddev9->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-						d3ddev9->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-						break;
-				}
-
-
-
-				colorRGBA[0] = drawFmt[que].color.r;
-				colorRGBA[1] = drawFmt[que].color.g;
-				colorRGBA[2] = drawFmt[que].color.b;
-				colorRGBA[3] = drawFmt[que].color.a;
-
-
-				proj._11 =  2.0f / d3dpresent.BackBufferWidth;
-				proj._22 = -2.0f / d3dpresent.BackBufferHeight;
-
-
-				D3DXMATRIX world, scale, rot;
-				D3DXMatrixScaling(&world, (float)drawFmt[que].size.w, (float)drawFmt[que].size.h, 1.0f);	// ポリゴンサイズに
-				D3DXMatrixScaling(&scale, drawFmt[que].xscale, drawFmt[que].yscale, 1.0f);	// ローカルスケール
-				D3DXMatrixRotationZ(&rot, drawFmt[que].rotRad);						// 回転
-				world._41 = -(float)(drawFmt[que].size.w/2.0f);		// ピボット分オフセット
-				world._42 = -(float)(drawFmt[que].size.h/2.0f);
-				world = world * scale * rot;
-				world._41 += drawFmt[que].pos.x + drawFmt[que].size.w/2.0f;	// ピボット分オフセット
-				world._42 += drawFmt[que].pos.y + drawFmt[que].size.h/2.0f;
-
-				effect->SetMatrix("world", &world);
-				effect->SetMatrix("proj", &proj);
-				effect->SetTexture("tex", texRes[drawFmt[que].resouceID]->GetPointer());
-				effect->SetFloat("uv_left", drawFmt[que].uv_left);
-				effect->SetFloat("uv_top", drawFmt[que].uv_top);
-				effect->SetFloat("uv_width", drawFmt[que].uv_w);
-				effect->SetFloat("uv_height", drawFmt[que].uv_h);
-				effect->SetFloatArray("color", colorRGBA, 4);
-				effect->CommitChanges();
-				d3ddev9->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+			// ブレンドモードを設定
+			switch (fmt.blendMode) {
+				case BLENDMODE::NORMAL:
+					d3ddev9->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+					d3ddev9->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+					break;
+				case BLENDMODE::ADD:
+					d3ddev9->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+					d3ddev9->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+					break;
 			}
+
+
+
+			colorRGBA[0] = fmt.color.r;
+			colorRGBA[1] = fmt.color.g;
+			colorRGBA[2] = fmt.color.b;
+			colorRGBA[3] = fmt.color.a;
+
+
+			proj._11 =  2.0f / d3dpresent.BackBufferWidth;
+			proj._22 = -2.0f / d3dpresent.BackBufferHeight;
+
+
+			D3DXMATRIX world, scale, rot;
+			D3DXMatrixScaling(&world, (float)fmt.size.w, (float)fmt.size.h, 1.0f);	// ポリゴンサイズに
+			D3DXMatrixScaling(&scale, fmt.xscale, fmt.yscale, 1.0f);	// ローカルスケール
+			D3DXMatrixRotationZ(&rot, fmt.rotRad);						// 回転
+			world._41 = -fmt.origin.x;		// ピボット分オフセット
+			world._42 = -fmt.origin.y;
+			world = world * scale * rot;
+			world._41 += fmt.pos.x-0.5f + fmt.origin.x;	// ピボット分オフセット
+			world._42 += fmt.pos.y+0.5f + fmt.origin.y;
+
+			effect->SetMatrix("world", &world);
+			effect->SetMatrix("proj", &proj);
+			effect->SetTexture("tex", fmt.tex);
+			effect->SetFloat("uv_left", fmt.uv.left);
+			effect->SetFloat("uv_top", fmt.uv.top);
+			effect->SetFloat("uv_width", fmt.uv.w);
+			effect->SetFloat("uv_height", fmt.uv.h);
+			effect->SetFloatArray("color", colorRGBA, 4);
+			effect->CommitChanges();
+			d3ddev9->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
 		}
 
 		effect->EndPass();
@@ -349,6 +368,8 @@ namespace drawMng {
 
 		return true;
 	}
+
+
 
 	bool DXDrawManager::ClearBackGround() {
 		if (!d3ddev9) {
@@ -414,13 +435,7 @@ namespace drawMng {
 	}
 
 
-	DXDrawManager::DXDrawManager() {
-		Delete();
-	}
-
-	DXDrawManager::~DXDrawManager() {
-		Delete();
-	}
+	
 
 	bool DXDrawManager::Create(HWND hwnd, bool isfull, size_t w, size_t h) {
 		Delete();
@@ -430,7 +445,7 @@ namespace drawMng {
 
 
 		// Direct3D9オブジェクトの取得
-		d3d9.reset(Direct3DCreate9(D3D_SDK_VERSION));
+		d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
 		if (d3d9 == nullptr) {
 			WRITELOG("Failed to Create D3D9 Object");
 			return false;
@@ -511,7 +526,7 @@ namespace drawMng {
 			IDirect3DDevice9 *ptr;
 			ret = d3d9->CreateDevice(D3DADAPTER_DEFAULT, devtype, hwnd, behaviorFlags, &d3dpresent, &ptr);
 			if (SUCCEEDED(ret)) {
-				d3ddev9.reset(ptr);
+				d3ddev9.Attach(ptr);
 
 				switch (i) {
 					case 0: WRITELOG("Succeeded to Create D3DDevice9 (DeviceType:GPU VertexProcessing:Hardware)"); break;
@@ -531,7 +546,7 @@ namespace drawMng {
 
 
 		// 板ポリゴン作成
-		float vtx[] ={
+		float vtx[] = {
 			0.0f, 0.0f, 0.0f,   0.0f, 0.0f,  // 0
 			1.0f, 0.0f, 0.0f,   1.0f, 0.0f,  // 1
 			0.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // 2
@@ -549,7 +564,7 @@ namespace drawMng {
 			memcpy(p, vtx, sizeof(vtx));
 			ptr->Unlock();
 
-			vertex.reset(ptr);
+			vertex.Attach(ptr);
 		}
 
 
@@ -557,18 +572,18 @@ namespace drawMng {
 		{
 			ID3DXBuffer *error = nullptr;
 			ID3DXEffect *ptr = nullptr;
-			if (FAILED(D3DXCreateEffectFromFile(d3ddev9.get(), L"sprite2.fx", 0, 0, 0, 0, &ptr, &error))) {
+			if (FAILED(D3DXCreateEffectFromFile(d3ddev9, L"sprite2.fx", 0, 0, 0, 0, &ptr, &error))) {
 				OutputDebugStringA((const char*)error->GetBufferPointer());
 				return false;
 			}
 
-			effect.reset(ptr);
+			effect.Attach(ptr);
 		}
 
 		// 頂点宣言作成
 		{
 			IDirect3DVertexDeclaration9 *ptr;
-			D3DVERTEXELEMENT9 elems[] ={
+			D3DVERTEXELEMENT9 elems[] = {
 				{0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
 				{0, sizeof(float) * 3, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
 				D3DDECL_END()
@@ -578,7 +593,7 @@ namespace drawMng {
 				WRITELOG("failed to create \"Bertex Declaration9\"");
 				return false;
 			}
-			verDecl.reset(ptr);
+			verDecl.Attach(ptr);
 		}
 
 
@@ -592,6 +607,9 @@ namespace drawMng {
 		d3ddev9->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 		d3ddev9->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 
+		d3ddev9->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);			// テクスチャがはみ出た時に表示しないにする
+		d3ddev9->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+
 		d3ddev9->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
 		d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 		d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
@@ -604,12 +622,18 @@ namespace drawMng {
 	}
 
 	void DXDrawManager::Delete() {
-		d3d9.reset();
-		d3ddev9.reset();
-		vertex.reset();
-		effect.reset();
-		verDecl.reset();
+		// 生成した順番と逆順に解放
 
+		//SAFE_RELEASE(verDecl);
+		////verDecl.reset();
+		//SAFE_RELEASE(effect);
+		////effect.reset();
+		//SAFE_RELEASE(vertex);
+		////vertex.reset();
+		//SAFE_RELEASE(d3ddev9);
+		////d3ddev9.reset();
+		//SAFE_RELEASE(d3d9);
+		////d3d9.reset();
 	}
 
 	void DXDrawManager::Clear() {
@@ -621,6 +645,7 @@ namespace drawMng {
 
 		texRes.clear();
 		drawQueue.clear();
+		ZeroMemory(texClip, sizeof(texClip));
 		ZeroMemory(&d3dcaps9, sizeof(d3dcaps9));
 		ZeroMemory(&d3dpresent, sizeof(d3dpresent));
 
@@ -629,7 +654,7 @@ namespace drawMng {
 
 	int DXDrawManager::GetTexResourceID(const std::string& fileName) {
 		for (size_t i=0; i<texRes.size(); i++) {
-			if (texRes[i]->GetFileName() == fileName) {
+			if (texRes[i]->GetName() == fileName) {
 				return i;
 			}
 		}
@@ -638,46 +663,5 @@ namespace drawMng {
 	}
 
 
-
 }
 
-
-
-drawMng::DXDrawManager* DXManager::inst;
-
-DXManager::DXManager() {
-	inst = nullptr;
-}
-
-DXManager::~DXManager() {
-}
-
-bool DXManager::createWindow(HWND hwnd, size_t screenW, size_t screenH) {
-	if (inst != nullptr) {
-		return false;
-	}
-
-	inst = drawMng::DXDrawManager::CreateWind(hwnd, screenW, screenH);
-	if (inst == nullptr) {
-		return false;
-	}
-
-	return true;
-}
-
-bool DXManager::createFull(HWND hwnd) {
-	if (inst != nullptr) {
-		return false;
-	}
-
-	inst = drawMng::DXDrawManager::CreateFull(hwnd);
-	if (inst == nullptr) {
-		return false;
-	}
-
-	return true;
-}
-
-void DXManager::destroy() {
-	delete inst;
-}

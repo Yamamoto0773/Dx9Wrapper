@@ -22,7 +22,7 @@ protected:
 	virtual void writeLog(bool isTimeStamp, bool isLF, const char *msg, va_list list) = 0;
 
 	LogManager();
-	~LogManager();
+	virtual ~LogManager();
 
 public:
 	// ログをクリア
@@ -66,7 +66,7 @@ public:
 
 class LogFile : public LogManager {
 private:
-	std::string fileName;
+	std::string name;
 	
 	void writeLog(bool isTimeStamp, bool isLF, const char *msg, va_list list) override;
 	
@@ -74,7 +74,7 @@ public:
 	LogFile();
 	~LogFile();
 
-	bool init(const char *fileName);
+	bool init(const char *name);
 
 	// ログをクリア
 	bool clear() override;

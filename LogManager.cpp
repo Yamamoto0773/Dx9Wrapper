@@ -107,24 +107,24 @@ LogFile::LogFile() {
 }
 
 LogFile::~LogFile() {
-	fileName.clear();
+	name.clear();
 }
 
 
-bool LogFile::init(const char *fileName) {
-	if (fileName == nullptr) {
+bool LogFile::init(const char *name) {
+	if (name == nullptr) {
 		return false;
 	}
 
 	std::ofstream logFile;
 
-	logFile.open(fileName, std::ios_base::trunc);
+	logFile.open(name, std::ios_base::trunc);
 	if (!logFile) {
 		return false;
 	}
 
 	// ファイル名を保存
-	this->fileName = fileName;
+	this->name = name;
 
 	tlnwrite("LOG CLEAR");
 
@@ -135,13 +135,13 @@ bool LogFile::init(const char *fileName) {
 
 
 bool LogFile::clear() {
-	if (fileName.empty()) {
+	if (name.empty()) {
 		return true;
 	}
 
 	// ファイル開き直し
 	std::ofstream logFile;
-	logFile.open(fileName, std::ios_base::trunc);
+	logFile.open(name, std::ios_base::trunc);
 	if (!logFile) {
 		return false;
 	}
@@ -158,7 +158,7 @@ void LogFile::writeLog(bool isTimeStamp, bool isLF, const char * msg, va_list li
 	char str[256];
 	std::ofstream logFile;
 
-	logFile.open(fileName, std::ios_base::app);
+	logFile.open(name, std::ios_base::app);
 
 	// 可変長引数を文字列に変換
 	vsnprintf(str, 256, msg, list);
