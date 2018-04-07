@@ -193,7 +193,7 @@ namespace dx9 {
 		TexClip clipInfo = texRes[texID]->GetClipInfo();
 
 		D3DXMATRIX world, scale, rot;
-		D3DXMatrixScaling(&world, (float)clipInfo.size.w, (float)clipInfo.size.h, 1.0f);	// ポリゴンサイズに
+		D3DXMatrixScaling(&world, (float)clipInfo.size.w, (float)clipInfo.size.h, GetTopLayerPos()/10.0f);	// ポリゴンサイズに
 		D3DXMatrixScaling(&scale, xscale, yscale, 1.0f);	// ローカルスケール
 		D3DXMatrixRotationZ(&rot, rotRad);						// 回転
 		world._41 = -(clipInfo.size.w/2.0f);		// ピボット分オフセット
@@ -215,6 +215,9 @@ namespace dx9 {
 
 		effect->EndPass();
 		effect->End();
+
+
+		ChangeLayer();
 
 
 		return true;

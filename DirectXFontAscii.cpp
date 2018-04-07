@@ -278,6 +278,7 @@ namespace dx9 {
 		proj._11 =  2.0f / d3dpresent.BackBufferWidth;
 		proj._22 = -2.0f / d3dpresent.BackBufferHeight;
 
+
 		// シェーダ開始
 		UINT numPass = 0;
 		effect->SetTechnique("Tech");
@@ -299,7 +300,7 @@ namespace dx9 {
 			};
 
 			D3DXMATRIX world, scale, rot;
-			D3DXMatrixScaling(&world, (float)texRes[subscr]->GetWidth(), texRes[subscr]->GetHeight(), 1.0f);	// ポリゴンサイズに
+			D3DXMatrixScaling(&world, (float)texRes[subscr]->GetWidth(), texRes[subscr]->GetHeight(), GetTopLayerPos()/10.0f);	// ポリゴンサイズに
 			D3DXMatrixScaling(&scale, scaleX, scaleY, 1.0f);	// ローカルスケール
 			D3DXMatrixRotationZ(&rot, rotateRad);						// 回転
 			world._41 = -origin.x;		// ピボット分オフセット
@@ -324,6 +325,8 @@ namespace dx9 {
 		effect->EndPass();
 		effect->End();
 
+
+		ChangeLayer();
 
 		return true;
 	}
