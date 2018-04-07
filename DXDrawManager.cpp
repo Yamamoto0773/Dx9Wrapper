@@ -3,154 +3,73 @@
 #define _USE_MATH_DEFINES
 #include <math.h>  
 
-
-#define Successful (1)
-#define Failed (0)
-
 #define WRITELOG(x) { if (log != nullptr) { log->tlnwrite(x); } }
-#define SAFE_RELEASE(x) { if (x != nullptr) {x->Release(); } }
 
-namespace drawMng {
+
+namespace dx9 {
+
+	bool DXDrawManager::isResCreated = false; 
 
 	LogManager* DXDrawManager::log;
-	std::vector<DrawFormat> DXDrawManager::drawQueue;
-	std::shared_ptr<DXDrawManager> DXDrawManager::instance;
 
+	CComPtr<IDirect3D9>			DXDrawManager::d3d9;
+	CComPtr<IDirect3DDevice9>	DXDrawManager::d3ddev9;
+
+	D3DCAPS9					DXDrawManager::d3dcaps9;
+
+	// DirectXを初期化する時に使う構造体
+	// どんな値を設定したか取っておいた方がいいので、メンバ変数とする。
+	D3DPRESENT_PARAMETERS				DXDrawManager::d3dpresent;
+
+	CComPtr<IDirect3DVertexBuffer9>		DXDrawManager::vertex;
+	CComPtr<ID3DXEffect>				DXDrawManager::effect;		// シェーダ
+	CComPtr<IDirect3DVertexDeclaration9>DXDrawManager::verDecl;	// 頂点宣言
+
+	BLENDMODE DXDrawManager::blendMode = BLENDMODE::NORMAL;
+	bool DXDrawManager::isDrawStarted = false;
+	bool DXDrawManager::isLost = false;
+	bool DXDrawManager::isRightHand = false;
+	unsigned long DXDrawManager::backGroundColor = 0xffffff;
+	size_t DXDrawManager::topLayerPos = 0;
+	
 
 	DXDrawManager::DXDrawManager() {
-		Delete();
+		
 	}
 
 	DXDrawManager::~DXDrawManager() {
-		Delete();
+		
 	}
 
 
-	bool DXDrawManager::CreateFull(HWND hwnd) {
-		instance.reset(new DXDrawManager());
-
-		if (instance->Create(hwnd, true, 0, 0) == Failed) {
-			instance.reset();
-			return false;
+	bool DXDrawManager::CreateFull(HWND hwnd, bool isRightHand) {
+		if (!isResCreated) {
+			if (!Create(hwnd, true, 0, 0, isRightHand)) {
+				Clear();
+				Delete();
+				return false;
+			}
+			isResCreated = true;
 		}
 
 		return true;
 	}
 
 
-	bool DXDrawManager::CreateWind(HWND hwnd, size_t screenW, size_t screenH) {
-		instance.reset(new DXDrawManager());
-
-		if (instance->Create(hwnd, false, screenW, screenH) == Failed) {
-			instance.reset();
-			return false;
+	bool DXDrawManager::CreateWind(HWND hwnd, size_t screenW, size_t screenH, bool isRightHand) {
+		if (!isResCreated) {
+			if (!Create(hwnd, false, screenW, screenH, isRightHand)) {
+				Clear();
+				Delete();
+				return false;
+			}
+			isResCreated = true;
 		}
 
 		return true;
-	}
-
-	bool DXDrawManager::AddTexture(size_t texID, const std::string& fileName) {
-		if (texID < 0 || texID >= TEXTURE_MAXCNT) {
-			return false;
-		}
-		if (!d3ddev9) {
-			return false;
-		}
-
-		// 既に生成された画像ファイルであるかチェック
-		int resID = GetTexResourceID(fileName);
-
-		if (resID == -1) {
-			// テクスチャ生成
-			if (texRes.size() >= TEXTURERES_MAXCNT) {
-				return false;
-			}
-
-			// 追加
-			texRes.push_back(std::make_unique<TextureFile>());
-			if (!texRes.back()->Create(d3ddev9, fileName)) {
-				return false;
-			}
-			texRes.back()->SetName(fileName);
-
-			resID = texRes.size()-1;
-		}
-
-		// 描画情報を保存
-		texClip[texID].isValid	= true;
-		texClip[texID].resourceID = resID;
-		texClip[texID].size.w	= texRes[resID]->GetWidth();
-		texClip[texID].size.h	= texRes[resID]->GetHeight();
-		texClip[texID].uv		= {0.0f, 0.0f, 1.0f, 1.0f};
-
-
-		return true;
-	}
-
-	bool DXDrawManager::AddTexture(size_t texID, const std::string& fileName, size_t x, size_t y, size_t w, size_t h) {
-		if (texID < 0 || texID >= TEXTURE_MAXCNT) {
-			return false;
-		}
-		if (!d3ddev9) {
-			return false;
-		}
-
-		// 既に生成された画像ファイルであるかチェック
-		int resID = GetTexResourceID(fileName);
-
-		if (resID == -1) {
-			// テクスチャ生成
-			if (texRes.size() >= TEXTURERES_MAXCNT) {
-				return false;
-			}
-
-			// 追加
-			texRes.push_back(std::make_unique<TextureFile>());
-			if (!texRes.back()->Create(d3ddev9, fileName)) {
-				return false;
-			}
-			texRes.back()->SetName(fileName);
-
-			resID = texRes.size()-1;
-		}
-
-		// 描画情報をセット
-		int texW = texRes[resID]->GetWidth();
-		int texH = texRes[resID]->GetHeight();
-
-		texClip[texID].isValid	= true;
-		texClip[texID].resourceID = resID;
-		texClip[texID].size.w	= w;
-		texClip[texID].size.h	= h;
-		texClip[texID].uv.left	= (float)x/texW;
-		texClip[texID].uv.top	= (float)y/texH;
-		texClip[texID].uv.w		= (float)w/texW;
-		texClip[texID].uv.h		= (float)h/texH;
-
-		return true;
-	}
-
-
-	std::unique_ptr<dxFont::DirectXFont> DXDrawManager::CreateDirectXFont(const wchar_t * fontName, size_t fontSize, dxFont::FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
-		using namespace dxFont;
-
-		std::unique_ptr<DirectXFont> uptr;
-		uptr = DirectXFont::Create(shared_from_this(), fontName, fontSize, fontWeight, isItalic, isUnderLine, isStrikeOut, level);
-
-		return std::move(uptr);
 	}
 
 	
-	bool DXDrawManager::DelTexture(size_t texID) {
-		if (texID < 0 || texID >= TEXTURE_MAXCNT) {
-			return false;
-		}
-
-		ZeroMemory(&texClip[texID], sizeof(DrawFormat));
-
-		return true;
-	}
-
 
 	bool DXDrawManager::DrawBegin() {
 		if (!d3ddev9) {
@@ -165,6 +84,7 @@ namespace drawMng {
 				return false;
 			}
 			isDrawStarted = true;
+			topLayerPos = 0;
 		}
 
 		return true;
@@ -193,181 +113,6 @@ namespace drawMng {
 		return true;
 	}
 
-	bool DXDrawManager::DrawTexture(size_t texID, float x, float y, DRAWTEX_COORD coord, float alpha) {
-		return DrawTexture(texID, x, y, coord, 1.0f, 1.0f, alpha, 0);
-	}
-
-	bool DXDrawManager::DrawTexture(size_t texID, float x, float y, DRAWTEX_COORD coord, float xscale, float yscale, float alpha, int rotDeg) {
-		if (texID < 0 || texID >= TEXTURE_MAXCNT) {
-			return false;
-		}
-		if (!texClip[texID].isValid) {
-			return false;
-		}
-
-		rotDeg%=360;
-
-		DrawFormat fmt;
-
-		fmt.origin.x = texClip[texID].size.w/2.0f;
-		fmt.origin.y  = texClip[texID].size.h/2.0f;
-
-		fmt.tex = texRes.at(texClip[texID].resourceID)->GetPointer();
-		fmt.size = texClip[texID].size;
-		fmt.uv = texClip[texID].uv;
-
-		fmt.rotRad	= (float)(rotDeg*M_PI/180.0f);
-		fmt.xscale	= xscale;
-		fmt.yscale	= yscale;
-		fmt.color	= {0.0f, 0.0f, 0.0f, alpha};
-		fmt.blendMode=blendMode;
-
-
-		// 描画位置の登録
-		switch (coord) {
-			case DRAWTEX_COORD::TOP_L:
-				fmt.pos.x	= x + texClip[texID].size.w*(xscale-1.0f)/2.0f;
-				fmt.pos.y	= y + texClip[texID].size.h*(yscale-1.0f)/2.0f;
-				break;
-			case DRAWTEX_COORD::TOP_R:
-				fmt.pos.x	= x - texClip[texID].size.w*(xscale+1.0f)/2.0f;
-				fmt.pos.y	= y + texClip[texID].size.h*(yscale-1.0f)/2.0f;
-				break;
-			case DRAWTEX_COORD::BOTTOM_R:
-				fmt.pos.x	= x - texClip[texID].size.w*(xscale+1.0f)/2.0f;
-				fmt.pos.y	= y - texClip[texID].size.h*(yscale+1.0f)/2.0f;
-				break;
-			case DRAWTEX_COORD::BOTTOM_L:
-				fmt.pos.x	= x + texClip[texID].size.w*(xscale-1.0f)/2.0f;
-				fmt.pos.y	= y - texClip[texID].size.h*(yscale+1.0f)/2.0f;
-				break;
-			case DRAWTEX_COORD::CENTER:
-				fmt.pos.x	= x - texClip[texID].size.w/2.0f;
-				fmt.pos.y	= y - texClip[texID].size.h/2.0f;
-				break;
-			default:
-				break;
-		}
-
-		drawQueue.push_back(fmt);
-
-		return true;
-	}
-
-	bool DXDrawManager::DrawAll() {
-		if (!d3ddev9) {
-			return false;
-		}
-		if (!vertex) {
-			return false;
-		}
-		if (!effect) {
-			return false;
-		}
-		if (!verDecl) {
-			return false;
-		}
-		if (isLost) {
-			return false;
-		}
-		if (!isDrawStarted) {
-			return false;
-		}
-
-
-		// デフォルトステートのセット
-		d3ddev9->SetRenderState(D3DRS_LIGHTING, FALSE);							// ライティング無効
-		if (isRightHand)
-			d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);					// 右回りを消去(右手系)
-		else
-			d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);					// 左回りを消去(左手系)
-
-		d3ddev9->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-		d3ddev9->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-
-		d3ddev9->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-
-		// 板ポリゴンを登録
-		d3ddev9->SetStreamSource(0, vertex, 0, sizeof(float)*5);
-		// 頂点宣言を登録
-		d3ddev9->SetVertexDeclaration(verDecl);
-
-		// 2D描画用射影変換行列
-		D3DXMATRIX proj;
-		D3DXMatrixIdentity(&proj);
-		proj._41 = -1.0f;
-		proj._42 =  1.0f;
-
-		// シェーダ開始
-		UINT numPass = 0;
-		effect->SetTechnique("Tech");
-		effect->Begin(&numPass, 0);
-		effect->BeginPass(0);
-
-		// 描画リストのテクスチャを一気に描画する
-		float colorRGBA[4];
-		for (DrawFormat fmt : drawQueue) {
-
-			// ブレンドモードを設定
-			switch (fmt.blendMode) {
-				case BLENDMODE::NORMAL:
-					d3ddev9->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-					d3ddev9->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-					break;
-				case BLENDMODE::ADD:
-					d3ddev9->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-					d3ddev9->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-					break;
-			}
-
-
-
-			colorRGBA[0] = fmt.color.r;
-			colorRGBA[1] = fmt.color.g;
-			colorRGBA[2] = fmt.color.b;
-			colorRGBA[3] = fmt.color.a;
-
-
-			proj._11 =  2.0f / d3dpresent.BackBufferWidth;
-			proj._22 = -2.0f / d3dpresent.BackBufferHeight;
-
-
-			D3DXMATRIX world, scale, rot;
-			D3DXMatrixScaling(&world, (float)fmt.size.w, (float)fmt.size.h, 1.0f);	// ポリゴンサイズに
-			D3DXMatrixScaling(&scale, fmt.xscale, fmt.yscale, 1.0f);	// ローカルスケール
-			D3DXMatrixRotationZ(&rot, fmt.rotRad);						// 回転
-			world._41 = -fmt.origin.x;		// ピボット分オフセット
-			world._42 = -fmt.origin.y;
-			world = world * scale * rot;
-			world._41 += fmt.pos.x-0.5f + fmt.origin.x;	// ピボット分オフセット
-			world._42 += fmt.pos.y+0.5f + fmt.origin.y;
-
-			effect->SetMatrix("world", &world);
-			effect->SetMatrix("proj", &proj);
-			effect->SetTexture("tex", fmt.tex);
-			effect->SetFloat("uv_left", fmt.uv.left);
-			effect->SetFloat("uv_top", fmt.uv.top);
-			effect->SetFloat("uv_width", fmt.uv.w);
-			effect->SetFloat("uv_height", fmt.uv.h);
-			effect->SetFloatArray("color", colorRGBA, 4);
-			effect->CommitChanges();
-			d3ddev9->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-
-		}
-
-		effect->EndPass();
-		effect->End();
-
-
-		drawQueue.clear();
-
-		return true;
-	}
 
 
 
@@ -387,10 +132,6 @@ namespace drawMng {
 	}
 
 
-	void DXDrawManager::SetHand(bool isRight) {
-		isRightHand = isRight;
-	}
-
 	void DXDrawManager::SetBackGroundColor(size_t r, size_t g, size_t b) {
 		// 最大値を255までにする
 		r &= 0xff;
@@ -405,11 +146,7 @@ namespace drawMng {
 		backGroundColor = rgb;
 	}
 
-	void DXDrawManager::SetTextureFilter(D3DTEXTUREFILTERTYPE type) {
-		d3ddev9->SetSamplerState(0, D3DSAMP_MAGFILTER, type);
-		d3ddev9->SetSamplerState(0, D3DSAMP_MINFILTER, type);
-	}
-
+	
 	void DXDrawManager::SetBlendMode(BLENDMODE mode) {
 		switch (mode) {
 			case BLENDMODE::NORMAL:
@@ -437,7 +174,7 @@ namespace drawMng {
 
 	
 
-	bool DXDrawManager::Create(HWND hwnd, bool isfull, size_t w, size_t h) {
+	bool DXDrawManager::Create(HWND hwnd, bool isfull, size_t w, size_t h, bool isRightHand) {
 		Delete();
 		Clear();
 
@@ -546,12 +283,28 @@ namespace drawMng {
 
 
 		// 板ポリゴン作成
-		float vtx[] = {
-			0.0f, 0.0f, 0.0f,   0.0f, 0.0f,  // 0
-			1.0f, 0.0f, 0.0f,   1.0f, 0.0f,  // 1
-			0.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // 2
-			1.0f, 1.0f, 0.0f,   1.0f, 1.0f,  // 3
-		};
+		this->isRightHand = isRightHand;
+
+		float vtx[20];
+		if (isRightHand) {
+			float v[] = {
+				1.0f, 1.0f, 0.0f,   1.0f, 1.0f,  // 3
+				0.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // 2
+				1.0f, 0.0f, 0.0f,   1.0f, 0.0f,  // 1
+				0.0f, 0.0f, 0.0f,   0.0f, 0.0f,  // 0
+			};
+			memcpy(vtx, v, sizeof(vtx));
+		}
+		else {
+			float v[] = {
+				0.0f, 0.0f, 0.0f,   0.0f, 0.0f,  // 0
+				1.0f, 0.0f, 0.0f,   1.0f, 0.0f,  // 1
+				0.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // 2
+				1.0f, 1.0f, 0.0f,   1.0f, 1.0f,  // 3
+			};
+			memcpy(vtx, v, sizeof(vtx));
+		}
+
 
 		{
 			IDirect3DVertexBuffer9 *ptr;
@@ -597,43 +350,25 @@ namespace drawMng {
 		}
 
 
-		// デフォルトステートのセット
-		d3ddev9->SetRenderState(D3DRS_LIGHTING, FALSE);							// ライティング無効
-		if (isRightHand)
-			d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);					// 右回りを消去(右手系)
-		else
-			d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);					// 左回りを消去(左手系)
+		// 板ポリゴンを登録
+		d3ddev9->SetStreamSource(0, vertex, 0, sizeof(float)*5);
+		// 頂点宣言を登録
+		d3ddev9->SetVertexDeclaration(verDecl);
 
-		d3ddev9->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-		d3ddev9->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 
-		d3ddev9->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);			// テクスチャがはみ出た時に表示しないにする
-		d3ddev9->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-
-		d3ddev9->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 
 
 		return true;
 	}
 
 	void DXDrawManager::Delete() {
-		// 生成した順番と逆順に解放
+		verDecl.Release();
+		effect.Release();
+		vertex.Release();
+		d3ddev9.Release();
+		d3d9.Release();
 
-		//SAFE_RELEASE(verDecl);
-		////verDecl.reset();
-		//SAFE_RELEASE(effect);
-		////effect.reset();
-		//SAFE_RELEASE(vertex);
-		////vertex.reset();
-		//SAFE_RELEASE(d3ddev9);
-		////d3ddev9.reset();
-		//SAFE_RELEASE(d3d9);
-		////d3d9.reset();
+		isResCreated = false;
 	}
 
 	void DXDrawManager::Clear() {
@@ -643,24 +378,13 @@ namespace drawMng {
 		backGroundColor = 0xffffff;
 		blendMode = BLENDMODE::NORMAL;
 
-		texRes.clear();
-		drawQueue.clear();
-		ZeroMemory(texClip, sizeof(texClip));
 		ZeroMemory(&d3dcaps9, sizeof(d3dcaps9));
 		ZeroMemory(&d3dpresent, sizeof(d3dpresent));
 
 	}
 
 
-	int DXDrawManager::GetTexResourceID(const std::string& fileName) {
-		for (size_t i=0; i<texRes.size(); i++) {
-			if (texRes[i]->GetName() == fileName) {
-				return i;
-			}
-		}
-
-		return -1;
-	}
+	
 
 
 }
