@@ -19,79 +19,114 @@
 #include<string>
 
 #include "LogManager.hpp"
+#include "dx9.hpp"
 
 
-class DXTextureManager {
-protected:
-	CComPtr<IDirect3DTexture9> d3dtex9;
+namespace dx9 {
 
-	std::string name;
+	class DXTextureManager {
+	protected:
+		CComPtr<IDirect3DTexture9> d3dtex9;
 
-	static LogManager* log;
+		std::wstring name;
 
-	unsigned long width;
-	unsigned long height;
-	bool isLocked;
+		static LogManager* log;
 
-public:
-	// コピー不可
-	DXTextureManager(const DXTextureManager&) = delete;
-	DXTextureManager& operator=(const DXTextureManager&) = delete;
-	// ムーブはOK
-	DXTextureManager(DXTextureManager&&) = default;
-	DXTextureManager& operator=(DXTextureManager&&) = default;
+		unsigned long width;
+		unsigned long height;
+		bool isLocked;
 
 
-	// テクスチャ生成メソッドは，継承先で定義する
+	public:
+		// コピー不可
+		DXTextureManager(const DXTextureManager&) = delete;
+		DXTextureManager& operator=(const DXTextureManager&) = delete;
+		// ムーブはOK
+		DXTextureManager(DXTextureManager&&) = default;
+		DXTextureManager& operator=(DXTextureManager&&) = default;
 
 
-	// テクスチャの明示的削除
-	void Delete();
+		void CopyTo(DXTextureManager &dst);
 
 
-	bool Lock(D3DLOCKED_RECT *rect);
-	bool Unlock();
-	void Clear();
+		// テクスチャの明示的削除
+		virtual void Delete() = 0;
 
 
-	// テクスチャの幅を取得
-	unsigned long GetWidth() const { return width; }
-	// テクスチャの高さを取得
-	unsigned long GetHeight() const { return height; }
+		bool Lock(D3DLOCKED_RECT *rect);
+		bool Unlock();
+
+		// テクスチャの幅を取得
+		unsigned long GetWidth() const { return width; }
+		// テクスチャの高さを取得
+		unsigned long GetHeight() const { return height; }
 
 
-	// テクスチャへ名前を格納
-	void SetName(const std::string& name) { this->name = name; }
-	// テクスチャ名を取得
-	const std::string& GetName() const { return name; }
+		// テクスチャへ名前を格納
+		void SetName(const std::wstring& name) { this->name = name; }
+		// テクスチャ名を取得
+		const std::wstring& GetName() const { return name; }
 
 
-	// Direct3DTexture9ポインタを取得
-	IDirect3DTexture9* GetPointer() const { return d3dtex9.p; };
+		// Direct3DTexture9ポインタを取得
+		IDirect3DTexture9* GetPointer() const { return d3dtex9.p; };
+
+		CComPtr<IDirect3DTexture9> GetComPtr() const { return d3dtex9; }
 
 
-	static void SetLogWriteDest(LogManager* dest);
+		static void SetLogWriteDest(LogManager* dest);
 
-private:
-	
+	private:
 
-protected:
-	DXTextureManager();
-	virtual ~DXTextureManager();
 
-	
-
-};
+	protected:
+		DXTextureManager();
+		virtual ~DXTextureManager();
 
 
 
-class TextureFile : public DXTextureManager {
-public :
-	bool Create(IDirect3DDevice9* dev, const std::string& fileName);
-};
+	};
 
 
-class EmptyTexture : public DXTextureManager {
-public :
-	bool Create(IDirect3DDevice9* dev, size_t width, size_t height);
-};
+
+
+
+	struct TexClip {
+		Size size;
+		UVCoord uv;
+	};
+
+	class TextureFile : public DXTextureManager {
+		// 切り抜き情報
+		TexClip texClip;
+
+
+	public:
+		TextureFile() {};
+		~TextureFile() {};
+
+
+		const TexClip& GetClipInfo() { return texClip; };
+		void SetClipSize(Size &size) { texClip.size = size; };
+		void SetClipUV(UVCoord &uv) { texClip.uv = uv; };
+
+
+		bool Create(IDirect3DDevice9* dev, const std::wstring& fileName);
+
+		void Delete() override;
+
+
+	};
+
+
+
+	class EmptyTexture : public DXTextureManager {
+	public:
+		bool Create(IDirect3DDevice9* dev, size_t width, size_t height);
+
+		void Delete() override;
+
+	};
+
+
+}
