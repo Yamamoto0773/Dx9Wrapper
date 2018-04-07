@@ -6,6 +6,7 @@
 // (c) 2017, Yamamoto Nanami
 //////////////////////////////////////////////////////////////
 
+
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
@@ -37,8 +38,10 @@ typedef struct _D3DVERTEX {
 
 
 class DirectXFigure {
+
 private:
-	LPDIRECT3DDEVICE9		lpDev;
+
+	IDirect3DDevice9 *lpDev;
 	IDirect3DVertexBuffer9 *pVertex;
 
 	ID3DXLine	*pLine;
@@ -51,13 +54,13 @@ private:
 
 	D3DCOLOR	dwStrokeColor;		// 線の色
 	D3DCOLOR	dwFillColor;		// 塗りつぶしの色
-	
+
 
 public:
 	DirectXFigure();
 	~DirectXFigure();
 
-	
+
 	BOOL Init(LPDIRECT3DDEVICE9 lpDev);		// 初期化
 
 
