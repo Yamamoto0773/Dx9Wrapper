@@ -239,7 +239,6 @@ namespace dx9 {
 
 
 		// デフォルトステートのセット
-		d3ddev9->SetRenderState(D3DRS_LIGHTING, FALSE);							// ライティング無効
 		if (isRightHand)
 			d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);				// 右回りを消去(右手系)
 		else
@@ -247,16 +246,7 @@ namespace dx9 {
 
 		d3ddev9->SetSamplerState(0, D3DSAMP_MINFILTER, static_cast<DWORD>(texFilter));
 		d3ddev9->SetSamplerState(0, D3DSAMP_MAGFILTER, static_cast<DWORD>(texFilter));
-		d3ddev9->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);		// テクスチャがはみ出た時に表示しないにする
-		d3ddev9->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-
-		d3ddev9->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-
+		
 		// ブレンドモードを設定
 		switch (blendMode) {
 			case BLENDMODE::NORMAL:
@@ -297,9 +287,13 @@ namespace dx9 {
 			world._41 = -origin.x;		// ピボット分オフセット
 			world._42 = -origin.y;
 			world = world * scale * rot;
-			world._41 += pos[i].x-0.5f + origin.x;	// ピボット分オフセット
-			world._42 += pos[i].y+0.5f + origin.y;
+			world._41 += pos[i].x + origin.x;	// ピボット分オフセット
+			world._42 += pos[i].y + origin.y;
 			world._43 += GetTopLayerPos()/1000.0f;
+
+			// ラスタライゼーションルールを用いて，テクスチャをずらす
+			world._41 = ceil(world._41) - 0.5f;
+			world._42 = floor(world._42) + 0.5f;
 
 			effect->SetMatrix("world", &world);
 			effect->SetMatrix("proj", &projMat);
