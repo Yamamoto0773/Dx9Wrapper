@@ -300,7 +300,7 @@ namespace dx9 {
 			};
 
 			D3DXMATRIX world, scale, rot;
-			D3DXMatrixScaling(&world, (float)texRes[subscr]->GetWidth(), texRes[subscr]->GetHeight(), GetTopLayerPos()/10.0f);	// ポリゴンサイズに
+			D3DXMatrixScaling(&world, (float)texRes[subscr]->GetWidth(), texRes[subscr]->GetHeight(), 1.0f);	// ポリゴンサイズに
 			D3DXMatrixScaling(&scale, scaleX, scaleY, 1.0f);	// ローカルスケール
 			D3DXMatrixRotationZ(&rot, rotateRad);						// 回転
 			world._41 = -origin.x;		// ピボット分オフセット
@@ -308,6 +308,7 @@ namespace dx9 {
 			world = world * scale * rot;
 			world._41 += pos[i].x-0.5f + origin.x;	// ピボット分オフセット
 			world._42 += pos[i].y+0.5f + origin.y;
+			world._43 += GetTopLayerPos()/1000.0f;
 
 			effect->SetMatrix("world", &world);
 			effect->SetMatrix("proj", &proj);
@@ -324,9 +325,6 @@ namespace dx9 {
 
 		effect->EndPass();
 		effect->End();
-
-
-		ChangeLayer();
 
 		return true;
 	}

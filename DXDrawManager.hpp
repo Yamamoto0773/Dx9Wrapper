@@ -150,7 +150,7 @@ namespace dx9 {
 	protected:
 
 		// 描画の前後位置を管理する関数
-		size_t GetTopLayerPos() { return topLayerPos; };
+		float GetTopLayerPos() { return topLayerPos; };
 
 		// 1つ上のレイヤーに変更
 		void ChangeLayer() { topLayerPos++; };

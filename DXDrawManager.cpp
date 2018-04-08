@@ -127,7 +127,7 @@ namespace dx9 {
 		if (!isDrawStarted) {
 			d3ddev9->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, backGroundColor, 1.0f, 0);
 		}
-
+		
 		return true;
 	}
 
