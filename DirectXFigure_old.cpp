@@ -6,7 +6,7 @@
 
 
 
-DirectXFigure::DirectXFigure() {
+DirectXFigure_old::DirectXFigure_old() {
 	pLine = NULL;
 	lpDev = NULL;
 	pVertex = NULL;
@@ -20,7 +20,7 @@ DirectXFigure::DirectXFigure() {
 
 }
 
-DirectXFigure::~DirectXFigure() {
+DirectXFigure_old::~DirectXFigure_old() {
 	SAFE_RELEASE(pVertex);											// 解放
 	SAFE_RELEASE(pLine);
 
@@ -29,7 +29,7 @@ DirectXFigure::~DirectXFigure() {
 }
 
 
-BOOL DirectXFigure::Init(LPDIRECT3DDEVICE9 dev) {
+BOOL DirectXFigure_old::Init(LPDIRECT3DDEVICE9 dev) {
 	if (!dev)
 		return FALSE;
 	if (MAX_VERTEX < 3)
@@ -52,7 +52,7 @@ BOOL DirectXFigure::Init(LPDIRECT3DDEVICE9 dev) {
 }
 
 
-BOOL DirectXFigure::stroke(int red, int green, int blue, int alpha) {
+BOOL DirectXFigure_old::stroke(int red, int green, int blue, int alpha) {
 	if (!(0 <= red && red <= 255) ||
 		!(0 <= green && green <= 255) ||
 		!(0 <= blue && blue <= 255) ||
@@ -65,13 +65,13 @@ BOOL DirectXFigure::stroke(int red, int green, int blue, int alpha) {
 	return TRUE;
 }
 
-BOOL DirectXFigure::noStroke() {
+BOOL DirectXFigure_old::noStroke() {
 	bStroke = FALSE;
 
 	return TRUE;
 }
 
-BOOL DirectXFigure::fill(int red, int green, int blue, int alpha) {
+BOOL DirectXFigure_old::fill(int red, int green, int blue, int alpha) {
 	if (!(0 <= red && red <= 255) ||
 		!(0 <= green && green <= 255) ||
 		!(0 <= blue && blue <= 255) ||
@@ -84,13 +84,13 @@ BOOL DirectXFigure::fill(int red, int green, int blue, int alpha) {
 	return TRUE;
 }
 
-BOOL DirectXFigure::noFill() {
+BOOL DirectXFigure_old::noFill() {
 	bFill = FALSE;
 
 	return TRUE;
 }
 
-BOOL DirectXFigure::strokeWidth(FLOAT width) {
+BOOL DirectXFigure_old::strokeWidth(FLOAT width) {
 	if (!pLine)
 		return FALSE;
 	if (width < 0)
@@ -102,7 +102,7 @@ BOOL DirectXFigure::strokeWidth(FLOAT width) {
 	return TRUE;
 }
 
-BOOL DirectXFigure::smooth() {
+BOOL DirectXFigure_old::smooth() {
 	if (!pLine)
 		return FALSE;
 	pLine->SetAntialias(TRUE);
@@ -111,7 +111,7 @@ BOOL DirectXFigure::smooth() {
 	return TRUE;
 }
 
-BOOL DirectXFigure::noSmooth() {
+BOOL DirectXFigure_old::noSmooth() {
 	if (!pLine)
 		return FALSE;
 	pLine->SetAntialias(FALSE);
@@ -120,7 +120,7 @@ BOOL DirectXFigure::noSmooth() {
 	return TRUE;
 }
 
-BOOL DirectXFigure::line(float x1, float y1, float x2, float y2) {
+BOOL DirectXFigure_old::line(float x1, float y1, float x2, float y2) {
 	if (!pLine)
 		return FALSE;
 
@@ -142,7 +142,7 @@ BOOL DirectXFigure::line(float x1, float y1, float x2, float y2) {
 	return TRUE;
 }
 
-BOOL DirectXFigure::rect(float x, float y, float w, float h) {
+BOOL DirectXFigure_old::rect(float x, float y, float w, float h) {
 	if (!lpDev)
 		return FALSE;
 	if (!pVertex)
@@ -227,7 +227,7 @@ BOOL DirectXFigure::rect(float x, float y, float w, float h) {
 }
 
 
-BOOL DirectXFigure::ellipse(float x, float y, float w, float h, int vertexCnt) {
+BOOL DirectXFigure_old::ellipse(float x, float y, float w, float h, int vertexCnt) {
 	if (!lpDev)
 		return FALSE;
 	if (!pVertex)
@@ -311,7 +311,7 @@ BOOL DirectXFigure::ellipse(float x, float y, float w, float h, int vertexCnt) {
 	return TRUE;
 }
 
-BOOL DirectXFigure::quad(size_t vertexCnt, ...) {
+BOOL DirectXFigure_old::quad(size_t vertexCnt, ...) {
 	if (!lpDev)
 		return FALSE;
 	if (!pVertex)
@@ -399,7 +399,7 @@ BOOL DirectXFigure::quad(size_t vertexCnt, ...) {
 }
 
 
-BOOL DirectXFigure::GetPolyLineVertex(Point *pPolyLineVerList, Point *pPolyVerList, size_t polyVerCnt) {
+BOOL DirectXFigure_old::GetPolyLineVertex(Point *pPolyLineVerList, Point *pPolyVerList, size_t polyVerCnt) {
 	if (!lpDev)
 		return FALSE;
 	if (!(3 < polyVerCnt && polyVerCnt < MAX_VERTEX))
@@ -455,7 +455,7 @@ BOOL DirectXFigure::GetPolyLineVertex(Point *pPolyLineVerList, Point *pPolyVerLi
 }
 
 
-Point DirectXFigure::GetPolygonCenter(int count, Point *pPolyVerList) {
+Point DirectXFigure_old::GetPolygonCenter(int count, Point *pPolyVerList) {
 	int i;
 	double s, s1;
 	Point pt, gpt;
@@ -476,15 +476,15 @@ Point DirectXFigure::GetPolygonCenter(int count, Point *pPolyVerList) {
 	return gpt;
 }
 
-double DirectXFigure::GetTriangleArea(Point pt1, Point pt2, Point pt3) {
+double DirectXFigure_old::GetTriangleArea(Point pt1, Point pt2, Point pt3) {
 	return  (fabs(pt1.x*(pt2.y - pt3.y) + pt2.x*(pt3.y - pt1.y) + pt3.x*(pt1.y - pt2.y))/2);
 }
 
-double DirectXFigure::GetVec2Length(D3DXVECTOR2 *v) {
+double DirectXFigure_old::GetVec2Length(D3DXVECTOR2 *v) {
 	return (sqrt(v->x * v->x + v->y * v->y));
 }
 
-BOOL DirectXFigure::LineSegCross(Point * a1, Point * a2, Point * b1, Point * b2) {
+BOOL DirectXFigure_old::LineSegCross(Point * a1, Point * a2, Point * b1, Point * b2) {
 	double ta = (b1->x - b2->x) * (a1->y - b1->y) + (b1->y - b2->y) * (b1->x - a1->x);
 	double tb = (b1->x - b2->x) * (a2->y - b1->y) + (b1->y - b2->y) * (b1->x - a2->x);
 	double tc = (a1->x - a2->x) * (b1->y - a1->y) + (a1->y - a2->y) * (a1->x - b1->x);
@@ -493,7 +493,7 @@ BOOL DirectXFigure::LineSegCross(Point * a1, Point * a2, Point * b1, Point * b2)
 	return tc * td < 0 && ta * tb < 0;	// 交差している場合,true
 }
 
-BOOL DirectXFigure::CheckInsidePolyArea(Point * pPolyVerList, size_t polyVerCnt, Point * judgePt) {
+BOOL DirectXFigure_old::CheckInsidePolyArea(Point * pPolyVerList, size_t polyVerCnt, Point * judgePt) {
 	int i;
 
 	double maxY = pPolyVerList[0].y;
@@ -513,7 +513,7 @@ BOOL DirectXFigure::CheckInsidePolyArea(Point * pPolyVerList, size_t polyVerCnt,
 	else			return FALSE;	// 点が多角形の外側の場合
 }
 
-Point DirectXFigure::GetTriangleCenter(Point pt1, Point pt2, Point pt3) {
+Point DirectXFigure_old::GetTriangleCenter(Point pt1, Point pt2, Point pt3) {
 	Point pt;
 	pt.x = (pt1.x + pt2.x + pt3.x) / 3;
 	pt.y = (pt1.y + pt2.y + pt3.y) / 3;

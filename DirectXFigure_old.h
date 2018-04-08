@@ -37,7 +37,7 @@ typedef struct _D3DVERTEX {
 
 
 
-class DirectXFigure {
+class DirectXFigure_old {
 
 private:
 
@@ -57,8 +57,8 @@ private:
 
 
 public:
-	DirectXFigure();
-	~DirectXFigure();
+	DirectXFigure_old();
+	~DirectXFigure_old();
 
 
 	BOOL Init(LPDIRECT3DDEVICE9 lpDev);		// 初期化
