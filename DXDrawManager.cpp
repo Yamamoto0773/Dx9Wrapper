@@ -3,12 +3,12 @@
 #define _USE_MATH_DEFINES
 #include <math.h>  
 
-#define WRITELOG(x) { if (log != nullptr) { log->tlnwrite(x); } }
+#define WRITELOG(x, ...) { if (log != nullptr) { log->tlnwrite(x, __VA_ARGS__); } }
 
 
 namespace dx9 {
 
-	bool DXDrawManager::isResCreated = false; 
+	bool DXDrawManager::isResCreated = false;
 
 	LogManager* DXDrawManager::log;
 
@@ -33,20 +33,20 @@ namespace dx9 {
 	bool DXDrawManager::isRightHand = false;
 	unsigned long DXDrawManager::backGroundColor = 0xffffff;
 	size_t DXDrawManager::topLayerPos = 0;
-	
+
 
 	DXDrawManager::DXDrawManager() {
-		
+
 	}
 
 	DXDrawManager::~DXDrawManager() {
-		
+
 	}
 
 
-	bool DXDrawManager::CreateFull(HWND hwnd, bool isRightHand) {
+	bool DXDrawManager::CreateFull(HWND hwnd, MultiSampleLv level, bool isRightHand) {
 		if (!isResCreated) {
-			if (!Create(hwnd, true, 0, 0, isRightHand)) {
+			if (!Create(hwnd, true, 0, 0, level, isRightHand)) {
 				Clear();
 				Delete();
 				return false;
@@ -58,9 +58,9 @@ namespace dx9 {
 	}
 
 
-	bool DXDrawManager::CreateWind(HWND hwnd, size_t screenW, size_t screenH, bool isRightHand) {
+	bool DXDrawManager::CreateWind(HWND hwnd, size_t screenW, size_t screenH, MultiSampleLv level, bool isRightHand) {
 		if (!isResCreated) {
-			if (!Create(hwnd, false, screenW, screenH, isRightHand)) {
+			if (!Create(hwnd, false, screenW, screenH, level, isRightHand)) {
 				Clear();
 				Delete();
 				return false;
@@ -71,7 +71,7 @@ namespace dx9 {
 		return true;
 	}
 
-	
+
 
 	bool DXDrawManager::DrawBegin() {
 		if (!d3ddev9) {
@@ -129,7 +129,7 @@ namespace dx9 {
 		if (!isDrawStarted) {
 			d3ddev9->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, backGroundColor, 1.0f, 0);
 		}
-		
+
 		return true;
 	}
 
@@ -148,7 +148,7 @@ namespace dx9 {
 		backGroundColor = rgb;
 	}
 
-	
+
 	void DXDrawManager::SetBlendMode(BLENDMODE mode) {
 		switch (mode) {
 			case BLENDMODE::NORMAL:
@@ -174,9 +174,9 @@ namespace dx9 {
 	}
 
 
-	
 
-	bool DXDrawManager::Create(HWND hwnd, bool isfull, size_t w, size_t h, bool isRightHand) {
+
+	bool DXDrawManager::Create(HWND hwnd, bool isfull, size_t w, size_t h, MultiSampleLv level, bool isRightHand) {
 		Delete();
 		Clear();
 
@@ -216,7 +216,7 @@ namespace dx9 {
 			d3dpresent.BackBufferFormat			= dispMode.Format;
 		}
 		d3dpresent.BackBufferCount				= 1;
-		d3dpresent.MultiSampleType				= D3DMULTISAMPLE_NONE;
+		d3dpresent.MultiSampleType				= static_cast<D3DMULTISAMPLE_TYPE>(level);
 		d3dpresent.MultiSampleQuality			= 0;
 		d3dpresent.SwapEffect					= D3DSWAPEFFECT_DISCARD;
 		d3dpresent.hDeviceWindow				= NULL;	// あとで指定
@@ -262,16 +262,73 @@ namespace dx9 {
 			// マルチスレッド
 			behaviorFlags |= D3DCREATE_MULTITHREADED;
 
+
+
+			// フルシーンマルチサンプリングが適用可能かテスト
+			if (static_cast<int>(d3dpresent.MultiSampleType) >= 2) {
+
+				DWORD backBufferLevel, ZBufferLevel;
+
+				while (true) {
+					if (SUCCEEDED(
+						d3d9->CheckDeviceMultiSampleType(
+							D3DADAPTER_DEFAULT,
+							devtype,
+							d3dpresent.BackBufferFormat,
+							d3dpresent.Windowed,
+							d3dpresent.MultiSampleType,
+							&backBufferLevel
+							))
+						&&
+						SUCCEEDED(
+							d3d9->CheckDeviceMultiSampleType(
+								D3DADAPTER_DEFAULT,
+								devtype,
+								d3dpresent.AutoDepthStencilFormat,
+								d3dpresent.Windowed,
+								d3dpresent.MultiSampleType,
+								&ZBufferLevel
+								))) {
+						// バックバッファと深度ステンシルバッファがともに対応している場合
+
+						if (backBufferLevel < ZBufferLevel) {
+							d3dpresent.MultiSampleQuality = backBufferLevel-1;
+						}
+						else {
+							d3dpresent.MultiSampleQuality = ZBufferLevel-1;
+						}
+
+						break;
+					}
+					else {
+						// 対応していない
+
+						// 1つ下のレベルで再試行
+						int index = static_cast<int>(d3dpresent.MultiSampleType) - 1;
+
+						if (index < 2) {
+							// フルシーンマルチサンプリングが利用できない
+							break;
+						}
+
+						d3dpresent.MultiSampleType = static_cast<D3DMULTISAMPLE_TYPE>(index);
+
+					}
+				}
+
+			}
+
+
 			IDirect3DDevice9 *ptr;
 			ret = d3d9->CreateDevice(D3DADAPTER_DEFAULT, devtype, hwnd, behaviorFlags, &d3dpresent, &ptr);
 			if (SUCCEEDED(ret)) {
 				d3ddev9.Attach(ptr);
 
 				switch (i) {
-					case 0: WRITELOG("Succeeded to Create D3DDevice9 (DeviceType:GPU VertexProcessing:Hardware)"); break;
-					case 1: WRITELOG("Succeeded to Create D3DDevice9 (DeviceType:GPU VertexProcessing:Software)"); break;
-					case 2: WRITELOG("Succeeded to Create D3DDevice9 (DeviceType:CPU VertexProcessing:Hardware)"); break;
-					case 3: WRITELOG("Succeeded to Create D3DDevice9 (DeviceType:CPU VertexProcessing:Software)"); break;
+					case 0: WRITELOG("Succeeded to Create D3DDevice9\n  DeviceInfo>DeviceType:GPU VertexProcessing:Hardware\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
+					case 1: WRITELOG("Succeeded to Create D3DDevice9\n  DeviceInfo>DeviceType:GPU VertexProcessing:Software\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
+					case 2: WRITELOG("Succeeded to Create D3DDevice9\n  DeviceInfo>DeviceType:CPU VertexProcessing:Hardware\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
+					case 3: WRITELOG("Succeeded to Create D3DDevice9\n  DeviceInfo>DeviceType:CPU VertexProcessing:Software\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
 				}
 
 				break;	// 作成終了
@@ -367,6 +424,25 @@ namespace dx9 {
 
 
 
+		// デフォルトステートのセット
+		d3ddev9->SetRenderState(D3DRS_LIGHTING, FALSE);							// ライティング無効
+		if (isRightHand)
+			d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);				// 右回りを消去(右手系)
+		else
+			d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);				// 左回りを消去(左手系)
+
+		d3ddev9->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+		d3ddev9->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+		d3ddev9->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);		// テクスチャがはみ出た時に表示しないにする
+		d3ddev9->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+
+		d3ddev9->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+		d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+		d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+
 		return true;
 	}
 
@@ -393,7 +469,7 @@ namespace dx9 {
 	}
 
 
-	
+
 
 
 }

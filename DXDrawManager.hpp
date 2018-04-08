@@ -42,6 +42,16 @@ namespace dx9 {
 	};
 
 
+	// フルシーンマルチサンプリングのレベル
+	enum class MultiSampleLv : DWORD {
+		NONE = 0,
+		_2SAMPLES = 2,
+		_4SAMPLES = 4,
+		_6SAMPLES = 6,
+		_8SAMPLES = 8,
+		_12SAMPLES = 12,
+		_16SAMPLES = 16
+	};
 	
 
 
@@ -95,6 +105,7 @@ namespace dx9 {
 		// フルスクリーンver.
 		bool CreateFull(
 			HWND hwnd,
+			MultiSampleLv level=MultiSampleLv::_4SAMPLES,
 			bool isRightHand=false
 			);
 
@@ -104,6 +115,7 @@ namespace dx9 {
 			HWND hwnd,
 			size_t screenW,
 			size_t screenH,
+			MultiSampleLv level=MultiSampleLv::_4SAMPLES,
 			bool isRightHand=false
 			);
 
@@ -166,6 +178,7 @@ namespace dx9 {
 			bool isfull,
 			size_t w,
 			size_t h,
+			MultiSampleLv level,
 			bool isRightHand
 			);
 
