@@ -30,15 +30,6 @@ namespace dx9 {
 		DirectXFontAscii();
 		~DirectXFontAscii();
 
-		// コピー不可
-		DirectXFontAscii& operator=(const DirectXFontAscii&) = delete;
-		DirectXFontAscii(const DirectXFontAscii&) = delete;
-		// ムーブはOK
-		DirectXFontAscii& operator=(DirectXFontAscii&&) = default;
-		DirectXFontAscii(DirectXFontAscii&&) = default;
-
-
-
 		virtual bool Create(
 			const char*		fontName,
 			size_t			fontSize,

@@ -30,13 +30,6 @@ namespace dx9 {
 		DirectXFont();
 		~DirectXFont();
 
-		// コピー不可
-		DirectXFont& operator=(const DirectXFont&) = delete;
-		DirectXFont(const DirectXFont&) = delete;
-		// ムーブはOK
-		DirectXFont& operator=(DirectXFont&&) = default;
-		DirectXFont(DirectXFont&&) = default;
-
 
 		virtual bool Create(
 			const wchar_t*	fontName,

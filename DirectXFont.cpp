@@ -255,21 +255,13 @@ namespace dx9 {
 		}
 
 
-		// 2D描画用射影変換行列
-		D3DXMATRIX proj;
-		D3DXMatrixIdentity(&proj);
-		proj._41 = -1.0f;
-		proj._42 =  1.0f;
-		proj._11 =  2.0f / d3dpresent.BackBufferWidth;
-		proj._22 = -2.0f / d3dpresent.BackBufferHeight;
-
 		// シェーダ開始
 		UINT numPass = 0;
 		effect->SetTechnique("Tech");
 		effect->Begin(&numPass, 0);
 		effect->BeginPass(0);
 
-		
+		D3DXMATRIX world, scale, rot;
 		for (size_t i=startCharCnt; i<endCharCnt; i++) {
 			UINT code = static_cast<UINT>(wstr[i]);
 
@@ -282,7 +274,7 @@ namespace dx9 {
 				rotOriginPt.y - pos[i].y
 			};
 
-			D3DXMATRIX world, scale, rot;
+			
 			D3DXMatrixScaling(&world, (float)texRes[code]->GetWidth(), texRes[code]->GetHeight(), 1.0f);	// ポリゴンサイズに
 			D3DXMatrixScaling(&scale, scaleX, scaleY, 1.0f);	// ローカルスケール
 			D3DXMatrixRotationZ(&rot, rotateRad);						// 回転
@@ -294,7 +286,7 @@ namespace dx9 {
 			world._43 += GetTopLayerPos()/1000.0f;
 
 			effect->SetMatrix("world", &world);
-			effect->SetMatrix("proj", &proj);
+			effect->SetMatrix("proj", &projMat);
 			effect->SetTexture("tex", texRes[code]->GetPointer());
 			effect->SetFloat("uv_left", 0.0f);
 			effect->SetFloat("uv_top", 0.0f);

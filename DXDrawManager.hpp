@@ -70,6 +70,8 @@ namespace dx9 {
 	
 
 		// 現在の状態を保持する変数
+		static D3DXMATRIX projMat;
+
 		static BLENDMODE blendMode;
 		static bool isDrawStarted;
 		static bool isLost;

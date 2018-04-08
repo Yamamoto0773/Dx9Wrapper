@@ -25,6 +25,8 @@ namespace dx9 {
 	CComPtr<ID3DXEffect>				DXDrawManager::effect;		// シェーダ
 	CComPtr<IDirect3DVertexDeclaration9>DXDrawManager::verDecl;	// 頂点宣言
 
+	D3DXMATRIX DXDrawManager::projMat;
+
 	BLENDMODE DXDrawManager::blendMode = BLENDMODE::NORMAL;
 	bool DXDrawManager::isDrawStarted = false;
 	bool DXDrawManager::isLost = false;
@@ -355,6 +357,13 @@ namespace dx9 {
 		// 頂点宣言を登録
 		d3ddev9->SetVertexDeclaration(verDecl);
 
+
+		// 2D描画用射影変換行列を作成
+		D3DXMatrixIdentity(&projMat);
+		projMat._41 = -1.0f;
+		projMat._42 =  1.0f;
+		projMat._11 =  2.0f / d3dpresent.BackBufferWidth;
+		projMat._22 = -2.0f / d3dpresent.BackBufferHeight;
 
 
 

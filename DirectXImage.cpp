@@ -161,12 +161,6 @@ namespace dx9 {
 		d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 
 
-		// 2D描画用射影変換行列
-		D3DXMATRIX proj;
-		D3DXMatrixIdentity(&proj);
-		proj._41 = -1.0f;
-		proj._42 =  1.0f;
-
 		// シェーダ開始
 		UINT numPass = 0;
 		effect->SetTechnique("Tech");
@@ -186,10 +180,6 @@ namespace dx9 {
 				break;
 		}
 
-		proj._11 =  2.0f / d3dpresent.BackBufferWidth;
-		proj._22 = -2.0f / d3dpresent.BackBufferHeight;
-
-
 		TexClip clipInfo = texRes[texID]->GetClipInfo();
 
 		D3DXMATRIX world, scale, rot;
@@ -204,7 +194,7 @@ namespace dx9 {
 		world._43 += GetTopLayerPos()/1000.0f;
 
 		effect->SetMatrix("world", &world);
-		effect->SetMatrix("proj", &proj);
+		effect->SetMatrix("proj", &projMat);
 		effect->SetTexture("tex", texRes[texID]->GetPointer());
 		effect->SetFloat("uv_left", clipInfo.uv.left);
 		effect->SetFloat("uv_top", clipInfo.uv.top);
