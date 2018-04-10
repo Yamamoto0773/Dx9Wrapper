@@ -25,7 +25,7 @@ struct VS_OUT {
 };
 
 
-// í∏ì_ÉVÉFÅ[É_
+// È†ÇÁÇπ„Ç∑„Çß„Éº„ÉÄ
 VS_OUT vs_main( VS_IN In ) {
    VS_OUT Out = (VS_OUT)0;
    
@@ -37,7 +37,7 @@ VS_OUT vs_main( VS_IN In ) {
 }
 
 
-// ÉsÉNÉZÉãÉVÉFÅ[É_
+// „Éî„ÇØ„Çª„É´„Ç∑„Çß„Éº„ÉÄ
 float4 ps_main(VS_OUT In) : COLOR0 {
     float4 texColor = tex2D( smp, In.uv );
     texColor*=color;
