@@ -54,16 +54,9 @@ namespace dx9 {
 			float x,
 			float y,
 			DrawTexCoord coord,
-			float alpha=1.0f
-			);
-		bool Draw(
-			size_t texID,
-			float x,
-			float y,
-			DrawTexCoord coord,
+			float alpha=1.0f,
 			float xscale=1.0f,
 			float yscale=1.0f,
-			float alpha=1.0f,
 			int rotDeg=0
 			);
 

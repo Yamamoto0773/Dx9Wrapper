@@ -52,7 +52,22 @@ namespace dx9 {
 		_12SAMPLES = 12,
 		_16SAMPLES = 16
 	};
+
+
 	
+
+	namespace shader {
+
+		enum class ShaderPass : UINT {
+			Color = 0,
+			Tex,
+			Mul_Tex_Color,
+			Mul_ColorAlpha_TexAlpha,
+			Mul_ColorAlpha_InvTexAlpha,
+			Mul_TexWithUV_color
+		};
+
+	}
 
 
 

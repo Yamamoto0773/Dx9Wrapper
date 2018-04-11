@@ -82,10 +82,10 @@ namespace dx9 {
 		texRes[texID]->SetClipSize(size);
 
 		UVCoord uv = {
-			(float)x/texRes.at(resID)->GetWidth(),
-			(float)y/texRes.at(resID)->GetHeight(),
-			(float)w/texRes.at(resID)->GetWidth(),
-			(float)h/texRes.at(resID)->GetHeight()
+			(float)x/texRes.at(texID)->GetWidth(),
+			(float)y/texRes.at(texID)->GetHeight(),
+			(float)w/texRes.at(texID)->GetWidth(),
+			(float)h/texRes.at(texID)->GetHeight()
 		};
 		texRes[texID]->SetClipUV(uv);
 
@@ -93,12 +93,8 @@ namespace dx9 {
 	}
 
 
-	bool DirectXImage::Draw(size_t texID, float x, float y, DrawTexCoord coord, float alpha) {
-		return Draw(texID, x, y, coord, 1.0f, 1.0f, alpha, 0);
-	}
-
-
-	bool DirectXImage::Draw(size_t texID, float x, float y, DrawTexCoord coord, float xscale, float yscale, float alpha, int rotDeg) {
+	
+	bool dx9::DirectXImage::Draw(size_t texID, float x, float y, DrawTexCoord coord, float alpha, float xscale, float yscale, int rotDeg) {
 		if (texID < 0 || texID >= TEXTURE_MAXCNT) {
 			return false;
 		}
@@ -111,7 +107,7 @@ namespace dx9 {
 
 		rotDeg%=360;
 		float rotRad = (float)rotDeg*M_PI/180;
-		float colorRGBA[4] = {0.0f, 0.0f, 0.0f, alpha};
+		float colorRGBA[4] = {1.0f, 1.0f, 1.0f, alpha};
 		
 
 		// 描画位置の算出
@@ -157,7 +153,7 @@ namespace dx9 {
 		UINT numPass = 0;
 		effect->SetTechnique("Tech");
 		effect->Begin(&numPass, 0);
-		effect->BeginPass(0);
+		effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Mul_TexWithUV_color));
 
 
 		// ブレンドモードを設定
@@ -228,5 +224,7 @@ namespace dx9 {
 
 		return true;
 	}
+
+	
 
 }
