@@ -118,10 +118,8 @@ namespace dx9 {
 	}
 
 
-	bool DirectXFigure::DrawRect(RectF & rect, DWORD color, float lineWidth) {
-		if (lineWidth < 0.0f) {
-			return false;
-		}
+	bool DirectXFigure::DrawRect(RectF & rect, DWORD color) {
+
 		if (rect.left > rect.right || rect.top > rect.bottom) {
 			return false;
 		}
@@ -138,10 +136,8 @@ namespace dx9 {
 
 	}
 
-	bool DirectXFigure::DrawRect(PointF & topLeft, PointF & bottomRight, DWORD color, float lineWidth) {
-		if (lineWidth < 0.0f) {
-			return false;
-		}
+	bool DirectXFigure::DrawRect(PointF & topLeft, PointF & bottomRight, DWORD color) {
+		
 		if (topLeft.x > bottomRight.x || topLeft.y > bottomRight.y) {
 			return false;
 		}
@@ -158,10 +154,7 @@ namespace dx9 {
 
 	}
 
-	bool DirectXFigure::DrawRect(float x, float y, float w, float h, DWORD color, float lineWidth) {
-		if (lineWidth < 0.0f) {
-			return false;
-		}
+	bool DirectXFigure::DrawRect(float x, float y, float w, float h, DWORD color) {
 		if (w < 0.0f || h < 0.0f) {
 			return false;
 		}

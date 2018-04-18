@@ -226,7 +226,7 @@ namespace dx9 {
 			UINT numPass = 0;
 			effect->SetTechnique("Tech");
 			effect->Begin(&numPass, 0);
-			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Color));
+			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Mul_ColorAlpha_InvUVTexAlpha));
 
 
 			D3DXMATRIX world, scale, rot;
@@ -246,6 +246,11 @@ namespace dx9 {
 
 			effect->SetMatrix("world", &world);
 			effect->SetMatrix("proj", projMat);
+			effect->SetTexture("tex", tex->GetPointer());
+			effect->SetFloat("uv_left", 0.0f);
+			effect->SetFloat("uv_top", 0.0f);
+			effect->SetFloat("uv_width", 1.0f);
+			effect->SetFloat("uv_height", 1.0f);
 			effect->SetFloatArray("color", colorRGBA, 4);
 			effect->CommitChanges();
 			dev->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);

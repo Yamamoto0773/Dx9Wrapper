@@ -175,6 +175,13 @@ technique Tech {
 	}
 
 
+	// テクスチャの透明度の反転値を元に，指定色で塗りつぶし
+	pass p6 {
+		VertexShader = compile vs_2_0 vs_texWithUV();
+		PixelShader  = compile ps_2_0 ps_color_invTexAlpha();
+
+		AlphaBlendEnable = true;
+	}
 
 
 

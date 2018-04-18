@@ -64,7 +64,8 @@ namespace dx9 {
 			Mul_Tex_Color,
 			Mul_ColorAlpha_TexAlpha,
 			Mul_ColorAlpha_InvTexAlpha,
-			Mul_TexWithUV_color
+			Mul_UVTex_color,
+			Mul_ColorAlpha_InvUVTexAlpha
 		};
 
 	}

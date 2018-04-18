@@ -34,9 +34,9 @@ namespace dx9 {
 		bool DrawRectFrame(float x, float y, float w, float h, DWORD color, float lineWidth=1.0f);
 
 		// 長方形の描画
-		bool DrawRect(RectF &rect, DWORD color, float lineWidth=1.0f);
-		bool DrawRect(PointF &topLeft, PointF &bottomRight, DWORD color, float lineWidth=1.0f);
-		bool DrawRect(float x, float y, float w, float h, DWORD color, float lineWidth=1.0f);
+		bool DrawRect(RectF &rect, DWORD color);
+		bool DrawRect(PointF &topLeft, PointF &bottomRight, DWORD color);
+		bool DrawRect(float x, float y, float w, float h, DWORD color);
 		
 
 		// 円の輪郭の描画

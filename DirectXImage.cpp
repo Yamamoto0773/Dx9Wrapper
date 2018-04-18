@@ -153,7 +153,7 @@ namespace dx9 {
 		UINT numPass = 0;
 		effect->SetTechnique("Tech");
 		effect->Begin(&numPass, 0);
-		effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Mul_TexWithUV_color));
+		effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Mul_UVTex_color));
 
 
 		// ブレンドモードを設定
