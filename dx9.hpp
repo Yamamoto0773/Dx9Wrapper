@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <Windows.h>
+#include "template.hpp"
 
 namespace dx9 {
 
@@ -54,10 +55,53 @@ namespace dx9 {
 		BOTTOM_L,
 		CENTER
 	};
+	using FontRotOrigin = DrawTexCoord;
 
-	typedef DrawTexCoord FontRotOrigin;
+
+	struct CharInfo {
+		int sizeW;			// 文字の幅
+		int sizeH;			// 文字の高さ
+		int AreaW;			// 文字の幅　(空白あり
+		int AreaH;			// 文字の高さ(空白あり
+		int originX;		// 文字の原点のx座標
+		int originY;		// 文字の原点のy座標
+	};
 
 
+	// 文字の位置に関する指定
+	enum class TEXTALIGN : UINT {
+		LEFT		= 0b00000001,	// 左寄せ
+		CENTERX		= 0b00000010,	// 中央寄せ
+		RIGHT		= 0b00000100,	// 右寄せ
+		CENTERXY	= 0b00001000,	// 中心寄せ　※1行のみ
+		NONE		= 0b00000000,	// 指定なし　(描画領域は無視され、折り返しされません)
+	};
+
+
+	// 文字の拡大縮小に関する指定
+	enum class TEXTSCALE : UINT {
+		AUTOX	= 0b00010000,	// 描画領域に合わせて横方向に縮小 (はみ出す場合のみ) ※1行のみ
+		AUTOXY	= 0b00100000,	// 描画領域に合わせて縦横比を維持したまま縮小 (はみ出す場合のみ) ※1行のみ
+		NONE	= 0b00000000,	// 指定なし
+	};
+
+
+	inline TEXTALIGN getAlign(DWORD format) {
+		return static_cast<TEXTALIGN>(format&0x0F);
+	}
+
+	inline TEXTSCALE getScale(DWORD format) {
+		return static_cast<TEXTSCALE>(format&0xF0);
+	}
+
+
+
+	enum class AntialiasLevel : UINT {
+		NONE = 1,
+		_3STEPS = 4,
+		_15STEPS = 5,
+		_65STEPS = 6
+	};
 
 	
 }

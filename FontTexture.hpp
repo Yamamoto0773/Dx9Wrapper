@@ -21,7 +21,6 @@
 #include <string>
 #include <vector>
 
-#include "DirectXTextClass.h"
 #include "DXTextureManager.hpp"
 
 

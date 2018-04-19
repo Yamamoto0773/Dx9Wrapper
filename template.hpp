@@ -7,17 +7,36 @@ namespace dx9 {
 
 
 	// 基底型にキャスト
-	template<class T> std::underlying_type<T> undering_cast(T a) {
-		return static_cast<std::underlying_type<T>>(a);
+	template<class T>
+	auto underlying_cast(T a) {
+		return static_cast<std::underlying_type<T>::type>(a);
+	}
+
+	template<
+		class T1, class T2,
+		std::enable_if_t<std::is_enum<T1>::value, std::nullptr_t> = nullptr,
+		std::enable_if_t<std::is_enum<T2>::value, std::nullptr_t> = nullptr
+	>
+	auto operator| (T1 L, T2 R) {
+		return underlying_cast(L)|underlying_cast(R);
+	}
+	
+
+	template<
+		class T1, class T2,
+		std::enable_if_t<std::is_enum<T1>::value, std::nullptr_t> = nullptr,
+		std::enable_if_t<std::is_enum<T2>::value, std::nullptr_t> = nullptr
+	>
+	auto operator& (T1 L, T2 R) {
+		return underlying_cast(L)&underlying_cast(R);
 	}
 
 
-	template<class T> int operator |(T L, T R) {
-		return undering_cast(L)|undering_cast(R);
-	}
-	template<class T> int operator &(T L, T R) {
-		return undering_cast(L)|undering_cast(R);
-	}
+
+
+
+
+
 
 
 }

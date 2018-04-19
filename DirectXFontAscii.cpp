@@ -2,6 +2,7 @@
 #include <math.h>  
 #include "DirectXFontAscii.hpp"
 
+
 namespace dx9 {
 
 
@@ -79,7 +80,7 @@ namespace dx9 {
 
 		va_list vlist;
 		va_start(vlist, s);
-		bool result = DrawFont(rect, TEXTALIGN_NONE|TEXTSCALE_NONE, color, 0, -1, fontSize, 0, 0, FontRotOrigin::CENTER, s, vlist);
+		bool result = DrawFont(rect, TEXTALIGN::NONE|TEXTSCALE::NONE, color, 0, -1, fontSize, 0, 0, FontRotOrigin::CENTER, s, vlist);
 		va_end(vlist);
 
 		return result;
@@ -100,7 +101,7 @@ namespace dx9 {
 
 		va_list vlist;
 		va_start(vlist, s);
-		bool result = DrawFont(rect, TEXTALIGN_NONE|TEXTSCALE_NONE, color, startCharCnt, drawCharCnt, fontSize, 0, 0, FontRotOrigin::CENTER, s, vlist);
+		bool result = DrawFont(rect, TEXTALIGN::NONE|TEXTSCALE::NONE, color, startCharCnt, drawCharCnt, fontSize, 0, 0, FontRotOrigin::CENTER, s, vlist);
 		va_end(vlist);
 
 		return result;
@@ -120,7 +121,7 @@ namespace dx9 {
 
 		va_list vlist;
 		va_start(vlist, s);
-		bool result = DrawFont(rect, TEXTALIGN_NONE|TEXTSCALE_NONE, color, 0, -1, fontSize, 0, rotateDeg, rotOrigin, s, vlist);
+		bool result = DrawFont(rect, TEXTALIGN::NONE|TEXTSCALE::NONE, color, 0, -1, fontSize, 0, rotateDeg, rotOrigin, s, vlist);
 		va_end(vlist);
 
 		return result;
@@ -180,10 +181,10 @@ namespace dx9 {
 
 		// 描画倍率設定
 		float scaleX, scaleY;
-		if (((format&0xF0)) == TEXTSCALE_AUTOX) {
+		if (((getScale(format))) == TEXTSCALE::AUTOX) {
 			scaleX = inScale*outScale, scaleY = inScale;
 		}
-		else if (((format&0xF0)) == TEXTSCALE_AUTOXY) {
+		else if (((getScale(format))) == TEXTSCALE::AUTOXY) {
 			scaleX = inScale*outScale, scaleY = inScale*outScale;
 		}
 		else {
@@ -334,8 +335,8 @@ namespace dx9 {
 		strArea.bottom = 0;
 
 		// フォーマットの組み合わせをチェック
-		if (((format&0x0F)) == TEXTALIGN_NONE) {
-			if (((format&0xF0)) == TEXTSCALE_AUTOX || ((format&0xF0)) == TEXTSCALE_AUTOXY)
+		if (((getAlign(format))) == TEXTALIGN::NONE) {
+			if (((getScale(format))) == TEXTSCALE::AUTOX || ((getScale(format))) == TEXTSCALE::AUTOXY)
 				return false;
 		}
 
@@ -360,7 +361,7 @@ namespace dx9 {
 
 			// 縦方向にはみ出したら
 			if (offsetY + lineHeight > rectY) {
-				if (((format&0x0F)) != TEXTALIGN_NONE && ((format&0xF0)) != TEXTSCALE_AUTOXY) {
+				if (((getAlign(format))) != TEXTALIGN::NONE && ((getScale(format))) != TEXTSCALE::AUTOXY) {
 					break;
 				}
 			}
@@ -388,7 +389,7 @@ namespace dx9 {
 
 				// 横方向にはみ出したら
 				if (lineLen + texRes[code-' ']->_chInfo().AreaW*inScale > rectX) {
-					if (((format&0x0F)) != TEXTALIGN_NONE && (format&0xF0) == TEXTSCALE_NONE) {
+					if (((getAlign(format))) != TEXTALIGN::NONE && (getScale(format)) == TEXTSCALE::NONE) {
 						break;
 					}
 				}
@@ -405,13 +406,13 @@ namespace dx9 {
 
 
 									// 縮小倍率計算
-			if ((format&0xF0) != TEXTSCALE_NONE) {
+			if ((getScale(format)) != TEXTSCALE::NONE) {
 				if (lineLen > rectX)
 					scaleX = rectX/lineLen;
 				if (lineHeight > rectY)
 					scaleY = rectY/lineHeight;
 
-				if ((format&0xF0) == TEXTSCALE_AUTOXY)
+				if ((getScale(format)) == TEXTSCALE::AUTOXY)
 					outScale = (scaleX < scaleY) ? scaleX : scaleY; // 小さい方に合わせて縦横比を維持
 				else
 					outScale = scaleX;
@@ -425,19 +426,19 @@ namespace dx9 {
 
 
 			// 行頭の描画位置の算出
-			switch ((format&0x0F)) {
-				case TEXTALIGN_CENTERX:
+			switch ((getAlign(format))) {
+				case TEXTALIGN::CENTERX:
 					offsetX = (rectX - lineLen)/2.0f;
 					break;
-				case TEXTALIGN_CENTERXY:
+				case TEXTALIGN::CENTERXY:
 					offsetX = (rectX - lineLen)/2.0f;
 					offsetY = (rectY - lineHeight)/2;
 					break;
-				case TEXTALIGN_RIGHT:
+				case TEXTALIGN::RIGHT:
 					offsetX = rectX - lineLen;
 					break;
-				case TEXTALIGN_LEFT:
-				case TEXTALIGN_NONE:
+				case TEXTALIGN::LEFT:
+				case TEXTALIGN::NONE:
 					offsetX = 0;
 			}
 
@@ -478,9 +479,9 @@ namespace dx9 {
 			lineHead = lineEnd+1;	// 行頭文字を更新
 
 									// 1行のみのフォーマットはここで終了
-			if ((format&0xF0) == TEXTSCALE_AUTOX ||
-				(format&0xF0) == TEXTSCALE_AUTOXY ||
-				(format&0x0F) == TEXTALIGN_CENTERXY)
+			if ((getScale(format)) == TEXTSCALE::AUTOX ||
+				(getScale(format)) == TEXTSCALE::AUTOXY ||
+				(getAlign(format)) == TEXTALIGN::CENTERXY)
 				break;
 
 		}
