@@ -65,7 +65,7 @@ LogBuffer::~LogBuffer() {
 
 bool LogBuffer::clear() {
 	logBuffer.clear();
-	logBuffer.reserve(512);
+	logBuffer.reserve(1024);
 
 	tlnwrite("LOG CLEAR");
 
