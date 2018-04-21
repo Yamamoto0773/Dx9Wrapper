@@ -11,22 +11,14 @@ namespace dx9 {
 	bool DXDrawManager::isResCreated = false;
 
 	LogManager* DXDrawManager::log;
-
 	CComPtr<IDirect3D9>			DXDrawManager::d3d9;
 	CComPtr<IDirect3DDevice9>	DXDrawManager::d3ddev9;
-
 	D3DCAPS9					DXDrawManager::d3dcaps9;
-
-	// DirectXを初期化する時に使う構造体
-	// どんな値を設定したか取っておいた方がいいので、メンバ変数とする。
 	D3DPRESENT_PARAMETERS				DXDrawManager::d3dpresent;
-
 	CComPtr<IDirect3DVertexBuffer9>		DXDrawManager::vertex;
 	CComPtr<ID3DXEffect>				DXDrawManager::effect;		// シェーダ
 	CComPtr<IDirect3DVertexDeclaration9>DXDrawManager::verDecl;	// 頂点宣言
-
 	D3DXMATRIX DXDrawManager::projMat;
-
 	BLENDMODE DXDrawManager::blendMode = BLENDMODE::NORMAL;
 	bool DXDrawManager::isDrawStarted = false;
 	bool DXDrawManager::isLost = false;
@@ -36,17 +28,24 @@ namespace dx9 {
 
 
 	DXDrawManager::DXDrawManager() {
-
 	}
 
 	DXDrawManager::~DXDrawManager() {
-
 	}
 
-
-	bool DXDrawManager::CreateFull(HWND hwnd, MultiSampleLv level, bool isRightHand) {
+	bool DXDrawManager::Create(HWND hwnd, Size size, MultiSampleLv level, bool isRightHand) {
 		if (!isResCreated) {
-			if (!Create(hwnd, true, 0, 0, level, isRightHand)) {
+			bool isFull = false;
+			
+			WINDOWINFO info;
+			info.cbSize = sizeof(info);
+			GetWindowInfo(hwnd, &info);
+			
+			if ((info.dwStyle&WS_POPUP) == WS_POPUP) {
+				isFull = true;
+			}
+		
+			if (!Create(hwnd, isFull, size.w, size.h, level, isRightHand)) {
 				Clear();
 				Delete();
 				return false;
@@ -58,31 +57,24 @@ namespace dx9 {
 	}
 
 
-	bool DXDrawManager::CreateWind(HWND hwnd, size_t screenW, size_t screenH, MultiSampleLv level, bool isRightHand) {
-		if (!isResCreated) {
-			if (!Create(hwnd, false, screenW, screenH, level, isRightHand)) {
-				Clear();
-				Delete();
-				return false;
-			}
-			isResCreated = true;
-		}
-
-		return true;
-	}
-
-
-
-	bool DXDrawManager::DrawBegin() {
+	bool DXDrawManager::DrawBegin(bool isClear) {
 		if (!d3ddev9) {
 			return false;
 		}
 		if (isLost) {
-			return false;
+			if (!DeviceReset()) {
+				return false;
+			}
 		}
+
+
 		if (!isDrawStarted) {
+			if (isClear) {
+				d3ddev9->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, backGroundColor, 1.0f, 0);
+			}
+
 			if (FAILED(d3ddev9->BeginScene())) {
-				WRITELOG("failed to BeginScene()");
+				//WRITELOG("failed to BeginScene()");
 				return false;
 			}
 			isDrawStarted = true;
@@ -105,8 +97,8 @@ namespace dx9 {
 		isDrawStarted = false;
 
 		// フリップ
-		if (FAILED(d3ddev9->Present(NULL, NULL, NULL, NULL))) {
-			WRITELOG("device lost");
+		if (d3ddev9->Present(NULL, NULL, NULL, NULL) == D3DERR_DEVICELOST) {
+			WRITELOG("Device Lost");
 			isLost = true;
 			return false;
 		}
@@ -114,25 +106,6 @@ namespace dx9 {
 
 		return true;
 	}
-
-
-
-
-	bool DXDrawManager::ClearBackGround() {
-		if (!d3ddev9) {
-			return false;
-		}
-		if (isLost) {
-			return false;
-		}
-
-		if (!isDrawStarted) {
-			d3ddev9->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, backGroundColor, 1.0f, 0);
-		}
-
-		return true;
-	}
-
 
 	void DXDrawManager::SetBackGroundColor(size_t r, size_t g, size_t b) {
 		// 最大値を255までにする
@@ -325,10 +298,10 @@ namespace dx9 {
 				d3ddev9.Attach(ptr);
 
 				switch (i) {
-					case 0: WRITELOG("Succeeded to Create D3DDevice9\n  DeviceInfo>DeviceType:GPU VertexProcessing:Hardware\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
-					case 1: WRITELOG("Succeeded to Create D3DDevice9\n  DeviceInfo>DeviceType:GPU VertexProcessing:Software\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
-					case 2: WRITELOG("Succeeded to Create D3DDevice9\n  DeviceInfo>DeviceType:CPU VertexProcessing:Hardware\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
-					case 3: WRITELOG("Succeeded to Create D3DDevice9\n  DeviceInfo>DeviceType:CPU VertexProcessing:Software\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
+					case 0: WRITELOG("Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:GPU VertexProcessing:Hardware\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
+					case 1: WRITELOG("Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:GPU VertexProcessing:Software\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
+					case 2: WRITELOG("Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:CPU VertexProcessing:Hardware\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
+					case 3: WRITELOG("Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:CPU VertexProcessing:Software\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
 				}
 
 				break;	// 作成終了
@@ -469,7 +442,91 @@ namespace dx9 {
 	}
 
 
+	bool DXDrawManager::DeviceReset() {
+		if (!isResCreated) {
+			return false;
+		}
 
+		if (isLost) {
+			if (d3ddev9->TestCooperativeLevel() != D3DERR_DEVICENOTRESET) {
+				// デバイスを復帰できる状態でない
+				return false;
+			}
+
+			if (FAILED(d3ddev9->Reset(&d3dpresent))) {
+				return false;
+			}
+
+
+
+			isLost = false;
+
+
+
+			effect.Release();
+			verDecl.Release();
+
+
+			// シェーダ作成
+			{
+				ID3DXBuffer *error = nullptr;
+				ID3DXEffect *ptr = nullptr;
+				if (FAILED(D3DXCreateEffectFromFile(d3ddev9, L"sprite2.fx", 0, 0, 0, 0, &ptr, &error))) {
+					OutputDebugStringA((const char*)error->GetBufferPointer());
+					return false;
+				}
+
+				effect.Attach(ptr);
+			}
+
+			// 頂点宣言作成
+			{
+				IDirect3DVertexDeclaration9 *ptr;
+				D3DVERTEXELEMENT9 elems[] = {
+					{0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+					{0, sizeof(float) * 3, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
+					D3DDECL_END()
+				};
+
+				if (FAILED(d3ddev9->CreateVertexDeclaration(elems, &ptr))) {
+					WRITELOG("failed to create \"Bertex Declaration9\"");
+					return false;
+				}
+				verDecl.Attach(ptr);
+			}
+
+			// 板ポリゴンを登録
+			d3ddev9->SetStreamSource(0, vertex, 0, sizeof(float)*5);
+			// 頂点宣言を登録
+			d3ddev9->SetVertexDeclaration(verDecl);
+
+
+
+			// デフォルトステートのセット
+			d3ddev9->SetRenderState(D3DRS_LIGHTING, FALSE);							// ライティング無効
+			if (isRightHand)
+				d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);				// 右回りを消去(右手系)
+			else
+				d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);				// 左回りを消去(左手系)
+
+			d3ddev9->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+			d3ddev9->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+			d3ddev9->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);		// テクスチャがはみ出た時に表示しないにする
+			d3ddev9->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+
+			d3ddev9->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+			d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+			d3ddev9->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+			d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+			d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+			d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+
+		
+			WRITELOG("Device Reset ... OK");
+		}
+		
+		return true;
+	}
 
 
 }

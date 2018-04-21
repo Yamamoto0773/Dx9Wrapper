@@ -111,46 +111,28 @@ namespace dx9 {
 		DXDrawManager(const DXDrawManager&) = delete;	
 		DXDrawManager& operator=(const DXDrawManager&) = delete;
 		
-	protected:
+
+	public:
+
 		DXDrawManager();
 		virtual ~DXDrawManager();
 
-	public:
-		
-		// ウィンドウ生成用の関数
-		// フルスクリーンver.
-		bool CreateFull(
-			HWND hwnd,
-			MultiSampleLv level=MultiSampleLv::_4SAMPLES,
-			bool isRightHand=false
-			);
 
-		// ウィンドウ生成用の関数
-		// ウィンドウver.
-		bool CreateWind(
-			HWND hwnd,
-			size_t screenW,
-			size_t screenH,
-			MultiSampleLv level=MultiSampleLv::_4SAMPLES,
-			bool isRightHand=false
-			);
+		bool Create(HWND hwnd, Size size, MultiSampleLv level=MultiSampleLv::_4SAMPLES, bool isRightHand=false);
 
-		
+	
 		bool isDrawable() { return (isDrawStarted && (!isLost) && isResCreated); };
 
 
 		// ---------------------------------------
 		// 描画を行う関数
 
-		// 前回までの描画をクリア
-		bool ClearBackGround();
 
 		// 描画開始
-		bool DrawBegin();
+		bool DrawBegin(bool isClear);
 
 		// 描画終了
 		bool DrawEnd();
-
 
 
 		// ---------------------------------------
@@ -167,7 +149,7 @@ namespace dx9 {
 		// ---------------------------------------
 
 		// ログの書き込み先の指定
-		static void SetLogWriteDest(LogManager* dest);
+		void SetLogWriteDest(LogManager* dest);
 
 
 		// ---------------------------------------
@@ -199,7 +181,10 @@ namespace dx9 {
 			);
 
 		void Clear();
+		
 		void Delete();
+
+		bool DeviceReset();
 	};
 
 }
