@@ -8,7 +8,7 @@
 
 namespace dx9 {
 
-	class DirectXFontAscii : public DXDrawManager {
+	class DirectXFontAscii : private DXDrawManager {
 
 		static const int CHARACTER_MAXCNT = 512;	// 文字列の最大文字数
 

@@ -9,7 +9,7 @@ namespace dx9 {
 
 	static const int TEXTURE_MAXCNT = 1024;	// 登録可能なテクスチャ数
 
-	class DirectXImage : public DXDrawManager {
+	class DirectXImage : private DXDrawManager {
 	public:
 		DirectXImage() {};
 		~DirectXImage() {};

@@ -5,7 +5,7 @@
 
 namespace dx9 {
 
-	class DirectXFigure : public DXDrawManager {
+	class DirectXFigure : private DXDrawManager {
 
 	private:
 		std::unique_ptr<EmptyTexture> emptyTex;

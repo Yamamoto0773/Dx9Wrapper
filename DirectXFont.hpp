@@ -12,7 +12,7 @@ namespace dx9 {
 
 
 	// 文字列描画クラス
-	class DirectXFont : public DXDrawManager {
+	class DirectXFont : private DXDrawManager {
 
 	private:
 		HFONT					hFont;			// 設定中のフォントのハンドル
