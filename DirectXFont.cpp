@@ -536,7 +536,7 @@ namespace dx9 {
 			}
 
 			if (!texRes[code]) {
-				texRes[code] = make_unique<FontTextureW>();
+				texRes[code] = make_unique<texture::FontTextureW>();
 				if (!texRes[code]->Create(d3ddev9, hdc, wch, antialiasLv, &tm)) {
 					texRes[code].reset();
 					return false;

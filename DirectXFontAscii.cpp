@@ -59,7 +59,7 @@ namespace dx9 {
 
 		for (size_t i=0; i<texRes.size(); i++) {
 			if (!texRes[i]) {
-				texRes[i] = std::make_unique<FontTextureA>();
+				texRes[i] = std::make_unique<texture::FontTextureA>();
 				if (!texRes[i]->Create(d3ddev9, hdc, ' ' + i, antialiasLv, &tm)) {
 					texRes[i].reset();
 					return false;

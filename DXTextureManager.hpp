@@ -24,109 +24,113 @@
 
 namespace dx9 {
 
-	class DXTextureManager {
-	protected:
-		CComPtr<IDirect3DTexture9> d3dtex9;
+	namespace texture {
 
-		std::wstring name;
+		class DXTextureBase {
+		protected:
+			CComPtr<IDirect3DTexture9> d3dtex9;
 
-		static LogManager* log;
+			std::wstring name;
 
-		unsigned long width;
-		unsigned long height;
-		bool isLocked;
+			static LogManager* log;
 
-
-	public:
-		// コピー不可
-		DXTextureManager(const DXTextureManager&) = delete;
-		DXTextureManager& operator=(const DXTextureManager&) = delete;
-		// ムーブはOK
-		DXTextureManager(DXTextureManager&&) = default;
-		DXTextureManager& operator=(DXTextureManager&&) = default;
+			unsigned long width;
+			unsigned long height;
+			bool isLocked;
 
 
-		void CopyTo(DXTextureManager &dst);
+		public:
+			// コピー不可
+			DXTextureBase(const DXTextureBase&) = delete;
+			DXTextureBase& operator=(const DXTextureBase&) = delete;
+			// ムーブはOK
+			DXTextureBase(DXTextureBase&&) = default;
+			DXTextureBase& operator=(DXTextureBase&&) = default;
 
 
-		// テクスチャの明示的削除
-		virtual void Delete() = 0;
+			void CopyTo(DXTextureBase &dst);
 
 
-		bool Lock(D3DLOCKED_RECT *rect);
-		bool Unlock();
-
-		// テクスチャの幅を取得
-		unsigned long GetWidth() const { return width; }
-		// テクスチャの高さを取得
-		unsigned long GetHeight() const { return height; }
+			// テクスチャの明示的削除
+			virtual void Delete() = 0;
 
 
-		// テクスチャへ名前を格納
-		void SetName(const std::wstring& name) { this->name = name; }
-		// テクスチャ名を取得
-		const std::wstring& GetName() const { return name; }
+			bool Lock(D3DLOCKED_RECT *rect);
+			bool Unlock();
+
+			// テクスチャの幅を取得
+			unsigned long GetWidth() const { return width; }
+			// テクスチャの高さを取得
+			unsigned long GetHeight() const { return height; }
 
 
-		// Direct3DTexture9ポインタを取得
-		IDirect3DTexture9* GetPointer() const { return d3dtex9.p; };
-
-		CComPtr<IDirect3DTexture9> GetComPtr() const { return d3dtex9; }
-
-
-		static void SetLogWriteDest(LogManager* dest);
-
-	private:
+			// テクスチャへ名前を格納
+			void SetName(const std::wstring& name) { this->name = name; }
+			// テクスチャ名を取得
+			const std::wstring& GetName() const { return name; }
 
 
-	protected:
-		DXTextureManager();
-		virtual ~DXTextureManager();
+			// Direct3DTexture9ポインタを取得
+			IDirect3DTexture9* GetPointer() const { return d3dtex9.p; };
+
+			CComPtr<IDirect3DTexture9> GetComPtr() const { return d3dtex9; }
 
 
+			static void SetLogWriteDest(LogManager* dest);
 
-	};
+		private:
+
+
+		protected:
+			DXTextureBase();
+			virtual ~DXTextureBase();
 
 
 
-
-
-	struct TexClip {
-		Size size;
-		UVCoord uv;
-	};
-
-	class TextureFile : public DXTextureManager {
-		// 切り抜き情報
-		TexClip texClip;
-
-
-	public:
-		TextureFile() {};
-		~TextureFile() {};
-
-
-		const TexClip& GetClipInfo() { return texClip; };
-		void SetClipSize(Size &size) { texClip.size = size; };
-		void SetClipUV(UVCoord &uv) { texClip.uv = uv; };
-
-
-		bool Create(IDirect3DDevice9* dev, const std::wstring& fileName);
-
-		void Delete() override;
-
-
-	};
+		};
 
 
 
-	class EmptyTexture : public DXTextureManager {
-	public:
-		bool Create(IDirect3DDevice9* dev, size_t width, size_t height);
 
-		void Delete() override;
 
-	};
+		struct TexClip {
+			Size size;
+			UVCoord uv;
+		};
+
+		class TextureFile : public DXTextureBase {
+			// 切り抜き情報
+			TexClip texClip;
+
+
+		public:
+			TextureFile() {};
+			~TextureFile() {};
+
+
+			const TexClip& GetClipInfo() { return texClip; };
+			void SetClipSize(Size &size) { texClip.size = size; };
+			void SetClipUV(UVCoord &uv) { texClip.uv = uv; };
+
+
+			bool Create(IDirect3DDevice9* dev, const std::wstring& fileName);
+
+			void Delete() override;
+
+
+		};
+
+
+
+		class EmptyTexture : public DXTextureBase {
+		public:
+			bool Create(IDirect3DDevice9* dev, size_t width, size_t height);
+
+			void Delete() override;
+
+		};
+
+	}
 
 
 }

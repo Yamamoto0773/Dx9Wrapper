@@ -117,10 +117,11 @@ namespace dx9 {
 		DXDrawManager();
 		virtual ~DXDrawManager();
 
-
+		// DirectXインターフェース群の生成
 		bool Create(HWND hwnd, Size size, MultiSampleLv level=MultiSampleLv::_4SAMPLES, bool isRightHand=false);
 
-	
+		
+		// 現在描画可能か返す
 		bool isDrawable() { return (isDrawStarted && (!isLost) && isResCreated); };
 
 

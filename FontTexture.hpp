@@ -7,7 +7,6 @@
 
 //////////////////////////////////
 // DirectX9.0を用いて文字を描画するクラスです．
-// 決まった文字列を表示する分にはそれなりに使えます．
 // (c) 2018, Yamamoto Nanami
 /////////////////////////////////
 
@@ -40,85 +39,87 @@ namespace dx9 {
 	};
 
 
-	// フォントビットマップテクスチャを作成するクラス
-	class FontTextureW : public DXTextureManager {
+	namespace texture {
 
-	private:
-		CharInfo	charInfo;
-		wchar_t		ch;
+		// フォントビットマップテクスチャを作成するクラス
+		class FontTextureW : public DXTextureBase {
 
-	public:
-		FontTextureW();
-		~FontTextureW();
-		
-		
-		// 指定したフォントの1文字分のテクスチャを作成
-		// note:現在デバイスに設定されているフォントが使用される
-		bool Create(
-			IDirect3DDevice9* dev,
-			HDC hdc,
-			wchar_t ch,
-			AntialiasLevel level=AntialiasLevel::_15STEPS,
-			TEXTMETRICW* tm = nullptr
-			);
+		private:
+			CharInfo	charInfo;
+			wchar_t		ch;
 
-		const CharInfo& _chInfo() { return charInfo; };
-		const wchar_t& _ch() { return ch; };
-
-		void Delete() {
-			d3dtex9.Release();
-			name.clear();
-
-			width = 0;
-			height = 0;
-			isLocked = false;
-
-			ZeroMemory(&charInfo, sizeof(charInfo));
-		}
-
-	};
+		public:
+			FontTextureW();
+			~FontTextureW();
 
 
+			// 指定したフォントの1文字分のテクスチャを作成
+			// note:現在デバイスに設定されているフォントが使用される
+			bool Create(
+				IDirect3DDevice9* dev,
+				HDC hdc,
+				wchar_t ch,
+				AntialiasLevel level=AntialiasLevel::_15STEPS,
+				TEXTMETRICW* tm = nullptr
+				);
 
-	// フォントビットマップテクスチャを作成するクラス
-	class FontTextureA : public DXTextureManager {
+			const CharInfo& _chInfo() { return charInfo; };
+			const wchar_t& _ch() { return ch; };
 
-	private:
-		CharInfo	charInfo;
-		char		ch;
+			void Delete() {
+				d3dtex9.Release();
+				name.clear();
 
-	public:
-		FontTextureA();
-		~FontTextureA();
+				width = 0;
+				height = 0;
+				isLocked = false;
 
+				ZeroMemory(&charInfo, sizeof(charInfo));
+			}
 
-		// 指定したフォントの1文字分のテクスチャを作成
-		// note:現在デバイスに設定されているフォントが使用される
-		bool Create(
-			IDirect3DDevice9* dev,
-			HDC hdc,
-			char ch,
-			AntialiasLevel level=AntialiasLevel::_15STEPS,
-			TEXTMETRICA* tm = nullptr
-			);
-
-		const CharInfo& _chInfo() { return charInfo; };
-		const char& _ch() { return ch; };
-
-		void Delete() {
-			d3dtex9.Release();
-			name.clear();
-
-			width = 0;
-			height = 0;
-			isLocked = false;
-
-			ZeroMemory(&charInfo, sizeof(charInfo));
-		}
-
-	};
+		};
 
 
+
+		// フォントビットマップテクスチャを作成するクラス
+		class FontTextureA : public DXTextureBase {
+
+		private:
+			CharInfo	charInfo;
+			char		ch;
+
+		public:
+			FontTextureA();
+			~FontTextureA();
+
+
+			// 指定したフォントの1文字分のテクスチャを作成
+			// note:現在デバイスに設定されているフォントが使用される
+			bool Create(
+				IDirect3DDevice9* dev,
+				HDC hdc,
+				char ch,
+				AntialiasLevel level=AntialiasLevel::_15STEPS,
+				TEXTMETRICA* tm = nullptr
+				);
+
+			const CharInfo& _chInfo() { return charInfo; };
+			const char& _ch() { return ch; };
+
+			void Delete() {
+				d3dtex9.Release();
+				name.clear();
+
+				width = 0;
+				height = 0;
+				isLocked = false;
+
+				ZeroMemory(&charInfo, sizeof(charInfo));
+			}
+
+		};
+
+	}
 
 	
 
