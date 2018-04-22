@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "DXTextureManager.hpp"
+#include "DXTextureBase.hpp"
 
 
 namespace dx9 {

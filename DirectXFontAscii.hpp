@@ -22,7 +22,7 @@ namespace dx9 {
 		
 	
 
-		std::vector< std::unique_ptr<FontTextureA> > texRes;
+		std::vector< std::unique_ptr<texture::FontTextureA> > texRes;
 
 		size_t fontSize;
 

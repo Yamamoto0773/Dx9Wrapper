@@ -22,7 +22,7 @@ namespace dx9 {
 		TextureFilter			texFilter;
 
 	
-		std::vector< std::unique_ptr<FontTextureW> > texRes;
+		std::vector< std::unique_ptr<texture::FontTextureW> > texRes;
 
 		size_t fontSize;
 

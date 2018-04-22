@@ -2,7 +2,7 @@
 
 
 #include "DXDrawManager.hpp"
-#include "DXTextureManager.hpp"
+#include "DXTextureBase.hpp"
 
 
 namespace dx9 {
@@ -21,7 +21,7 @@ namespace dx9 {
 			virtual bool Draw(
 				IDirect3DDevice9 * dev,
 				ID3DXEffect * effect,
-				const EmptyTexture *tex,
+				const texture::EmptyTexture *tex,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
 				float layerPos
@@ -54,7 +54,7 @@ namespace dx9 {
 			bool Draw(
 				IDirect3DDevice9 * dev,
 				ID3DXEffect * effect,
-				const EmptyTexture *tex,
+				const texture::EmptyTexture *tex,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
 				float layerPos
@@ -85,7 +85,7 @@ namespace dx9 {
 			virtual bool Draw(
 				IDirect3DDevice9 * dev,
 				ID3DXEffect * effect,
-				const EmptyTexture *tex,
+				const texture::EmptyTexture *tex,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
 				float layerPos
@@ -111,7 +111,7 @@ namespace dx9 {
 			bool Draw(
 				IDirect3DDevice9 * dev,
 				ID3DXEffect * effect,
-				const EmptyTexture *tex,
+				const texture::EmptyTexture *tex,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
 				float layerPos

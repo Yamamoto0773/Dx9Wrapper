@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "DXDrawManager.hpp"
-#include "DXTextureManager.hpp"
+#include "DXTextureBase.hpp"
 #include <array>
 
 
@@ -16,7 +16,7 @@ namespace dx9 {
 
 	private:
 		// 画像ファイル用のテクスチャ
-		std::array<std::unique_ptr<TextureFile>, TEXTURE_MAXCNT> texRes;
+		std::array<std::unique_ptr<texture::TextureFile>, TEXTURE_MAXCNT> texRes;
 		
 		
 

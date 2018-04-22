@@ -23,7 +23,7 @@ namespace dx9 {
 
 		if (resID == -1) {
 			// テクスチャを新規作成して登録
-			texRes[texID] = std::make_unique<TextureFile>();
+			texRes[texID] = std::make_unique<texture::TextureFile>();
 			if (!texRes[texID]->Create(d3ddev9, fileName)) {
 				return false;
 			}
@@ -31,7 +31,7 @@ namespace dx9 {
 		}
 		else {
 			// テクスチャをコピーして登録
-			texRes[texID] = std::make_unique<TextureFile>();
+			texRes[texID] = std::make_unique<texture::TextureFile>();
 			texRes[resID]->CopyTo(*texRes[texID]);	// テクスチャのコピー
 		}
 
@@ -64,7 +64,7 @@ namespace dx9 {
 
 		if (resID == -1) {
 			// テクスチャを新規作成して登録
-			texRes[texID] = std::make_unique<TextureFile>();
+			texRes[texID] = std::make_unique<texture::TextureFile>();
 			if (!texRes[texID]->Create(d3ddev9, fileName)) {
 				return false;
 			}
@@ -72,7 +72,7 @@ namespace dx9 {
 		}
 		else {
 			// テクスチャをコピーして登録
-			texRes[texID] = std::make_unique<TextureFile>();
+			texRes[texID] = std::make_unique<texture::TextureFile>();
 			texRes[resID]->CopyTo(*texRes[texID]);	// テクスチャのコピー
 		}
 
@@ -168,7 +168,7 @@ namespace dx9 {
 				break;
 		}
 
-		TexClip clipInfo = texRes[texID]->GetClipInfo();
+		texture::TexClip clipInfo = texRes[texID]->GetClipInfo();
 
 		D3DXMATRIX world, scale, rot;
 		D3DXMatrixScaling(&world, (float)clipInfo.size.w, (float)clipInfo.size.h, 1.0f);	// ポリゴンサイズに

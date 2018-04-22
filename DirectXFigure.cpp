@@ -4,7 +4,7 @@
 
 namespace dx9 {
 
-	DirectXFigure::DirectXFigure() : emptyTex(std::make_unique<EmptyTexture>()) {
+	DirectXFigure::DirectXFigure() : emptyTex(std::make_unique<texture::EmptyTexture>()) {
 	}
 
 	DirectXFigure::~DirectXFigure() {
