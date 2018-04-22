@@ -66,7 +66,7 @@ namespace dx9 {
 
 
 
-		void TextureFile::Delete() {
+		void FileTexture::Delete() {
 			d3dtex9.Release();
 			name.clear();
 
@@ -79,7 +79,7 @@ namespace dx9 {
 		}
 
 
-		bool TextureFile::Create(IDirect3DDevice9* dev, const std::wstring& fileName) {
+		bool FileTexture::Create(IDirect3DDevice9* dev, const std::wstring& fileName) {
 			if (dev == nullptr) {
 				return false;
 			}

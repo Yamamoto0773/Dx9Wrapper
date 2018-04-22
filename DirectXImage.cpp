@@ -23,7 +23,7 @@ namespace dx9 {
 
 		if (resID == -1) {
 			// テクスチャを新規作成して登録
-			texRes[texID] = std::make_unique<texture::TextureFile>();
+			texRes[texID] = std::make_unique<texture::FileTexture>();
 			if (!texRes[texID]->Create(d3ddev9, fileName)) {
 				return false;
 			}
@@ -31,7 +31,7 @@ namespace dx9 {
 		}
 		else {
 			// テクスチャをコピーして登録
-			texRes[texID] = std::make_unique<texture::TextureFile>();
+			texRes[texID] = std::make_unique<texture::FileTexture>();
 			texRes[resID]->CopyTo(*texRes[texID]);	// テクスチャのコピー
 		}
 
@@ -64,7 +64,7 @@ namespace dx9 {
 
 		if (resID == -1) {
 			// テクスチャを新規作成して登録
-			texRes[texID] = std::make_unique<texture::TextureFile>();
+			texRes[texID] = std::make_unique<texture::FileTexture>();
 			if (!texRes[texID]->Create(d3ddev9, fileName)) {
 				return false;
 			}
@@ -72,7 +72,7 @@ namespace dx9 {
 		}
 		else {
 			// テクスチャをコピーして登録
-			texRes[texID] = std::make_unique<texture::TextureFile>();
+			texRes[texID] = std::make_unique<texture::FileTexture>();
 			texRes[resID]->CopyTo(*texRes[texID]);	// テクスチャのコピー
 		}
 

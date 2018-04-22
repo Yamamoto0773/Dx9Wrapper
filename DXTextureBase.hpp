@@ -98,14 +98,14 @@ namespace dx9 {
 			UVCoord uv;
 		};
 
-		class TextureFile : public DXTextureBase {
+		class FileTexture : public DXTextureBase {
 			// 切り抜き情報
 			TexClip texClip;
 
 
 		public:
-			TextureFile() {};
-			~TextureFile() {};
+			FileTexture() {};
+			~FileTexture() {};
 
 
 			const TexClip& GetClipInfo() { return texClip; };

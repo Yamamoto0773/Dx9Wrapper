@@ -16,7 +16,7 @@ namespace dx9 {
 
 	private:
 		// 画像ファイル用のテクスチャ
-		std::array<std::unique_ptr<texture::TextureFile>, TEXTURE_MAXCNT> texRes;
+		std::array<std::unique_ptr<texture::FileTexture>, TEXTURE_MAXCNT> texRes;
 		
 		
 
