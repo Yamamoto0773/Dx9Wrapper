@@ -1,4 +1,4 @@
-﻿#include "DXTextureManager.hpp"
+﻿#include "DXTextureBase.hpp"
 
 #define Successful (1)
 #define Failed (0)
