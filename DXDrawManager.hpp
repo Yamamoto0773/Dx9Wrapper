@@ -21,90 +21,20 @@
 #include<memory>
 #include<atlbase.h>
 #include<vector>
-#include<list>
 
 #include "dx9.hpp"
+#include "DXTextureManager.hpp"
 #include "LogManager.hpp"
 
 
 
 namespace dx9 {
 
-	// ブレンドモードを指定する時の列挙体
-	enum class BLENDMODE {
-		// 通常合成
-		// 結果色 = 合成色x合成色.alpha + 背景色x(1-合成色.alpha)
-		NORMAL = 0,
+	class DXDrawManager : private resource::DX9ShareContainer {
 
-		// 加算合成 (光の表現などに用いる)
-		// 結果色 = 合成色x合成色.alpha + 背景色x1
-		ADD
-	};
+		texture::DXTextureManager texMng;
 
-
-	// フルシーンマルチサンプリングのレベル
-	enum class MultiSampleLv : DWORD {
-		NONE = 0,
-		_2SAMPLES = 2,
-		_4SAMPLES = 4,
-		_6SAMPLES = 6,
-		_8SAMPLES = 8,
-		_12SAMPLES = 12,
-		_16SAMPLES = 16
-	};
-
-
-	
-
-	namespace shader {
-
-		enum class ShaderPass : UINT {
-			Color = 0,
-			Tex,
-			Mul_Tex_Color,
-			Mul_ColorAlpha_TexAlpha,
-			Mul_ColorAlpha_InvTexAlpha,
-			Mul_UVTex_color,
-			Mul_ColorAlpha_InvUVTexAlpha
-		};
-
-	}
-
-
-
-	class DXDrawManager {
-
-		static bool isResCreated;
 		static size_t topLayerPos;
-		
-	protected:
-		static CComPtr<IDirect3D9>			d3d9;
-		static CComPtr<IDirect3DDevice9>	d3ddev9;
-
-		static D3DCAPS9						d3dcaps9;
-
-		// DirectXを初期化する時に使う構造体
-		// どんな値を設定したか取っておいた方がいいので、メンバ変数とする。
-		static D3DPRESENT_PARAMETERS				d3dpresent;
-
-		static CComPtr<IDirect3DVertexBuffer9>		vertex;		// 頂点バッファ
-	
-		static CComPtr<ID3DXEffect>					effect;		// シェーダ
-
-		static CComPtr<IDirect3DVertexDeclaration9>	verDecl;	// 頂点宣言
-
-	
-
-		// 現在の状態を保持する変数
-		static D3DXMATRIX projMat;
-
-		static BLENDMODE blendMode;
-		static bool isDrawStarted;
-		static bool isLost;
-		static bool isRightHand;
-		static unsigned long backGroundColor;
-		
-		static LogManager* log;
 	
 	private:
 		// コピー不可
@@ -120,20 +50,58 @@ namespace dx9 {
 		// DirectXインターフェース群の生成
 		bool Create(HWND hwnd, Size size, MultiSampleLv level=MultiSampleLv::_4SAMPLES, bool isRightHand=false);
 
-		
-		// 現在描画可能か返す
-		bool isDrawable() { return (isDrawStarted && (!isLost) && isResCreated); };
-
-
-		// ---------------------------------------
-		// 描画を行う関数
-
-
 		// 描画開始
 		bool DrawBegin(bool isClear);
 
 		// 描画終了
 		bool DrawEnd();
+
+
+
+
+		// ---------------------------------------
+		// テクスチャの管理などを行う関数
+
+		// 画像ファイルからテクスチャを作成
+		bool CreateFromFile(
+			Texture &tex,
+			const std::wstring& fileName
+			);
+
+		// 画像ファイルからトリミングしてテクスチャを作成
+		bool CreateFromFile(
+			Texture &tex,
+			const std::wstring& fileName,
+			size_t x,
+			size_t y,
+			size_t w,
+			size_t h
+			);
+
+		// 空のテクスチャを作成
+		bool CreateEmptyTex(
+			Texture &tex,
+			size_t w,
+			size_t h
+			);
+
+		// 使用されていないテクスチャを削除
+		// 戻り値:解放したテクスチャの数
+		int CleanTexPool();
+
+
+		// ---------------------------------------
+		// 描画を行う関数
+		bool DrawTexture(
+			Texture &tex,
+			float x,
+			float y,
+			DrawTexCoord coord=DrawTexCoord::TOP_L,
+			float alpha=1.0f,
+			float xscale=1.0f,
+			float yscale=1.0f,
+			int rotDeg=0
+			);
 
 
 		// ---------------------------------------
@@ -159,15 +127,6 @@ namespace dx9 {
 		// Direct3DDevice9オブジェクトの生ポインタ取得
 		const IDirect3DDevice9* _GetDirect3DDev9() const { return d3ddev9.p; }
 		
-
-	protected:
-
-		// 描画の前後位置を管理する関数
-		float GetTopLayerPos() { return topLayerPos; };
-
-		// 1つ上のレイヤーに変更
-		void ChangeLayer() { topLayerPos++; };
-
 
 	private:
 		

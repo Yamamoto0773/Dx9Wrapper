@@ -8,22 +8,7 @@
 
 namespace dx9 {
 
-	bool DXDrawManager::isResCreated = false;
 
-	LogManager* DXDrawManager::log;
-	CComPtr<IDirect3D9>			DXDrawManager::d3d9;
-	CComPtr<IDirect3DDevice9>	DXDrawManager::d3ddev9;
-	D3DCAPS9					DXDrawManager::d3dcaps9;
-	D3DPRESENT_PARAMETERS				DXDrawManager::d3dpresent;
-	CComPtr<IDirect3DVertexBuffer9>		DXDrawManager::vertex;
-	CComPtr<ID3DXEffect>				DXDrawManager::effect;		// シェーダ
-	CComPtr<IDirect3DVertexDeclaration9>DXDrawManager::verDecl;	// 頂点宣言
-	D3DXMATRIX DXDrawManager::projMat;
-	BLENDMODE DXDrawManager::blendMode = BLENDMODE::NORMAL;
-	bool DXDrawManager::isDrawStarted = false;
-	bool DXDrawManager::isLost = false;
-	bool DXDrawManager::isRightHand = false;
-	unsigned long DXDrawManager::backGroundColor = 0xffffff;
 	size_t DXDrawManager::topLayerPos = 0;
 
 
@@ -55,6 +40,30 @@ namespace dx9 {
 
 		return true;
 	}
+
+
+
+
+	bool DXDrawManager::CreateFromFile(Texture & tex, const std::wstring & fileName) {
+		return texMng.CreateFromFile(tex, fileName);
+	}
+
+	bool DXDrawManager::CreateFromFile(Texture & tex, const std::wstring & fileName, size_t x, size_t y, size_t w, size_t h) {
+		return texMng.CreateFromFile(tex, fileName, x, y, w, h);
+	}
+
+	bool DXDrawManager::CreateEmptyTex(Texture & tex, size_t w, size_t h) {
+		return texMng.CreateEmptyTex(tex, w, h);
+	}
+
+	int DXDrawManager::CleanTexPool() {
+		return texMng.CleanTexPool();
+	}
+	
+	bool DXDrawManager::DrawTexture(Texture & tex, float x, float y, DrawTexCoord coord, float alpha, float xscale, float yscale, int rotDeg) {
+		return texMng.DrawTexture(tex, x, y, coord, alpha, xscale, yscale, rotDeg);
+	}
+
 
 
 	bool DXDrawManager::DrawBegin(bool isClear) {
@@ -106,6 +115,9 @@ namespace dx9 {
 
 		return true;
 	}
+
+	
+
 
 	void DXDrawManager::SetBackGroundColor(size_t r, size_t g, size_t b) {
 		// 最大値を255までにする
