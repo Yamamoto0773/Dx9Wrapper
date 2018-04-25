@@ -18,8 +18,6 @@ namespace dx9 {
 		AntialiasLevel			antialiasLv;
 
 		TEXTMETRICA				tm;
-		TextureFilter			texFilter;
-		
 	
 
 		std::vector< std::unique_ptr<texture::FontTextureA> > texRes;
@@ -39,12 +37,6 @@ namespace dx9 {
 			bool			isStrikeOut = false,
 			AntialiasLevel	level = AntialiasLevel::_15STEPS
 			);
-
-
-		// 描画時のテクスチャの補完方法の指定 (ジャギーがかかる場合はこの関数で設定して下さい)
-		// https://msdn.microsoft.com/ja-jp/library/cc324337.aspx
-		void SetFontTextureFilter(TextureFilter filter) { texFilter = filter; };
-
 
 
 		//////////////////////////////////////////////

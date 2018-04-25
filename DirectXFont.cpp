@@ -302,8 +302,6 @@ namespace dx9 {
 
 	DirectXFont::DirectXFont() {
 		hFont = nullptr;
-		texFilter = TextureFilter::LINEAR;
-
 	}
 
 	DirectXFont::~DirectXFont() {
@@ -324,8 +322,7 @@ namespace dx9 {
 	bool DirectXFont::DeleteAll() {
 		fontSize = 0;
 		antialiasLv = AntialiasLevel::_15STEPS;
-		texFilter = TextureFilter::NONE;
-
+		
 		if (hFont != nullptr) {
 			DeleteObject(hFont);
 		}

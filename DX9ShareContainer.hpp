@@ -42,6 +42,7 @@ namespace dx9 {
 			static bool isLost;
 			static bool isRightHand;
 			static unsigned long backGroundColor;
+			static TextureFilter texFilter;
 
 			static LogManager* log;
 

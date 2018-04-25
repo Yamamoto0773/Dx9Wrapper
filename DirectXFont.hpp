@@ -17,8 +17,6 @@ namespace dx9 {
 		AntialiasLevel			antialiasLv;
 
 		TEXTMETRICW				tm;
-		TextureFilter			texFilter;
-
 	
 		std::vector<std::unique_ptr<texture::FontTextureW>> texRes;
 
@@ -43,11 +41,6 @@ namespace dx9 {
 		// 文字列テクスチャを明示的に作成
 		bool StoreFontTex(const std::wstring& wstr);
 	
-
-		// 描画時のテクスチャの補完方法の指定 (ジャギーがかかる場合はこの関数で設定して下さい)
-		// https://msdn.microsoft.com/ja-jp/library/cc324337.aspx
-		void SetFontTextureFilter(TextureFilter filter) { texFilter = filter; };
-
 
 		//////////////////////////////////////////////
 		// 文字描画

@@ -115,6 +115,8 @@ namespace dx9 {
 		// ブレンドモードの設定
 		void SetBlendMode(BLENDMODE mode);
 
+		void SetTexFilter(TextureFilter mode);
+
 		// ---------------------------------------
 
 		// ログの書き込み先の指定

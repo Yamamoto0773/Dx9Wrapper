@@ -148,6 +148,10 @@ namespace dx9 {
 
 	}
 
+	void DXDrawManager::SetTexFilter(TextureFilter mode) {
+		texFilter = mode;
+	}
+
 
 
 	void DXDrawManager::SetLogWriteDest(LogManager* dest) {
