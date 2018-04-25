@@ -34,12 +34,15 @@ namespace dx9 {
 
 			static LogManager* log;
 
-			unsigned long width;
-			unsigned long height;
+			size_t width;
+			size_t height;
 			bool isLocked;
 
 
 		public:
+			DXTextureBase();
+			virtual ~DXTextureBase();
+
 			// コピー不可
 			DXTextureBase(const DXTextureBase&) = delete;
 			DXTextureBase& operator=(const DXTextureBase&) = delete;
@@ -47,12 +50,16 @@ namespace dx9 {
 			DXTextureBase(DXTextureBase&&) = default;
 			DXTextureBase& operator=(DXTextureBase&&) = default;
 
+			// ファイルからテクスチャ作成
+			bool Create(IDirect3DDevice9* dev, const std::wstring& fileName);
+			// 空テクスチャ作成
+			bool Create(IDirect3DDevice9* dev, size_t width, size_t height);
 
 			void CopyTo(DXTextureBase &dst);
 
 
 			// テクスチャの明示的削除
-			virtual void Delete() = 0;
+			virtual void Delete();
 
 
 			bool Lock(D3DLOCKED_RECT *rect);
@@ -78,59 +85,12 @@ namespace dx9 {
 
 			static void SetLogWriteDest(LogManager* dest);
 
-		private:
-
-
-		protected:
-			DXTextureBase();
-			virtual ~DXTextureBase();
-
-
-
 		};
 
 
-
-
-
-		struct TexClip {
-			Size size;
-			UVCoord uv;
-		};
-
-		class FileTexture : public DXTextureBase {
-			// 切り抜き情報
-			TexClip texClip;
-
-
-		public:
-			FileTexture() {};
-			~FileTexture() {};
-
-
-			const TexClip& GetClipInfo() { return texClip; };
-			void SetClipSize(Size &size) { texClip.size = size; };
-			void SetClipUV(UVCoord &uv) { texClip.uv = uv; };
-
-
-			bool Create(IDirect3DDevice9* dev, const std::wstring& fileName);
-
-			void Delete() override;
-
-
-		};
-
-
-
-		class EmptyTexture : public DXTextureBase {
-		public:
-			bool Create(IDirect3DDevice9* dev, size_t width, size_t height);
-
-			void Delete() override;
-
-		};
-
+	
 	}
+
 
 
 }
