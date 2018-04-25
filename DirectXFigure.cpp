@@ -4,7 +4,7 @@
 
 namespace dx9 {
 
-	DirectXFigure::DirectXFigure() : emptyTex(std::make_unique<texture::EmptyTexture>()) {
+	DirectXFigure::DirectXFigure() : emptyTex(std::make_unique<texture::DXTextureBase>()) {
 	}
 
 	DirectXFigure::~DirectXFigure() {
@@ -43,7 +43,7 @@ namespace dx9 {
 		line.SetColor(color);
 		line.SetLineWidth(lineWidth);
 
-		return line.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, GetTopLayerPos());
+		return line.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, topLayerPos);
 	}
 
 	bool DirectXFigure::DrawLine(float begin_x, float begin_y, float end_x, float end_y, DWORD color, float lineWidth) {
@@ -74,7 +74,7 @@ namespace dx9 {
 		rectframe.SetColor(color);
 		rectframe.SetLineWidth(lineWidth);
 
-		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, GetTopLayerPos());
+		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, topLayerPos);
 	}
 
 	bool DirectXFigure::DrawRectFrame(float x, float y, float w, float h, DWORD color, float lineWidth) {
@@ -94,7 +94,7 @@ namespace dx9 {
 		rectframe.SetColor(color);
 		rectframe.SetLineWidth(lineWidth);
 
-		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, GetTopLayerPos());
+		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, topLayerPos);
 	}
 
 	bool DirectXFigure::DrawRectFrame(RectF &rect, DWORD color, float lineWidth) {
@@ -114,7 +114,7 @@ namespace dx9 {
 		rectframe.SetColor(color);
 		rectframe.SetLineWidth(lineWidth);
 
-		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, GetTopLayerPos());
+		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, topLayerPos);
 	}
 
 
@@ -132,7 +132,7 @@ namespace dx9 {
 		rectframe.SetPos(rect);
 		rectframe.SetColor(color);
 		
-		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, GetTopLayerPos());
+		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, topLayerPos);
 
 	}
 
@@ -150,7 +150,7 @@ namespace dx9 {
 		rectframe.SetPos(topLeft, bottomRight);
 		rectframe.SetColor(color);
 
-		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, GetTopLayerPos());
+		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, topLayerPos);
 
 	}
 
@@ -167,7 +167,7 @@ namespace dx9 {
 		rectframe.SetPos(x, y, w, h);
 		rectframe.SetColor(color);
 	
-		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, GetTopLayerPos());
+		return rectframe.Draw(d3ddev9, effect, emptyTex.get(), &projMat, blendMode, topLayerPos);
 
 	}
 

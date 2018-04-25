@@ -5,10 +5,10 @@
 
 namespace dx9 {
 
-	class DirectXFigure : private DXDrawManager {
+	class DirectXFigure : private resource::DX9ShareContainer {
 
 	private:
-		std::unique_ptr<texture::EmptyTexture> emptyTex;
+		std::unique_ptr<texture::DXTextureBase> emptyTex;
 	
 
 	public:

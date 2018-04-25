@@ -290,7 +290,7 @@ namespace dx9 {
 			world = world * scale * rot;
 			world._41 += pos[i].x + origin.x;	// ピボット分オフセット
 			world._42 += pos[i].y + origin.y;
-			world._43 += GetTopLayerPos()/1000.0f;
+			world._43 += topLayerPos/1000.0f;
 
 			// ラスタライゼーションルールを用いて，テクスチャをずらす
 			world._41 = ceil(world._41) - 0.5f;

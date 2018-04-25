@@ -1,14 +1,14 @@
 ﻿#pragma once
 
 #include "FontTexture.hpp"
-#include "DXDrawManager.hpp"
+#include "DX9ShareContainer.hpp"
 
 // ASCII文字描画クラス
 
 
 namespace dx9 {
 
-	class DirectXFontAscii : private DXDrawManager {
+	class DirectXFontAscii : resource::DX9ShareContainer {
 
 		static const int CHARACTER_MAXCNT = 512;	// 文字列の最大文字数
 

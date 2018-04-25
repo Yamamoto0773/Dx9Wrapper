@@ -2,17 +2,15 @@
 
 
 #include "FontTexture.hpp"
-#include "DXDrawManager.hpp"
+#include "DX9ShareContainer.hpp"
 
 
 namespace dx9 {
 
-	static const int CHARACTER_MAXCNT = 512;	// 文字列の最大文字数
-
-
-
 	// 文字列描画クラス
-	class DirectXFont : private DXDrawManager {
+	class DirectXFont : resource::DX9ShareContainer {
+
+		static const int CHARACTER_MAXCNT = 512;	// 文字列の最大文字数
 
 	private:
 		HFONT					hFont;			// 設定中のフォントのハンドル
@@ -22,7 +20,7 @@ namespace dx9 {
 		TextureFilter			texFilter;
 
 	
-		std::vector< std::unique_ptr<texture::FontTextureW> > texRes;
+		std::vector<std::unique_ptr<texture::FontTextureW>> texRes;
 
 		size_t fontSize;
 

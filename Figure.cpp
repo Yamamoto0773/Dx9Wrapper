@@ -55,7 +55,7 @@ namespace dx9 {
 		}
 
 
-		bool Line::Draw(IDirect3DDevice9 *dev, ID3DXEffect *effect, const texture::EmptyTexture *tex, D3DXMATRIX *projMat, BLENDMODE blendMode, float layerPos) {
+		bool Line::Draw(IDirect3DDevice9 *dev, ID3DXEffect *effect, const texture::DXTextureBase *tex, D3DXMATRIX *projMat, BLENDMODE blendMode, float layerPos) {
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -149,7 +149,7 @@ namespace dx9 {
 
 
 
-		bool Rect::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, const texture::EmptyTexture * tex, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
+		bool Rect::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, const texture::DXTextureBase * tex, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -208,7 +208,7 @@ namespace dx9 {
 		}
 
 
-		bool RectFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, const texture::EmptyTexture * tex, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
+		bool RectFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, const texture::DXTextureBase * tex, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
