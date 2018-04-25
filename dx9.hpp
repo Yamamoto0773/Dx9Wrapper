@@ -7,7 +7,7 @@ namespace dx9 {
 
 	inline DWORD getRGBA(size_t r, size_t g, size_t b, size_t a) {
 		r &= 0xff, g &= 0xff, b &= 0xff, a &= 0xff;
-		return ( (r<<24)|(g<<16)|(b<<8)|a );
+		return static_cast<DWORD>((r<<24)|(g<<16)|(b<<8)|a);
 	}
 
 
@@ -32,6 +32,30 @@ namespace dx9 {
 		float top;
 		float w;
 		float h;
+	};
+
+
+	// ブレンドモードを指定する時の列挙体
+	enum class BLENDMODE {
+		// 通常合成
+		// 結果色 = 合成色x合成色.alpha + 背景色x(1-合成色.alpha)
+		NORMAL = 0,
+
+		// 加算合成 (光の表現などに用いる)
+		// 結果色 = 合成色x合成色.alpha + 背景色x1
+		ADD
+	};
+
+
+	// フルシーンマルチサンプリングのレベル
+	enum class MultiSampleLv : DWORD {
+		NONE = 0,
+		_2SAMPLES = 2,
+		_4SAMPLES = 4,
+		_6SAMPLES = 6,
+		_8SAMPLES = 8,
+		_12SAMPLES = 12,
+		_16SAMPLES = 16
 	};
 
 
@@ -103,5 +127,20 @@ namespace dx9 {
 		_65STEPS = 6
 	};
 
+
+
+	namespace shader {
+
+		enum class ShaderPass : UINT {
+			Color = 0,
+			Tex,
+			Mul_Tex_Color,
+			Mul_ColorAlpha_TexAlpha,
+			Mul_ColorAlpha_InvTexAlpha,
+			Mul_UVTex_color,
+			Mul_ColorAlpha_InvUVTexAlpha
+		};
+
+	}
 	
 }
