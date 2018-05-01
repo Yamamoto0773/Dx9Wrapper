@@ -11,7 +11,7 @@ namespace dx9 {
 	// 文字列描画クラス
 	class DirectXFont : resource::DX9ShareContainer {
 
-		static const int CHARACTER_MAXCNT = 12;	// 文字列の最大文字数
+		static const int CHARACTER_MAXCNT = 1024;	// 文字列の最大文字数
 
 	private:
 		HFONT					hFont;			// 設定中のフォントのハンドル

@@ -11,7 +11,7 @@ namespace dx9 {
 
 	class DirectXFontAscii : resource::DX9ShareContainer {
 
-		static const int CHARACTER_MAXCNT = 128;	// 文字列の最大文字数
+		static const int CHARACTER_MAXCNT = 1024;	// 文字列の最大文字数
 
 
 	private:
