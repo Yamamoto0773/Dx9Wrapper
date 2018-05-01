@@ -6,6 +6,10 @@ float4 color;
 texture tex;
 texture tex2;
 
+float frameWeight_u;
+float frameWeight_v;
+
+
 float uv_left;
 float uv_top;
 float uv_width;
@@ -123,6 +127,21 @@ float4 ps_color_texAlpha(VS_OUT In) : COLOR0 {
 }
 
 
+// 長方形の輪郭部分に着色
+float4 ps_rectFrame(VS_OUT In) : COLOR0 {
+
+	if (In.uv[0] > 1.0f-frameWeight_u ||
+		In.uv[0] < frameWeight_u ||
+		In.uv[1] > 1.0f-frameWeight_v ||
+		In.uv[1] < frameWeight_v) {
+			return color;
+	}
+
+	return float4(0, 0, 0, 0);
+}
+
+
+
 
 technique Tech {
 
@@ -183,6 +202,13 @@ technique Tech {
 		AlphaBlendEnable = true;
 	}
 
+	// 長方形の輪郭を描画
+	pass p7 {
+		VertexShader = compile vs_2_0 vs_tex();
+		PixelShader	 = compile ps_2_0 ps_rectFrame();
+
+		AlphaBlendEnable = true;
+	}
 
 
 }
