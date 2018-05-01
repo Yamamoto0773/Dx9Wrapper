@@ -3,6 +3,7 @@
 
 #include "FontTexture.hpp"
 #include "DX9ShareContainer.hpp"
+#include <array>
 
 
 namespace dx9 {
@@ -10,7 +11,7 @@ namespace dx9 {
 	// 文字列描画クラス
 	class DirectXFont : resource::DX9ShareContainer {
 
-		static const int CHARACTER_MAXCNT = 512;	// 文字列の最大文字数
+		static const int CHARACTER_MAXCNT = 12;	// 文字列の最大文字数
 
 	private:
 		HFONT					hFont;			// 設定中のフォントのハンドル
@@ -20,7 +21,12 @@ namespace dx9 {
 	
 		std::vector<std::unique_ptr<texture::FontTextureW>> texRes;
 
+		std::array<wchar_t, CHARACTER_MAXCNT+1> workBuf;
+		
+
 		size_t fontSize;
+
+		float fontColor[4];
 
 	public:
 		DirectXFont();
@@ -28,7 +34,7 @@ namespace dx9 {
 
 
 		virtual bool Create(
-			const wchar_t*	fontName,
+			const std::wstring&	fontName,
 			size_t			fontSize,
 			FontWeight		fontWeight = FontWeight::NORMAL,
 			bool			isItalic = false,
@@ -39,8 +45,16 @@ namespace dx9 {
 
 
 		// 文字列テクスチャを明示的に作成
-		bool StoreFontTex(const std::wstring& wstr);
+		bool StoreFontTex(const wchar_t* wstr);
 	
+		// ARGBの順
+		void SetFontColor(DWORD &color);
+
+		// 0-255の成分指定
+		void SetFontColor(size_t r, size_t g, size_t b, size_t a=255);
+
+		// 0.0f-1.0fの成分指定
+		void SetFontColor(float r, float g, float b, float a);
 
 		//////////////////////////////////////////////
 		// 文字描画
@@ -48,16 +62,14 @@ namespace dx9 {
 		// シンプル描画
 		bool Draw(
 			float x,
-			float y,
-			DWORD color,
+			float y,			
 			const wchar_t* s, ...
 			);
 
 		// 指定領域内へ文字描画
 		bool DrawInRect(
 			RectF &rect,
-			DWORD format,
-			DWORD color,
+			TextAlign format,			
 			const wchar_t* s, ...
 			);
 
@@ -65,8 +77,7 @@ namespace dx9 {
 		// note:最後の文字まで描画する時は，drawChCntに負数を指定
 		bool Draw(
 			float x,
-			float y,
-			DWORD color,
+			float y,			
 			size_t startCharCnt,
 			int drawCharCnt,
 			const wchar_t* s, ...
@@ -76,8 +87,7 @@ namespace dx9 {
 		// note:最後の文字まで描画する時は，drawChCntに負数を指定
 		bool DrawInRect(
 			RectF &rect,
-			DWORD format,
-			DWORD color,
+			TextAlign format,			
 			size_t startCharCnt,
 			int drawCharCnt,
 			const wchar_t* s, ...
@@ -86,8 +96,7 @@ namespace dx9 {
 		// 回転
 		bool Draw(
 			float x,
-			float y,
-			DWORD color,
+			float y,			
 			float rotateDeg,
 			FontRotOrigin rotOrigin,
 			const wchar_t* s, ...
@@ -96,8 +105,7 @@ namespace dx9 {
 		// 回転x指定領域内へ文字描画
 		bool DrawInRect(
 			RectF &rect,
-			DWORD format,
-			DWORD color,
+			TextAlign format,			
 			float rotateDeg,
 			FontRotOrigin rotOrigin,
 			const wchar_t* s, ...
@@ -107,8 +115,7 @@ namespace dx9 {
 		// カスタム描画
 		bool DrawInRect(
 			RectF &rect,
-			DWORD format,
-			DWORD color,
+			TextAlign format,
 			size_t startCharCnt,
 			int drawCharCnt,
 			size_t fontSize,
@@ -131,10 +138,9 @@ namespace dx9 {
 	private:
 
 		// 描画を管理する関数
-		virtual bool DrawFont(
+		bool DrawFont(
 			RectF &rect,
-			DWORD format,
-			DWORD color,
+			TextAlign format,
 			size_t startCharCnt,
 			int drawCharCnt,
 			size_t fontSize,
@@ -146,25 +152,13 @@ namespace dx9 {
 			);
 
 
-		// 与えられた描画領域とフォーマットから、最終的な描画座標を計算
-		// [in] 文字列テクスチャの参照
-		// [in] 描画する短形領域
-		// [in] 拡大倍率
-		// [in] 文字の間隔
-		// [in] 配置フォーマット
-		// [out] 文字の描画位置
-		// [out] 文字列の描画範囲
-		// [out] 拡大倍率 (inScale*outScaleが最終的な拡大倍率になります)
-		int	CalcTextPosition(
-			const std::wstring &str,
-			RectF &rect,
-			float inScale,
-			int letterSpace,
-			DWORD format,
-			std::vector<PointF> &pt,
-			RectF &strArea,
-			float &outScale
-			);
+	
+
+		// 文字列strのoffset番目の文字から，長さlimitに1行で入る文字数を取得
+		// 1行の長さは，lengthに書き込まれる
+		// limit < 0.0fの場合，長さの指定を無視する
+		int GetStrLength(const wchar_t* str, size_t offset, float limit, size_t &length);
+
 
 	};
 
