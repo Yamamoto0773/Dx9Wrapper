@@ -106,7 +106,6 @@ namespace dx9 {
 
 
 	enum class AntialiasLevel : UINT {
-		NONE = 1,
 		_3STEPS = 4,
 		_15STEPS = 5,
 		_65STEPS = 6

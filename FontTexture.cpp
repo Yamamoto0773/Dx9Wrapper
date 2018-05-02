@@ -35,9 +35,6 @@ namespace dx9 {
 			// ビットマップの階調を取得
 			int grad;
 			switch (level) {
-				case AntialiasLevel::NONE:
-					grad = 1;
-					break;
 				case AntialiasLevel::_3STEPS:
 					grad = 4;
 					break;
@@ -125,12 +122,14 @@ namespace dx9 {
 				Lock(&lockedRect);							// ロック
 				DWORD *texBuf = (DWORD*)lockedRect.pBits;   // テクスチャメモリへのポインタ
 
+
 				for (int y = 0; y < charInfo.sizeH; y++) {
 					for (int x = 0; x < charInfo.sizeW; x++) {
 						DWORD alpha = pMono[y * charInfo.sizeW + x] * 255 / grad;
 						texBuf[y * charInfo.sizeW + x] = (alpha << 24) & 0xffffffff;
 					}
 				}
+
 
 				Unlock();  // アンロック
 			}
@@ -169,9 +168,6 @@ namespace dx9 {
 			// ビットマップの階調を取得
 			int grad;
 			switch (level) {
-				case AntialiasLevel::NONE:
-					grad = 1;
-					break;
 				case AntialiasLevel::_3STEPS:
 					grad = 4;
 					break;
