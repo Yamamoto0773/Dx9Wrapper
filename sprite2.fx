@@ -9,6 +9,9 @@ texture tex2;
 float frameWeight_u;
 float frameWeight_v;
 
+float2 focusPt;
+float circle_w, circle_h;
+float frameWeight;
 
 float uv_left;
 float uv_top;
@@ -21,6 +24,7 @@ sampler smp_tex = sampler_state {
 sampler smp_Tex2 = sampler_state {
 	texture = <tex2>;
 };
+
 
 
 struct VS_IN {
@@ -74,9 +78,6 @@ float4 vs_noTex( float3 pos : POSITION ) : POSITION {
 
 	return Out;
 }
-
-
-
 
 
 //////////////////////////////////////////////////////////
@@ -135,6 +136,21 @@ float4 ps_rectFrame(VS_OUT In) : COLOR0 {
 		In.uv[1] > 1.0f-frameWeight_v ||
 		In.uv[1] < frameWeight_v) {
 			return color;
+	}
+
+	return float4(0, 0, 0, 0);
+}
+
+
+// 円形の輪郭部分に着色
+float4 ps_circleFrame(VS_OUT In) : COLOR0 {
+	float2 pt = {(In.uv[0]-0.5f)*circle_w, (In.uv[1]-0.5f)*circle_h};
+
+	float2 vec1 = pt - focusPt;
+	float2 vec2 = pt - float2(-focusPt[0], focusPt[1]);
+
+	if (length(vec1)+length(vec2) > (circle_w/2 - frameWeight)*2) {
+		return color;
 	}
 
 	return float4(0, 0, 0, 0);
@@ -206,6 +222,14 @@ technique Tech {
 	pass p7 {
 		VertexShader = compile vs_2_0 vs_tex();
 		PixelShader	 = compile ps_2_0 ps_rectFrame();
+
+		AlphaBlendEnable = true;
+	}
+
+	// 円形の輪郭を描画
+	pass p8 {
+		VertexShader = compile vs_2_0 vs_tex();
+		PixelShader	 = compile ps_2_0 ps_circleFrame();
 
 		AlphaBlendEnable = true;
 	}

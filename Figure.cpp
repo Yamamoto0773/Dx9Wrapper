@@ -2,6 +2,9 @@
 #include "Figure.hpp"
 #include "template.hpp"
 
+#define _USE_MATH_DEFINES
+#include <math.h>  
+
 
 namespace dx9 {
 
@@ -9,10 +12,27 @@ namespace dx9 {
 
 		
 
-		Figure::Figure() {
+		Figure::Figure() :
+			colorRGBA({0.0f, 0.0f, 0.0f, 1.0f}),
+			rotRad(0.0f) {
 		}
 
 		Figure::~Figure() {
+		}
+
+		void Figure::SetColor(DWORD color) {
+			colorRGBA = {
+				(color>>16 & 0xff) / 255.0f,
+				(color>>8 & 0xff) /255.0f,
+				(color & 0xff) / 255.0f,
+				(color>>24 & 0xff) / 255.0f
+			};
+		}
+
+
+		void Figure::SetRot(int deg) {
+			deg%=360;
+			rotRad = M_PI*deg/180.0f;
 		}
 
 
@@ -21,8 +41,6 @@ namespace dx9 {
 			begin({0.0f, 0.0f}),
 			vec(1.0f, 1.0f),
 			length(1.0f),
-			rotRad(0.0f),
-			colorRGBA(),
 			lineWidth(1.0f) {
 
 		}
@@ -42,20 +60,12 @@ namespace dx9 {
 
 		}
 
-		void Line::SetColor(DWORD color) {
-			// 指定色をfloat型配列に変換
-			colorRGBA[0] = (color>>16 & 0x000000ff) / 255.0f;
-			colorRGBA[1] = (color>>8 & 0x000000ff) /255.0f;
-			colorRGBA[2] = (color & 0x000000ff) / 255.0f;
-			colorRGBA[3] = (color>>24 & 0x000000ff) / 255.0f;
-		}
-
 		void Line::SetLineWidth(float lineWidth) {
 			this->lineWidth = lineWidth;
 		}
 
 
-		bool Line::Draw(IDirect3DDevice9 *dev, ID3DXEffect *effect, const texture::DXTextureBase *tex, D3DXMATRIX *projMat, BLENDMODE blendMode, float layerPos) {
+		bool Line::Draw(IDirect3DDevice9 *dev, ID3DXEffect *effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX *projMat, BLENDMODE blendMode, float layerPos) {
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -68,6 +78,8 @@ namespace dx9 {
 					break;
 			}
 
+			// 板ポリゴンを登録
+			dev->SetStreamSource(0, vtx, 0, sizeof(float)*5);
 
 			// シェーダ開始
 			UINT numPass = 0;
@@ -76,15 +88,14 @@ namespace dx9 {
 			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Color));
 
 
-			D3DXMATRIX world, scale, rot;
+			D3DXMATRIX world, rot;
 			D3DXMatrixScaling(&world, (float)length, lineWidth, 1.0f);	// ポリゴンサイズに
-			D3DXMatrixScaling(&scale, 1.0f, 1.0f, 1.0f);	// ローカルスケール
 			D3DXMatrixRotationZ(&rot, rotRad);						// 回転
-			world._41 = 0.0f;
-			world._42 = 0.0f;
-			world = world * scale * rot;
-			world._41 += begin.x -0.5f;
-			world._42 += begin.y +0.5f;
+			world._41 = -length/2.0f;
+			world._42 = -lineWidth/2.0f;
+			world = world * rot;
+			world._41 += length/2.0f + begin.x;
+			world._42 += lineWidth/2.0f + begin.y;
 			world._43 += layerPos/1000.0f;
 
 			// ラスタライゼーションルールを用いて，テクスチャをずらす
@@ -93,7 +104,7 @@ namespace dx9 {
 
 			effect->SetMatrix("world", &world);
 			effect->SetMatrix("proj", projMat);
-			effect->SetFloatArray("color", colorRGBA, 4);
+			effect->SetFloatArray("color", colorRGBA.data(), 4);
 			effect->CommitChanges();
 			dev->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
@@ -113,8 +124,7 @@ namespace dx9 {
 		Rect::Rect() : 
 			topLeft({0, 0}),
 			w(0),
-			h(0),
-			colorRGBA() {
+			h(0) {
 		}
 
 		Rect::~Rect() {
@@ -128,28 +138,8 @@ namespace dx9 {
 			this->h = h;
 		}
 
-		void Rect::SetPos(PointF topLeft, PointF bottomRight) {
-			this->topLeft = topLeft;
-			w = bottomRight.x - topLeft.x;
-			h = bottomRight.y - topLeft.y;
-		}
 
-		void Rect::SetPos(RectF rect) {
-			topLeft = {rect.left, rect.top};
-			w = rect.right - rect.left;
-			h = rect.bottom - rect.top;
-		}
-
-		void Rect::SetColor(DWORD color) {
-			colorRGBA[0] = (color>>16 & 0x000000ff) / 255.0f;
-			colorRGBA[1] = (color>>8 & 0x000000ff) /255.0f;
-			colorRGBA[2] = (color & 0x000000ff) / 255.0f;
-			colorRGBA[3] = (color>>24 & 0x000000ff) / 255.0f;
-		}
-
-
-
-		bool Rect::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, const texture::DXTextureBase * tex, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
+		bool Rect::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -162,6 +152,8 @@ namespace dx9 {
 					break;
 			}
 
+			// 板ポリゴンを登録
+			dev->SetStreamSource(0, vtx, 0, sizeof(float)*5);
 
 			// シェーダ開始
 			UINT numPass = 0;
@@ -170,11 +162,15 @@ namespace dx9 {
 			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Color));
 
 
-			D3DXMATRIX world;
+			D3DXMATRIX world, rot;
 			D3DXMatrixScaling(&world, (float)w, h, 1.0f);	// ポリゴンサイズに
-			world._41 = topLeft.x -0.5f;
-			world._42 = topLeft.y +0.5f;
-			world._43 = layerPos/1000.0f;
+			D3DXMatrixRotationZ(&rot, rotRad);						// 回転
+			world._41 = -w/2.0f;
+			world._42 = -h/2.0f;
+			world = world * rot;
+			world._41 += w/2.0f + topLeft.x;
+			world._42 += h/2.0f + topLeft.y;
+			world._43 += layerPos/1000.0f;
 
 			// ラスタライゼーションルールを用いて，テクスチャをずらす
 			world._41 = ceil(world._41) - 0.5f;
@@ -182,7 +178,7 @@ namespace dx9 {
 
 			effect->SetMatrix("world", &world);
 			effect->SetMatrix("proj", projMat);
-			effect->SetFloatArray("color", colorRGBA, 4);
+			effect->SetFloatArray("color", colorRGBA.data(), 4);
 			effect->CommitChanges();
 			dev->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
@@ -208,7 +204,7 @@ namespace dx9 {
 		}
 
 
-		bool RectFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, const texture::DXTextureBase * tex, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
+		bool RectFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -221,6 +217,8 @@ namespace dx9 {
 					break;
 			}
 
+			// 板ポリゴンを登録
+			dev->SetStreamSource(0, vtx, 0, sizeof(float)*5);
 
 			// シェーダ開始
 			UINT numPass = 0;
@@ -229,15 +227,14 @@ namespace dx9 {
 			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::RectFrame));
 
 
-			D3DXMATRIX world, scale, rot;
+			D3DXMATRIX world, rot;
 			D3DXMatrixScaling(&world, (float)w, h, 1.0f);	// ポリゴンサイズに
-			D3DXMatrixScaling(&scale, 1.0f, 1.0f, 1.0f);	// ローカルスケール
-			D3DXMatrixRotationZ(&rot, 0);						// 回転
-			world._41 = 0.0f;
-			world._42 = 0.0f;
-			world = world * scale * rot;
-			world._41 += topLeft.x -0.5f;
-			world._42 += topLeft.y +0.5f;
+			D3DXMatrixRotationZ(&rot, rotRad);						// 回転
+			world._41 = -w/2.0f;
+			world._42 = -h/2.0f;
+			world = world * rot;
+			world._41 += w/2.0f + topLeft.x;
+			world._42 += h/2.0f + topLeft.y;
 			world._43 += layerPos/1000.0f;
 
 			// ラスタライゼーションルールを用いて，テクスチャをずらす
@@ -246,7 +243,7 @@ namespace dx9 {
 
 			effect->SetMatrix("world", &world);
 			effect->SetMatrix("proj", projMat);
-			effect->SetFloatArray("color", colorRGBA, 4);
+			effect->SetFloatArray("color", colorRGBA.data(), 4);
 			effect->SetFloat("frameWeight_u", lineWidth/w);
 			effect->SetFloat("frameWeight_v", lineWidth/h);
 			effect->CommitChanges();
@@ -260,7 +257,140 @@ namespace dx9 {
 
 
 
-	}
+		Circle::Circle() :
+			center({0.0f, 0.0f}),
+			w(0),
+			h(0) {
+		}
+
+		Circle::~Circle() {
+		}
+
+		void Circle::SetPos(PointF center, float w, float h) {
+			this->center = center;
+			this->w = w;
+			this->h = h;
+		}
+
+
+		bool Circle::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
+			// ブレンドモードを設定
+			switch (blendMode) {
+				case BLENDMODE::NORMAL:
+					dev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+					dev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+					break;
+				case BLENDMODE::ADD:
+					dev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+					dev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+					break;
+			}
+
+			// 板ポリゴンを登録
+			dev->SetStreamSource(0, vtx, 0, sizeof(float)*5);
+
+			// シェーダ開始
+			UINT numPass = 0;
+			effect->SetTechnique("Tech");
+			effect->Begin(&numPass, 0);
+			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Color));
+
+
+			D3DXMATRIX world, rot;
+			D3DXMatrixScaling(&world, (float)w, h, 1.0f);	// ポリゴンサイズに
+			D3DXMatrixRotationZ(&rot, rotRad);						// 回転
+			world._41 = -w/2.0f;
+			world._42 = -h/2.0f;
+			world = world * rot;
+			world._41 += w/2.0f + center.x;
+			world._42 += h/2.0f + center.y;
+			world._43 += layerPos/1000.0f;
+
+			// ラスタライゼーションルールを用いて，テクスチャをずらす
+			world._41 = ceil(world._41) - 0.5f;
+			world._42 = floor(world._42) + 0.5f;
+
+			effect->SetMatrix("world", &world);
+			effect->SetMatrix("proj", projMat);
+			effect->SetFloatArray("color", colorRGBA.data(), 4);
+			effect->CommitChanges();
+			dev->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, resource::CIRCLE_VERTEXCNT);
+
+			effect->EndPass();
+			effect->End();
+
+			return true;
+		}
+
+
+
+
+
+		CircleFrame::CircleFrame() {
+		}
+
+		CircleFrame::~CircleFrame() {
+		}
+
+		void CircleFrame::setLineWidth(float lineWidth) {
+			this->lineWidth = lineWidth;
+		}
+
+		bool CircleFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
+			// ブレンドモードを設定
+			switch (blendMode) {
+				case BLENDMODE::NORMAL:
+					dev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+					dev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+					break;
+				case BLENDMODE::ADD:
+					dev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+					dev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+					break;
+			}
+
+			// 板ポリゴンを登録
+			dev->SetStreamSource(0, vtx, 0, sizeof(float)*5);
+
+			// シェーダ開始
+			UINT numPass = 0;
+			effect->SetTechnique("Tech");
+			effect->Begin(&numPass, 0);
+			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::CircleFrame));
+		
+
+			D3DXMATRIX world, rot;
+			D3DXMatrixScaling(&world, (float)w, h, 1.0f);	// ポリゴンサイズに
+			D3DXMatrixRotationZ(&rot, rotRad);						// 回転
+			world._41 = -w/2.0f;
+			world._42 = -h/2.0f;
+			world = world * rot;
+			world._41 += w/2.0f + center.x;
+			world._42 += h/2.0f + center.y;
+			world._43 += layerPos/1000.0f;
+
+			// ラスタライゼーションルールを用いて，テクスチャをずらす
+			world._41 = ceil(world._41) - 0.5f;
+			world._42 = floor(world._42) + 0.5f;
+
+			effect->SetMatrix("world", &world);
+			effect->SetMatrix("proj", projMat);
+			effect->SetFloatArray("color", colorRGBA.data(), 4);
+			float focus[2] = {sqrt(pow(w/2, 2)-pow(h/2, 2)), 0.0f};
+			effect->SetFloatArray("focusPt", focus, 2);
+			effect->SetFloat("frameWeight", lineWidth);
+			effect->SetFloat("circle_w", w);
+			effect->SetFloat("circle_h", h);
+			effect->CommitChanges();
+			dev->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, resource::CIRCLE_VERTEXCNT);
+
+			effect->EndPass();
+			effect->End();
+
+			return true;
+		}
+
+}
 	
 
 }

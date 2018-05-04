@@ -12,6 +12,8 @@ namespace dx9 {
 
 	namespace resource {
 
+		constexpr unsigned CIRCLE_VERTEXCNT = 128; // the number of vertex for circle vertex buffer
+
 		class DX9ShareContainer {
 		protected:
 
@@ -27,7 +29,8 @@ namespace dx9 {
 			// どんな値を設定したか取っておいた方がいいので、メンバ変数とする。
 			static D3DPRESENT_PARAMETERS				d3dpresent;
 
-			static CComPtr<IDirect3DVertexBuffer9>		vertex;		// 頂点バッファ
+			static CComPtr<IDirect3DVertexBuffer9>		vertex_rect;		// 頂点バッファ
+			static CComPtr<IDirect3DVertexBuffer9>		vertex_circle;
 
 			static CComPtr<ID3DXEffect>					effect;		// シェーダ
 

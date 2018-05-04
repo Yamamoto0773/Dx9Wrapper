@@ -2,6 +2,7 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>  
+#include <array>
 
 #define WRITELOG(x, ...) { if (log != nullptr) { log->tlnwrite(x, __VA_ARGS__); } }
 
@@ -171,6 +172,8 @@ namespace dx9 {
 
 		HRESULT ret;
 
+		if (resource::CIRCLE_VERTEXCNT < 3) return false;
+
 
 		// Direct3D9オブジェクトの取得
 		d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
@@ -330,42 +333,60 @@ namespace dx9 {
 		}
 
 
-		// 板ポリゴン作成
+		// 頂点ポリゴン作成
 		this->isRightHand = isRightHand;
 
-		float vtx[20];
+		
+
+		std::array<float, 20> vtx_rect;
+		std::array<std::array<float, 5>, resource::CIRCLE_VERTEXCNT+2> vtx_circle;
 		if (isRightHand) {
-			float v[] = {
+			vtx_rect = {
 				1.0f, 1.0f, 0.0f,   1.0f, 1.0f,  // 3
 				0.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // 2
 				1.0f, 0.0f, 0.0f,   1.0f, 0.0f,  // 1
 				0.0f, 0.0f, 0.0f,   0.0f, 0.0f,  // 0
 			};
-			memcpy(vtx, v, sizeof(vtx));
+			vtx_circle[0] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+			for (int i=0; i<resource::CIRCLE_VERTEXCNT+1; i++) {
+				float rad = 2.0f*M_PI/resource::CIRCLE_VERTEXCNT * i;
+				vtx_circle[i+1] = {cos(-rad)/2.0f, sin(-rad)/2.0f, 0.0f, cos(-rad)/2.0f+0.5f, sin(-rad)/2.0f+0.5f}; // create vertex data for circle which is 1 in diameter
+			}
 		}
 		else {
-			float v[] = {
+			vtx_rect = {
 				0.0f, 0.0f, 0.0f,   0.0f, 0.0f,  // 0
 				1.0f, 0.0f, 0.0f,   1.0f, 0.0f,  // 1
 				0.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // 2
 				1.0f, 1.0f, 0.0f,   1.0f, 1.0f,  // 3
 			};
-			memcpy(vtx, v, sizeof(vtx));
+			vtx_circle[0] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+			for (int i=0; i<resource::CIRCLE_VERTEXCNT+1; i++) {
+				float rad = 2.0f*M_PI/resource::CIRCLE_VERTEXCNT * i;
+				vtx_circle[i+1] = {cos(rad)/2.0f, sin(rad)/2.0f, 0.0f, cos(rad)/2.0f+0.5f, sin(rad)/2.0f+0.5f};  // create vertex data for circle which is 1 in diameter
+			}
 		}
 
 
 		{
-			IDirect3DVertexBuffer9 *ptr;
-			if (FAILED(d3ddev9->CreateVertexBuffer(sizeof(vtx), 0, 0, D3DPOOL_MANAGED, &ptr, 0))) {
+			IDirect3DVertexBuffer9 *ptr_rect;
+			IDirect3DVertexBuffer9 *ptr_circle;
+			if (FAILED(d3ddev9->CreateVertexBuffer(sizeof(vtx_rect), 0, 0, D3DPOOL_MANAGED, &ptr_rect, 0)) ||
+				FAILED(d3ddev9->CreateVertexBuffer(sizeof(vtx_circle), 0, 0, D3DPOOL_MANAGED, &ptr_circle, 0))) {
 				WRITELOG("failed to create \"Vertex Buffer9\"");
 				return false;
 			}
 			float *p = nullptr;
-			ptr->Lock(0, 0, (void**)&p, 0);
-			memcpy(p, vtx, sizeof(vtx));
-			ptr->Unlock();
+			ptr_rect->Lock(0, 0, (void**)&p, 0);
+			memcpy(p, vtx_rect.data(), sizeof(vtx_rect));
+			ptr_rect->Unlock();
+			vertex_rect.Attach(ptr_rect);
 
-			vertex.Attach(ptr);
+			ptr_circle->Lock(0, 0, (void**)&p, 0);
+			memcpy(p, vtx_circle.data(), sizeof(vtx_circle));
+			ptr_circle->Unlock();
+			vertex_circle.Attach(ptr_circle);
+
 		}
 
 
@@ -398,8 +419,7 @@ namespace dx9 {
 		}
 
 
-		// 板ポリゴンを登録
-		d3ddev9->SetStreamSource(0, vertex, 0, sizeof(float)*5);
+		
 		// 頂点宣言を登録
 		d3ddev9->SetVertexDeclaration(verDecl);
 
@@ -438,7 +458,7 @@ namespace dx9 {
 	void DXDrawManager::Delete() {
 		verDecl.Release();
 		effect.Release();
-		vertex.Release();
+		vertex_rect.Release();
 		d3ddev9.Release();
 		d3d9.Release();
 
@@ -511,8 +531,7 @@ namespace dx9 {
 				verDecl.Attach(ptr);
 			}
 
-			// 板ポリゴンを登録
-			d3ddev9->SetStreamSource(0, vertex, 0, sizeof(float)*5);
+			
 			// 頂点宣言を登録
 			d3ddev9->SetVertexDeclaration(verDecl);
 

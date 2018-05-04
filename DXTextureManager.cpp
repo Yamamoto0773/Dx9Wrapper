@@ -136,6 +136,8 @@ namespace dx9 {
 			d3ddev9->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 			d3ddev9->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 
+			// 板ポリゴンを登録
+			d3ddev9->SetStreamSource(0, vertex_rect, 0, sizeof(float)*5);
 
 			// シェーダ開始
 			UINT numPass = 0;

@@ -8,14 +8,11 @@ namespace dx9 {
 	class DirectXFigure : private resource::DX9ShareContainer {
 
 	private:
-		std::unique_ptr<texture::DXTextureBase> emptyTex;
-	
+
 
 	public:
 		DirectXFigure();
 		~DirectXFigure();
-
-		bool Create();
 
 
 		// ----------------------------------------------
@@ -41,9 +38,13 @@ namespace dx9 {
 
 		// 円の輪郭の描画
 		bool DrawCircleFrame(float x, float y, float w, float h, DWORD color, float lineWidth=1.0f);
+		// rectArea... circle-frame will be postioned inside to come contact with [rectArea].
+		bool DrawCircleFrame(RectF &rectArea, DWORD color, float lineWidth=1.0f); 
 
 		// 円の描画
-		bool DrawCircle(float x, float y, float w, DWORD color, float lineWidth=1.0f);
+		bool DrawCircle(float x, float y, float w, float h, DWORD color);
+		// rectArea... circle will be postioned inside to come contact with [rectArea].
+		bool DrawCircle(RectF &rectArea, DWORD color);	
 
 
 

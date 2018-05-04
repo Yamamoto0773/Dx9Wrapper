@@ -3,7 +3,7 @@
 
 #include "DXDrawManager.hpp"
 #include "DXTextureBase.hpp"
-
+#include <array>
 
 namespace dx9 {
 
@@ -12,16 +12,21 @@ namespace dx9 {
 		class Figure {
 
 		protected:
+			std::array<float, 4> colorRGBA;	// a value is 0.0f - 1.0f
+			float rotRad;
 			
 			Figure();
 			virtual ~Figure();
 
 		public:
+			void SetColor(DWORD color);
+		
+			void SetRot(int deg);
 
 			virtual bool Draw(
 				IDirect3DDevice9 * dev,
 				ID3DXEffect * effect,
-				const texture::DXTextureBase *tex,
+				IDirect3DVertexBuffer9 *vtx,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
 				float layerPos
@@ -38,23 +43,22 @@ namespace dx9 {
 			D3DXVECTOR2 vec;
 
 			float length;
-			float rotRad;
 
-			float colorRGBA[4];
 			float lineWidth;
 
 		public:
 			Line();
 			~Line();
 
+			void SetRot(int) = delete;
+
 			void SetPos(PointF &begin, PointF &end);
-			void SetColor(DWORD color);
 			void SetLineWidth(float lineWidth);
 
 			bool Draw(
 				IDirect3DDevice9 * dev,
 				ID3DXEffect * effect,
-				const texture::DXTextureBase *tex,
+				IDirect3DVertexBuffer9 *vtx,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
 				float layerPos
@@ -69,23 +73,16 @@ namespace dx9 {
 			PointF topLeft;
 			float w, h;
 
-			float colorRGBA[4];
-			
-
 		public:
 			Rect();
 			~Rect();
 
 			void SetPos(float x, float y, float w, float h);
-			void SetPos(PointF topLeft, PointF bottomRight);
-			void SetPos(RectF rect);
-
-			void SetColor(DWORD color);
 			
 			virtual bool Draw(
 				IDirect3DDevice9 * dev,
 				ID3DXEffect * effect,
-				const texture::DXTextureBase *tex,
+				IDirect3DVertexBuffer9 *vtx,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
 				float layerPos
@@ -111,7 +108,7 @@ namespace dx9 {
 			bool Draw(
 				IDirect3DDevice9 * dev,
 				ID3DXEffect * effect,
-				const texture::DXTextureBase *tex,
+				IDirect3DVertexBuffer9 *vtx,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
 				float layerPos
@@ -119,6 +116,50 @@ namespace dx9 {
 
 		};
 
+
+		class Circle : public Figure {
+		protected :
+			PointF center;
+			float w, h;
+
+		public :
+			Circle();
+			~Circle();
+
+			void SetPos(PointF center, float w, float h);
+			
+			bool Draw(
+				IDirect3DDevice9 * dev,
+				ID3DXEffect * effect,
+				IDirect3DVertexBuffer9 *vtx,
+				D3DXMATRIX * projMat,
+				BLENDMODE blendMode,
+				float layerPos
+				) override;
+
+		};
+
+
+
+		class CircleFrame : public Circle {
+		private:
+			float lineWidth;
+
+		public:
+			CircleFrame();
+			~CircleFrame();
+
+			void setLineWidth(float lineWidth);
+
+			bool Draw(
+				IDirect3DDevice9 * dev,
+				ID3DXEffect * effect,
+				IDirect3DVertexBuffer9 *vtx,
+				D3DXMATRIX * projMat,
+				BLENDMODE blendMode,
+				float layerPos
+				) override;
+		};
 
 
 	}

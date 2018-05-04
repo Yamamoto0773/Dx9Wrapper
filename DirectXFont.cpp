@@ -284,6 +284,9 @@ namespace dx9 {
 		}
 
 
+		// 板ポリゴンを登録
+		d3ddev9->SetStreamSource(0, vertex_rect, 0, sizeof(float)*5);
+
 		// シェーダ開始
 		UINT numPass = 0;
 		effect->SetTechnique("Tech");

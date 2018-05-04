@@ -11,7 +11,8 @@ namespace dx9 {
 		CComPtr<IDirect3DDevice9>				DX9ShareContainer::d3ddev9;
 		D3DCAPS9								DX9ShareContainer::d3dcaps9;
 		D3DPRESENT_PARAMETERS					DX9ShareContainer::d3dpresent;
-		CComPtr<IDirect3DVertexBuffer9>			DX9ShareContainer::vertex;
+		CComPtr<IDirect3DVertexBuffer9>			DX9ShareContainer::vertex_rect;
+		CComPtr<IDirect3DVertexBuffer9>			DX9ShareContainer::vertex_circle;
 		CComPtr<ID3DXEffect>					DX9ShareContainer::effect;		// シェーダ
 		CComPtr<IDirect3DVertexDeclaration9>	DX9ShareContainer::verDecl;	// 頂点宣言
 		D3DXMATRIX								DX9ShareContainer::projMat;
