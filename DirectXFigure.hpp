@@ -5,50 +5,23 @@
 
 namespace dx9 {
 
-	class DirectXFigure : private resource::DX9ShareContainer {
+	namespace figure {
 
-	private:
+		class DirectXFigure : private resource::DX9ShareContainer {
 
-
-	public:
-		DirectXFigure();
-		~DirectXFigure();
+		private:
 
 
-		// ----------------------------------------------
-		// 描画設定
-
-		// ----------------------------------------------
-		// 描画関数
-
-		// 直線描画
-		bool DrawLine(PointF &begin, PointF &end, DWORD color, float lineWidth=1.0f);
-		bool DrawLine(float begin_x, float begin_y, float end_x, float end_y, DWORD color, float lineWidth=1.0f);
-
-		// 長方形の輪郭の描画
-		bool DrawRectFrame(RectF &rect, DWORD color, float lineWidth=1.0f);
-		bool DrawRectFrame(PointF &topLeft, PointF &bottomRight, DWORD color, float lineWidth=1.0f);
-		bool DrawRectFrame(float x, float y, float w, float h, DWORD color, float lineWidth=1.0f);
-
-		// 長方形の描画
-		bool DrawRect(RectF &rect, DWORD color);
-		bool DrawRect(PointF &topLeft, PointF &bottomRight, DWORD color);
-		bool DrawRect(float x, float y, float w, float h, DWORD color);
-		
-
-		// 円の輪郭の描画
-		bool DrawCircleFrame(float x, float y, float w, float h, DWORD color, float lineWidth=1.0f);
-		// rectArea... circle-frame will be postioned inside to come contact with [rectArea].
-		bool DrawCircleFrame(RectF &rectArea, DWORD color, float lineWidth=1.0f); 
-
-		// 円の描画
-		bool DrawCircle(float x, float y, float w, float h, DWORD color);
-		// rectArea... circle will be postioned inside to come contact with [rectArea].
-		bool DrawCircle(RectF &rectArea, DWORD color);	
+		public:
+			DirectXFigure();
+			~DirectXFigure();
 
 
 
-	};
+
+		};
+
+	}
 
 
 
