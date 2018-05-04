@@ -1,6 +1,7 @@
 ﻿
 #include "Figure.hpp"
 #include "template.hpp"
+#include "StencilClip.hpp"
 
 #define _USE_MATH_DEFINES
 #include <math.h>  
@@ -10,7 +11,7 @@ namespace dx9 {
 
 	namespace figure {
 
-		
+
 
 		Figure::Figure() :
 			colorRGBA({0.0f, 0.0f, 0.0f, 1.0f}),
@@ -121,7 +122,7 @@ namespace dx9 {
 
 
 
-		Rect::Rect() : 
+		Rect::Rect() :
 			topLeft({0, 0}),
 			w(0),
 			h(0) {
@@ -337,6 +338,24 @@ namespace dx9 {
 		}
 
 		bool CircleFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
+
+			// create mask for smaller circle to draw circle frame
+			stencil::StencilClip mask;
+			mask.regionBegin(dev, true);
+			mask.setRefMaskColor(dev, stencil::MaskColor::Fill);
+
+			Circle circle;
+			float correction_w = (w>h) ? -w/h : h/w;
+			float correction_h = (w>h) ? w/h : -h/w;
+			circle.SetPos(center, w-lineWidth*2+correction_w, h-lineWidth*2+correction_h);
+			circle.Draw(dev, effect, vtx, projMat, blendMode, layerPos);
+
+			mask.regionEnd(dev);
+
+
+			// begin to draw with created-mask
+			mask.drawBegin(dev);
+
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -357,7 +376,7 @@ namespace dx9 {
 			effect->SetTechnique("Tech");
 			effect->Begin(&numPass, 0);
 			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Color));
-		
+
 
 			D3DXMATRIX world, rot;
 			D3DXMatrixScaling(&world, (float)w, h, 1.0f);	// ポリゴンサイズに
@@ -376,21 +395,20 @@ namespace dx9 {
 			effect->SetMatrix("world", &world);
 			effect->SetMatrix("proj", projMat);
 			effect->SetFloatArray("color", colorRGBA.data(), 4);
-			float focus[2] = {sqrt(pow(w/2, 2)-pow(h/2, 2)), 0.0f};
-			effect->SetFloatArray("focusPt", focus, 2);
-			effect->SetFloat("frameWeight", lineWidth);
-			effect->SetFloat("circle_w", w);
-			effect->SetFloat("circle_h", h);
 			effect->CommitChanges();
 			dev->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, resource::CIRCLE_VERTEXCNT);
 
 			effect->EndPass();
 			effect->End();
 
+
+			// end a processing of drawing with mask
+			mask.drawEnd(dev);
+
 			return true;
 		}
 
-}
-	
+	}
+
 
 }

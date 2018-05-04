@@ -14,7 +14,7 @@ namespace dx9 {
 		protected:
 			std::array<float, 4> colorRGBA;	// a value is 0.0f - 1.0f
 			float rotRad;
-			
+
 			Figure();
 			virtual ~Figure();
 

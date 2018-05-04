@@ -32,16 +32,16 @@ namespace stencil {
 		virtual ~StencilClip();
 
 		//! クリッピング領域作成開始
-		virtual bool regionBegin( IDirect3DDevice9* device, MaskColor clearColor = MaskColor::Trans );
+		virtual bool regionBegin( IDirect3DDevice9* device, bool isClear=true );
 
 		//! クリッピング領域作成終了
 		virtual bool regionEnd( IDirect3DDevice9* device );
 
 		//! クリッピング描画開始
-		virtual bool drawBegin( IDirect3DDevice9* device);
+		virtual bool drawBegin( IDirect3DDevice9* device, bool isKeep=true);
 
 		//! クリッピング 
-		virtual bool drawEnd(IDirect3DDevice9* device, MaskColor clearColor = MaskColor::Trans );
+		virtual bool drawEnd(IDirect3DDevice9* device);
 
 		//! 書き込み時マスクカラーの設定
 		void setWriteMaskColor(IDirect3DDevice9* device, MaskColor color );
@@ -50,6 +50,8 @@ namespace stencil {
 		void setRefMaskColor(IDirect3DDevice9* device, MaskColor color );
 
 		Mode getCurrectMode();
+		MaskColor getRefMaskColor();
+		MaskColor getWriteMaskColor();
 
 	protected:
 		Mode				mode_;			//!< モード

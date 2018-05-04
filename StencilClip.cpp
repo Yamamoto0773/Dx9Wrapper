@@ -18,13 +18,15 @@ namespace stencil {
 	}
 
 	//! クリッピング領域作成開始
-	bool StencilClip::regionBegin( IDirect3DDevice9* device, MaskColor initColor ) {
+	bool StencilClip::regionBegin( IDirect3DDevice9* device, bool isClear ) {
 		if ( device == nullptr ) {
 			return false;
 		}
 
 		// ステンシルバッファのみ初期値でクリア
-		device->Clear( 0, NULL, D3DCLEAR_STENCIL, 0, 1.0f, static_cast<DWORD>( initColor ) );
+		if (isClear) {
+			device->Clear(0, NULL, D3DCLEAR_STENCIL, 0, 1.0f, static_cast<DWORD>(MaskColor::Trans));
+		}
 
 		// 既存のZテストパラメータを保存
 		device->GetRenderState( D3DRS_ZENABLE, &curZTest_ );
@@ -64,7 +66,7 @@ namespace stencil {
 	}
 
 	//! クリッピング描画開始
-	bool StencilClip::drawBegin(IDirect3DDevice9* device) {
+	bool StencilClip::drawBegin(IDirect3DDevice9* device, bool isKeep) {
 		if ( device == nullptr ) {
 			return false;
 		}
@@ -84,7 +86,7 @@ namespace stencil {
 	}
 
 	//! クリッピング描画終了
-	bool StencilClip::drawEnd(IDirect3DDevice9* device, MaskColor clearColor ) {
+	bool StencilClip::drawEnd(IDirect3DDevice9* device ) {
 		if ( device == nullptr ) {
 			return false;
 		}
@@ -113,6 +115,14 @@ namespace stencil {
 
 	Mode StencilClip::getCurrectMode() {
 		return mode_;
+	}
+
+	MaskColor StencilClip::getRefMaskColor() {
+		return refColor_;
+	}
+
+	MaskColor StencilClip::getWriteMaskColor() {
+		return writeColor_;
 	}
 
 }
