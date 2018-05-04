@@ -10,6 +10,7 @@
 // http://marupeke296.com/DXG_Init.html
 // http://marupeke296.com/DXGSmp_No1_Init.html
 // http://marupeke296.com/NGDV_No3_Sprite.html
+// http://marupeke296.com/DXG_No54_StencilClipping.html
 // http://sylphylunar.seesaa.net/article/390331341.html
 ////////////////////////////////////////////////////
 
@@ -25,6 +26,7 @@
 #include "dx9.hpp"
 #include "DXTextureManager.hpp"
 #include "LogManager.hpp"
+#include "StencilClip.hpp"
 
 
 
@@ -32,7 +34,8 @@ namespace dx9 {
 
 	class DXDrawManager : private resource::DX9ShareContainer {
 
-		texture::DXTextureManager texMng;
+		texture::DXTextureManager	texMng;
+		stencil::StencilClip		stclMng;
 
 		static size_t topLayerPos;
 	
@@ -117,6 +120,31 @@ namespace dx9 {
 
 		void SetTexFilter(TextureFilter mode);
 
+		
+		// ------------------------------------------
+		// マスク描画を管理する関数
+
+		// マスクの作成スタート
+		bool CreateMaskBegin();
+
+		// マスクの作成終了
+		bool CreateMaskEnd();
+
+		// 作成したマスクを適用
+		bool SetMask();
+		// 短形領域のマスクを適用
+		bool SetRectMask(RectF maskArea);
+		// 円形のマスクを適用
+		bool SetCircleMask(RectF maskArea);
+
+		// マスクを解除
+		bool RemoveMask();
+
+		// マスクの種類を変更
+		void SetMaskType(MaskType type = MaskType::DrawableMask);
+
+
+	
 		// ---------------------------------------
 
 		// ログの書き込み先の指定

@@ -153,6 +153,47 @@ namespace dx9 {
 		texFilter = mode;
 	}
 
+	bool DXDrawManager::CreateMaskBegin() {
+		return stclMng.regionBegin(d3ddev9);
+	}
+
+	bool DXDrawManager::CreateMaskEnd() {
+		return stclMng.regionEnd(d3ddev9);
+	}
+
+	bool DXDrawManager::SetMask() {
+		return stclMng.drawBegin(d3ddev9);
+	}
+
+	bool DXDrawManager::SetRectMask(RectF maskArea) {
+		stclMng.regionBegin(d3ddev9);
+
+		return true;
+	}
+
+	bool DXDrawManager::SetCircleMask(RectF maskArea) {
+		return true;
+	}
+
+	bool DXDrawManager::RemoveMask() {
+		return stclMng.drawEnd(d3ddev9);
+	}
+
+	void DXDrawManager::SetMaskType(MaskType type) {
+		stencil::MaskColor maskCol;
+
+		switch (type) {
+			case dx9::MaskType::DrawableMask:
+				maskCol = stencil::MaskColor::Trans;
+				break;
+			case dx9::MaskType::NotDrawableMask:
+				maskCol = stencil::MaskColor::Fill;
+				break;
+		}
+
+		stclMng.setRefMaskColor(d3ddev9, maskCol);
+	}
+
 
 
 	void DXDrawManager::SetLogWriteDest(LogManager* dest) {
@@ -418,8 +459,6 @@ namespace dx9 {
 			verDecl.Attach(ptr);
 		}
 
-
-		
 		// 頂点宣言を登録
 		d3ddev9->SetVertexDeclaration(verDecl);
 
@@ -430,7 +469,6 @@ namespace dx9 {
 		projMat._42 =  1.0f;
 		projMat._11 =  2.0f / d3dpresent.BackBufferWidth;
 		projMat._22 = -2.0f / d3dpresent.BackBufferHeight;
-
 
 
 		// デフォルトステートのセット

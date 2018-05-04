@@ -112,6 +112,11 @@ namespace dx9 {
 	};
 
 
+	enum class MaskType : UINT {
+		DrawableMask = 0u,	// this mask which express drawble area
+		NotDrawableMask		// this mask which express NOT drawable area
+	};
+
 
 	namespace shader {
 
