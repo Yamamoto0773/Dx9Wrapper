@@ -166,13 +166,30 @@ namespace dx9 {
 	}
 
 	bool DXDrawManager::SetRectMask(RectF maskArea) {
+		if (!d3ddev9) return false;
+
 		stclMng.regionBegin(d3ddev9);
-		
+		bool r = DrawRect(maskArea, 0xff000000);
 		stclMng.regionEnd(d3ddev9);
+
+		if (!r) return false;
+
+		stclMng.drawBegin(d3ddev9);
+
 		return true;
 	}
 
 	bool DXDrawManager::SetCircleMask(RectF maskArea) {
+		if (!d3ddev9) return false;
+
+		stclMng.regionBegin(d3ddev9);
+		bool r = DrawCircle(maskArea, 0xff000000);
+		stclMng.regionEnd(d3ddev9);
+
+		if (!r) return false;
+
+		stclMng.drawBegin(d3ddev9);
+
 		return true;
 	}
 
@@ -193,6 +210,24 @@ namespace dx9 {
 		}
 
 		stclMng.setRefMaskColor(d3ddev9, maskCol);
+	}
+
+	MaskType DXDrawManager::GetMaskType() {
+		stencil::MaskColor color = stclMng.getRefMaskColor();
+
+		MaskType type;
+		switch (color) {
+			case stencil::MaskColor::Trans:
+				type = MaskType::DrawableMask;
+				break;
+			case stencil::MaskColor::Fill:
+				type = MaskType::NotDrawableMask;
+				break;
+			case stencil::MaskColor::None:
+				break;
+		}
+		
+		return type;
 	}
 
 

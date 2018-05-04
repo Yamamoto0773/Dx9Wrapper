@@ -174,6 +174,7 @@ namespace dx9 {
 
 		// マスクの種類を変更
 		void SetMaskType(MaskType type = MaskType::DrawableMask);
+		MaskType GetMaskType();
 
 
 	
