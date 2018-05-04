@@ -356,7 +356,7 @@ namespace dx9 {
 			UINT numPass = 0;
 			effect->SetTechnique("Tech");
 			effect->Begin(&numPass, 0);
-			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::CircleFrame));
+			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Color));
 		
 
 			D3DXMATRIX world, rot;

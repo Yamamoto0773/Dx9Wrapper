@@ -128,8 +128,7 @@ namespace dx9 {
 			Mul_ColorAlpha_InvTexAlpha,
 			Mul_UVTex_color,
 			Mul_ColorAlpha_InvUVTexAlpha,
-			RectFrame,
-			CircleFrame
+			RectFrame
 		};
 
 	}

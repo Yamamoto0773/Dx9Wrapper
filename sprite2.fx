@@ -9,10 +9,6 @@ texture tex2;
 float frameWeight_u;
 float frameWeight_v;
 
-float2 focusPt;
-float circle_w, circle_h;
-float frameWeight;
-
 float uv_left;
 float uv_top;
 float uv_width;
@@ -109,9 +105,10 @@ float4 ps_color() : COLOR0 {
 // 指定色の透明度X(1-テクスチャの透明度)
 float4 ps_color_invTexAlpha(VS_OUT In) : COLOR0 {
 	float4 alphaTex = tex2D( smp_tex, In.uv );
-	float4 outColor;
-	outColor = color;
+	float4 outColor = color;
 	outColor.a = color.a * (1.0 - alphaTex.a);
+
+	if (outColor.a < 0.001f) clip(-1);	
 
 	return outColor;
 }
@@ -120,9 +117,10 @@ float4 ps_color_invTexAlpha(VS_OUT In) : COLOR0 {
 // 指定色の透明度Xテクスチャの透明度
 float4 ps_color_texAlpha(VS_OUT In) : COLOR0 {
 	float4 alphaTex = tex2D( smp_tex, In.uv );
-	float4 outColor;
-	outColor = color;
+	float4 outColor = color;
 	outColor.a *= alphaTex.a;
+
+	if (outColor.a < 0.001f) clip(-1);
 
 	return outColor;
 }
@@ -130,32 +128,19 @@ float4 ps_color_texAlpha(VS_OUT In) : COLOR0 {
 
 // 長方形の輪郭部分に着色
 float4 ps_rectFrame(VS_OUT In) : COLOR0 {
+	bool flag = false;
 
 	if (In.uv[0] > 1.0f-frameWeight_u ||
 		In.uv[0] < frameWeight_u ||
 		In.uv[1] > 1.0f-frameWeight_v ||
 		In.uv[1] < frameWeight_v) {
-			return color;
+			flag = true;
 	}
 
-	return float4(0, 0, 0, 0);
+	if (!flag) clip(-1);
+
+	return color;
 }
-
-
-// 円形の輪郭部分に着色
-float4 ps_circleFrame(VS_OUT In) : COLOR0 {
-	float2 pt = {(In.uv[0]-0.5f)*circle_w, (In.uv[1]-0.5f)*circle_h};
-
-	float2 vec1 = pt - focusPt;
-	float2 vec2 = pt - float2(-focusPt[0], focusPt[1]);
-
-	if (length(vec1)+length(vec2) > (circle_w/2 - frameWeight)*2) {
-		return color;
-	}
-
-	return float4(0, 0, 0, 0);
-}
-
 
 
 
@@ -222,14 +207,6 @@ technique Tech {
 	pass p7 {
 		VertexShader = compile vs_2_0 vs_tex();
 		PixelShader	 = compile ps_2_0 ps_rectFrame();
-
-		AlphaBlendEnable = true;
-	}
-
-	// 円形の輪郭を描画
-	pass p8 {
-		VertexShader = compile vs_2_0 vs_tex();
-		PixelShader	 = compile ps_2_0 ps_circleFrame();
 
 		AlphaBlendEnable = true;
 	}
