@@ -438,22 +438,11 @@ void DirectXFontAscii::SetFontColor(size_t r, size_t g, size_t b, size_t a) {
 	b &= 255;
 	a &= 255;
 
-	fontColor[0] = r;
-	fontColor[1] = g;
-	fontColor[2] = b;
-	fontColor[3] = a;
+	fontColor[0] = r/255.0f;
+	fontColor[1] = g/255.0f;
+	fontColor[2] = b/255.0f;
+	fontColor[3] = a/255.0f;
 }
-
-void DirectXFontAscii::SetFontColor(float r, float g, float b, float a) {
-	if (r < 0.0f) r = 0.0f;
-	if (g < 0.0f) g = 0.0f;
-	if (b < 0.0f) b = 0.0f;
-	if (a < 0.0f) a = 0.0f;
-
-	SetFontColor((size_t)(r*255), (size_t)(g*255), (size_t)(b*255), (size_t)(a*255));
-}
-
-
 
 
 }

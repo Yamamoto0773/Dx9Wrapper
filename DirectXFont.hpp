@@ -53,9 +53,6 @@ namespace dx9 {
 		// 0-255の成分指定
 		void SetFontColor(size_t r, size_t g, size_t b, size_t a=255);
 
-		// 0.0f-1.0fの成分指定
-		void SetFontColor(float r, float g, float b, float a);
-
 		//////////////////////////////////////////////
 		// 文字描画
 
