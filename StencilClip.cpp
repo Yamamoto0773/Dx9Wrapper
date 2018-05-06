@@ -6,20 +6,22 @@
 
 namespace stencil {
 	StencilClip::StencilClip() :
-		mode_			( Mode::Masking ),
-		writeColor_		( MaskColor::Fill ),
-		refColor_		( MaskColor::Fill ),
-		curZTest_		( 0 ),
-		curZFunc_		( 0 )
+		mode			( Mode::Masking ),
+		writeColor		(MaskColor::Fill),
+		testColor		(MaskColor::Fill),
+		curZTest		( 0 ),
+		curZFunc		( 0 )
 	{
 	}
 
 	StencilClip::~StencilClip() {
 	}
 
+	
+
 	//! クリッピング領域作成開始
 	bool StencilClip::regionBegin( IDirect3DDevice9* device, bool isClear ) {
-		if ( device == nullptr ) {
+		if ( !device ) {
 			return false;
 		}
 
@@ -29,8 +31,8 @@ namespace stencil {
 		}
 
 		// 既存のZテストパラメータを保存
-		device->GetRenderState( D3DRS_ZENABLE, &curZTest_ );
-		device->GetRenderState( D3DRS_ZFUNC,   &curZFunc_ );
+		device->GetRenderState( D3DRS_ZENABLE, &curZTest );
+		device->GetRenderState( D3DRS_ZFUNC,   &curZFunc );
 
 		// ステンシルバッファを有効化
 		// カラーの書き込みは阻止したいので
@@ -42,32 +44,35 @@ namespace stencil {
 		device->SetRenderState( D3DRS_STENCILFUNC,  D3DCMP_ALWAYS );
 		device->SetRenderState( D3DRS_STENCILPASS,	D3DSTENCILOP_REPLACE );
 		device->SetRenderState( D3DRS_STENCILZFAIL,	D3DSTENCILOP_REPLACE );
-		device->SetRenderState( D3DRS_STENCILREF,	static_cast<DWORD>(writeColor_) );
+		device->SetRenderState( D3DRS_STENCILREF,	static_cast<DWORD>(writeColor) );
 		device->SetRenderState( D3DRS_STENCILMASK, 0xff );
 
-		mode_ = Mode::Masking;
+		mode = Mode::Masking;
 
 		return true;
 	}
 
+	
 	//! クリッピング領域作成終了
 	bool StencilClip::regionEnd(IDirect3DDevice9* device) {
-		if ( device == nullptr ) {
+		if ( !device ) {
 			return false;
 		}
 
 		// ステンシルを一時無効化
 		// Zテストを戻す
 		device->SetRenderState( D3DRS_STENCILENABLE, false );
-		device->SetRenderState( D3DRS_ZENABLE, curZTest_ );
-		device->SetRenderState( D3DRS_ZFUNC, curZFunc_ );
+		device->SetRenderState( D3DRS_ZENABLE, curZTest );
+		device->SetRenderState( D3DRS_ZFUNC, curZFunc );
+
+		mode = Mode::Idle;
 
 		return true;
 	}
 
 	//! クリッピング描画開始
-	bool StencilClip::drawBegin(IDirect3DDevice9* device, bool isKeep) {
-		if ( device == nullptr ) {
+	bool StencilClip::drawBegin(IDirect3DDevice9* device) {
+		if ( !device ) {
 			return false;
 		}
 
@@ -77,52 +82,159 @@ namespace stencil {
 		device->SetRenderState( D3DRS_STENCILFUNC, D3DCMP_NOTEQUAL );
 		device->SetRenderState( D3DRS_STENCILPASS,	D3DSTENCILOP_KEEP );
 		device->SetRenderState( D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP );
-		device->SetRenderState( D3DRS_STENCILREF, static_cast<DWORD>(refColor_) );
+		device->SetRenderState( D3DRS_STENCILREF, static_cast<DWORD>(testColor) );
 		device->SetRenderState( D3DRS_STENCILMASK, 0xff );
 
-		mode_ = Mode::Draw;
+		mode = Mode::Draw;
 
 		return true;
 	}
 
 	//! クリッピング描画終了
 	bool StencilClip::drawEnd(IDirect3DDevice9* device ) {
-		if ( device == nullptr ) {
+		if ( !device ) {
 			return false;
 		}
 
-		// ステンシルを無効化しバッファをクリア
+		// ステンシルを無効化
 		device->SetRenderState( D3DRS_STENCILENABLE, false );
+
+		mode = Mode::Idle;
 
 		return true;
 	}
 
-	//! 書き込み時マスクカラーの設定
-	void StencilClip::setWriteMaskColor(IDirect3DDevice9* device, MaskColor color ) {
-		writeColor_ = color;
-		if ( device && mode_ == Mode::Masking ) {
-			device->SetRenderState( D3DRS_STENCILREF, static_cast<DWORD>(writeColor_) );
+
+	void StencilClip::setMaskingColor(IDirect3DDevice9* device, MaskColor color ) {
+		testColor = color;
+
+		if ( device && mode == Mode::Draw ) {
+			device->SetRenderState( D3DRS_STENCILREF, static_cast<DWORD>(testColor) );
 		}
 	}
 
-	//! 描画時のマスクカラーの指定
-	void StencilClip::setRefMaskColor(IDirect3DDevice9* device, MaskColor color ) {
-		refColor_ = color;
-		if ( device && mode_ == Mode::Draw ) {
-			device->SetRenderState( D3DRS_STENCILREF, static_cast<DWORD>(refColor_) );
-		}
-	}
 
 	Mode StencilClip::getCurrectMode() {
-		return mode_;
+		return mode;
 	}
 
 	MaskColor StencilClip::getRefMaskColor() {
-		return refColor_;
+		return testColor;
 	}
 
-	MaskColor StencilClip::getWriteMaskColor() {
-		return writeColor_;
+
+
+	MaskManager::MaskManager() :
+		currentMaskType(MaskType::Main)
+	{
 	}
+
+	MaskManager::~MaskManager() {
+	}
+
+	bool MaskManager::create(IDirect3DDevice9 * dev) {
+		if (!dev) return false;
+
+		// create a reserve stencil buffer
+		IDirect3DSurface9 *ptr;
+		IDirect3DSurface9 *ptr_create;
+		D3DSURFACE_DESC desc;
+
+		dev->GetDepthStencilSurface(&ptr);
+		ptr->GetDesc(&desc);
+
+		if (FAILED(dev->CreateDepthStencilSurface(
+			desc.Width,
+			desc.Height,
+			desc.Format,
+			desc.MultiSampleType,
+			desc.MultiSampleQuality,
+			false,
+			&ptr_create,
+			NULL
+			))) {
+			return false;
+		}
+
+		ptr->Release();
+
+		reserveStencilBuf.Attach(ptr_create);
+
+		currentMask = &stencilClip[static_cast<size_t>(currentMaskType)];
+
+		return true;
+	}
+
+	bool MaskManager::regionBegin(IDirect3DDevice9 * device, bool isClear) {
+		if (!currentMask) return false;
+		return currentMask->regionBegin(device, isClear);
+	}
+
+	bool MaskManager::regionEnd(IDirect3DDevice9 * device) {
+		if (!currentMask) return false;
+		return currentMask->regionEnd(device);
+	}
+
+	bool MaskManager::drawBegin(IDirect3DDevice9 * device) {
+		if (!currentMask) return false;
+		return currentMask->drawBegin(device);
+	}
+
+	bool MaskManager::drawEnd(IDirect3DDevice9 * device) {
+		if (!currentMask) return false;
+		return currentMask->drawEnd(device);
+	}
+
+	void MaskManager::setMaskingColor(IDirect3DDevice9 * device, MaskColor color) {
+		if (!currentMask) return ;
+		currentMask->setMaskingColor(device, color);
+	}
+
+	Mode MaskManager::getCurrectMode() {
+		if (!currentMask) return Mode::Idle;
+		return currentMask->getCurrectMode();
+	}
+
+	MaskColor MaskManager::getRefMaskColor() {
+		if (!currentMask) return MaskColor::None;
+		return currentMask->getRefMaskColor();
+	}
+
+
+	bool MaskManager::changeMask(IDirect3DDevice9 *dev, MaskType type) {
+		if (!dev) return false;
+		if (!reserveStencilBuf) return false;
+			
+		if (currentMaskType != type) {
+
+			// reserve the main stencil buffer
+			if (currentMaskType == MaskType::Main) {
+				IDirect3DSurface9 *ptr;
+				dev->GetDepthStencilSurface(&ptr);
+				
+				// update
+				mainStencilBuf.Release();
+				mainStencilBuf.Attach(ptr);
+			}
+
+			// swap ownership
+			IDirect3DSurface9 *ptr1, *ptr2;
+			ptr1 = reserveStencilBuf.Detach();
+			ptr2 = mainStencilBuf.Detach();
+			reserveStencilBuf.Attach(ptr2);
+			mainStencilBuf.Attach(ptr1);
+
+			dev->SetDepthStencilSurface(mainStencilBuf);
+
+	
+			currentMask = &stencilClip[static_cast<size_t>(currentMaskType)];
+		
+
+			currentMaskType = type;
+		}
+
+		return true;
+	}
+
 
 }
