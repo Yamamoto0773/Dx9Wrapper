@@ -154,27 +154,27 @@ namespace dx9 {
 	}
 
 	bool DXDrawManager::CreateMaskBegin() {
-		return stclMng.regionBegin(d3ddev9);
+		return maskMng.regionBegin(d3ddev9);
 	}
 
 	bool DXDrawManager::CreateMaskEnd() {
-		return stclMng.regionEnd(d3ddev9);
+		return maskMng.regionEnd(d3ddev9);
 	}
 
 	bool DXDrawManager::SetMask() {
-		return stclMng.drawBegin(d3ddev9);
+		return maskMng.drawBegin(d3ddev9);
 	}
 
 	bool DXDrawManager::SetRectMask(RectF maskArea) {
 		if (!d3ddev9) return false;
 
-		stclMng.regionBegin(d3ddev9);
+		maskMng.regionBegin(d3ddev9);
 		bool r = DrawRect(maskArea, 0xff000000);
-		stclMng.regionEnd(d3ddev9);
+		maskMng.regionEnd(d3ddev9);
 
 		if (!r) return false;
 
-		stclMng.drawBegin(d3ddev9);
+		maskMng.drawBegin(d3ddev9);
 
 		return true;
 	}
@@ -182,19 +182,19 @@ namespace dx9 {
 	bool DXDrawManager::SetCircleMask(RectF maskArea) {
 		if (!d3ddev9) return false;
 
-		stclMng.regionBegin(d3ddev9);
+		maskMng.regionBegin(d3ddev9);
 		bool r = DrawCircle(maskArea, 0xff000000);
-		stclMng.regionEnd(d3ddev9);
+		maskMng.regionEnd(d3ddev9);
 
 		if (!r) return false;
 
-		stclMng.drawBegin(d3ddev9);
+		maskMng.drawBegin(d3ddev9);
 
 		return true;
 	}
 
 	bool DXDrawManager::RemoveMask() {
-		return stclMng.drawEnd(d3ddev9);
+		return maskMng.drawEnd(d3ddev9);
 	}
 
 	void DXDrawManager::SetMaskType(MaskType type) {
@@ -209,11 +209,11 @@ namespace dx9 {
 				break;
 		}
 
-		stclMng.setRefMaskColor(d3ddev9, maskCol);
+		maskMng.setMaskingColor(d3ddev9, maskCol);
 	}
 
 	MaskType DXDrawManager::GetMaskType() {
-		stencil::MaskColor color = stclMng.getRefMaskColor();
+		stencil::MaskColor color = maskMng.getRefMaskColor();
 
 		MaskType type;
 		switch (color) {
@@ -341,12 +341,29 @@ namespace dx9 {
 			return false;
 		}
 
+		stencil::Mode mode = maskMng.getCurrectMode();
+
+		// draw circle frame
 		figure::CircleFrame circleFrame;
 		circleFrame.SetPos({x, y}, w, h);
 		circleFrame.SetColor(color);
 		circleFrame.setLineWidth(lineWidth);
+		bool r = circleFrame.Draw(d3ddev9, effect, vertex_circle, &projMat, blendMode, topLayerPos);
 
-		return circleFrame.Draw(d3ddev9, effect, vertex_circle, &projMat, blendMode, topLayerPos);
+
+		switch (mode) {
+			case stencil::Mode::Masking:
+				maskMng.regionBegin(d3ddev9, false);
+				break;
+			case stencil::Mode::Draw:
+				maskMng.drawBegin(d3ddev9);
+				break;
+			case stencil::Mode::Idle:
+				break;
+		}
+
+
+		return r;
 	}
 
 
@@ -561,10 +578,13 @@ namespace dx9 {
 		}
 
 
-		// 頂点ポリゴン作成
-		this->isRightHand = isRightHand;
 
-		
+		if (!maskMng.create(d3ddev9))
+			return false;
+
+
+		// 頂点バッファ作成
+		this->isRightHand = isRightHand;
 
 		std::array<float, 20> vtx_rect;
 		std::array<std::array<float, 5>, resource::CIRCLE_VERTEXCNT+2> vtx_circle;
@@ -684,9 +704,10 @@ namespace dx9 {
 		verDecl.Release();
 		effect.Release();
 		vertex_rect.Release();
+		vertex_circle.Release();
 		d3ddev9.Release();
 		d3d9.Release();
-
+		
 		isResCreated = false;
 	}
 

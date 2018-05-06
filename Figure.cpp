@@ -339,22 +339,28 @@ namespace dx9 {
 
 		bool CircleFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
 
-			// create mask for smaller circle to draw circle frame
-			stencil::StencilClip mask;
-			mask.regionBegin(dev, true);
-			mask.setRefMaskColor(dev, stencil::MaskColor::Fill);
+			using namespace stencil;
+			MaskManager maskMng;
 
+			if (!maskMng.create(dev))
+				return false;
+
+			maskMng.changeMask(dev, stencil::MaskType::Sub);
+			
+			maskMng.regionBegin(dev, true);
+		
 			Circle circle;
 			float correction_w = (w>h) ? -w/h : h/w;
 			float correction_h = (w>h) ? w/h : -h/w;
 			circle.SetPos(center, w-lineWidth*2+correction_w, h-lineWidth*2+correction_h);
 			circle.Draw(dev, effect, vtx, projMat, blendMode, layerPos);
 
-			mask.regionEnd(dev);
+			maskMng.regionEnd(dev);
 
 
 			// begin to draw with created-mask
-			mask.drawBegin(dev);
+			maskMng.drawBegin(dev);
+
 
 			// ブレンドモードを設定
 			switch (blendMode) {
@@ -403,7 +409,12 @@ namespace dx9 {
 
 
 			// end a processing of drawing with mask
-			mask.drawEnd(dev);
+			maskMng.drawEnd(dev);
+
+
+			// revert stencil buffer back
+			maskMng.changeMask(dev, stencil::MaskType::Main);
+
 
 			return true;
 		}

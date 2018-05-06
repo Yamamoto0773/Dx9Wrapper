@@ -36,8 +36,9 @@ namespace dx9 {
 	class DXDrawManager : private resource::DX9ShareContainer {
 
 		texture::DXTextureManager	texMng;
-		stencil::StencilClip		stclMng;
+		stencil::MaskManager		maskMng;
 
+		
 		static size_t topLayerPos;
 	
 	private:
