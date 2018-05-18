@@ -74,10 +74,10 @@ bool LogBuffer::clear() {
 
 
 void LogBuffer::writeLog(bool isTimeStamp, bool isLF, const char * msg, va_list list) {
-	char str[256];
+	char str[1024];
 
 	// 可変長引数を文字列に変換
-	vsnprintf(str, 256, msg, list);
+	vsnprintf(str, 1024, msg, list);
 
 	if (isTimeStamp) {
 		// タイムスタンプ書き込み
@@ -155,13 +155,13 @@ bool LogFile::clear() {
 
 
 void LogFile::writeLog(bool isTimeStamp, bool isLF, const char * msg, va_list list) {
-	char str[256];
+	char str[1024];
 	std::ofstream logFile;
 
 	logFile.open(name, std::ios_base::app);
 
 	// 可変長引数を文字列に変換
-	vsnprintf(str, 256, msg, list);
+	vsnprintf(str, 1024, msg, list);
 
 	if (isTimeStamp) {
 		// タイムスタンプ書き込み
