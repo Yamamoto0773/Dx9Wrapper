@@ -6,6 +6,7 @@
 
 #define WRITELOG(x, ...) { if (log != nullptr) { log->tlnwrite(x, __VA_ARGS__); } }
 
+#include <DxErr.h>
 
 namespace dx9 {
 
@@ -13,7 +14,9 @@ namespace dx9 {
 	size_t DXDrawManager::topLayerPos = 0;
 
 
-	DXDrawManager::DXDrawManager() {
+	DXDrawManager::DXDrawManager() : 
+		renderMng(&renderer::RenderingManager::GetInstance())
+	{
 	}
 
 	DXDrawManager::~DXDrawManager() {
@@ -57,14 +60,45 @@ namespace dx9 {
 		return texMng.CreateEmptyTex(tex, w, h);
 	}
 
+
 	int DXDrawManager::CleanTexPool() {
 		return texMng.CleanTexPool();
 	}
 	
-	bool DXDrawManager::DrawTexture(Texture & tex, float x, float y, DrawTexCoord coord, float alpha, float xscale, float yscale, int rotDeg) {
-		return texMng.DrawTexture(tex, x, y, coord, alpha, xscale, yscale, rotDeg);
+	bool DXDrawManager::DrawTexture(Texture & tex, float x, float y, DrawTexCoord coord, float alpha, float xscale, float yscale, int rotDeg, bool isClip) {
+		if (alpha < 0.0f) alpha = 0.0f;
+		else if (alpha > 1.0f) alpha = 1.0f;
+
+		int a = alpha*255;
+
+		return texMng.DrawTexture(tex, x, y, coord, (a<<24)|0x00ffffff , xscale, yscale, rotDeg, isClip);
 	}
 
+	bool DXDrawManager::DrawTexture(RenderingTarget & rt, float x, float y, DrawTexCoord coord, float alpha, float xscale, float yscale, int rotDeg, bool isClip) {
+		if (alpha < 0.0f) alpha = 0.0f;
+		else if (alpha > 1.0f) alpha = 1.0f;
+
+		int a = alpha*255;
+
+
+		return DrawTextureWithColor(rt, x, y, coord, (a<<24)|0x00ffffff, xscale, yscale, rotDeg, isClip);
+	}
+
+	bool DXDrawManager::DrawTextureWithColor(RenderingTarget & rt, float x, float y, DrawTexCoord coord, DWORD color, float xscale, float yscale, int rotDeg, bool isClip) {
+		Texture tex;
+
+		texture::DXTextureBase texbase = renderMng->GetTexture(rt);
+
+		if (!texMng.CreateFromD3DTex9(tex, texbase))
+			return false;
+
+		return DrawTextureWithColor(tex, x, y, coord, color, xscale, yscale, rotDeg, isClip);
+	}
+
+
+	bool DXDrawManager::DrawTextureWithColor(Texture & tex, float x, float y, DrawTexCoord coord, DWORD color, float xscale, float yscale, int rotDeg, bool isClip) {
+		return texMng.DrawTexture(tex, x, y, coord, color, xscale, yscale, rotDeg, isClip);
+	}
 
 
 	bool DXDrawManager::DrawBegin(bool isClear) {
@@ -110,6 +144,9 @@ namespace dx9 {
 		if (d3ddev9->Present(NULL, NULL, NULL, NULL) == D3DERR_DEVICELOST) {
 			WRITELOG("Device Lost");
 			isLost = true;
+
+			DeviceLost();
+
 			return false;
 		}
 
@@ -154,27 +191,27 @@ namespace dx9 {
 	}
 
 	bool DXDrawManager::CreateMaskBegin() {
-		return maskMng.regionBegin(d3ddev9);
+		return renderMng->regionBegin(d3ddev9);
 	}
 
 	bool DXDrawManager::CreateMaskEnd() {
-		return maskMng.regionEnd(d3ddev9);
+		return renderMng->regionEnd(d3ddev9);
 	}
 
 	bool DXDrawManager::SetMask() {
-		return maskMng.drawBegin(d3ddev9);
+		return renderMng->drawBegin(d3ddev9);
 	}
 
 	bool DXDrawManager::SetRectMask(RectF maskArea) {
 		if (!d3ddev9) return false;
 
-		maskMng.regionBegin(d3ddev9);
+		renderMng->regionBegin(d3ddev9);
 		bool r = DrawRect(maskArea, 0xff000000);
-		maskMng.regionEnd(d3ddev9);
+		renderMng->regionEnd(d3ddev9);
 
 		if (!r) return false;
 
-		maskMng.drawBegin(d3ddev9);
+		renderMng->drawBegin(d3ddev9);
 
 		return true;
 	}
@@ -182,19 +219,19 @@ namespace dx9 {
 	bool DXDrawManager::SetCircleMask(RectF maskArea) {
 		if (!d3ddev9) return false;
 
-		maskMng.regionBegin(d3ddev9);
+		renderMng->regionBegin(d3ddev9);
 		bool r = DrawCircle(maskArea, 0xff000000);
-		maskMng.regionEnd(d3ddev9);
+		renderMng->regionEnd(d3ddev9);
 
 		if (!r) return false;
 
-		maskMng.drawBegin(d3ddev9);
+		renderMng->drawBegin(d3ddev9);
 
 		return true;
 	}
 
 	bool DXDrawManager::RemoveMask() {
-		return maskMng.drawEnd(d3ddev9);
+		return renderMng->drawEnd(d3ddev9);
 	}
 
 	void DXDrawManager::SetMaskType(MaskType type) {
@@ -209,11 +246,11 @@ namespace dx9 {
 				break;
 		}
 
-		maskMng.setMaskingColor(d3ddev9, maskCol);
+		renderMng->setMaskingColor(d3ddev9, maskCol);
 	}
 
 	MaskType DXDrawManager::GetMaskType() {
-		stencil::MaskColor color = maskMng.getRefMaskColor();
+		stencil::MaskColor color = renderMng->getRefMaskColor();
 
 		MaskType type;
 		switch (color) {
@@ -313,7 +350,6 @@ namespace dx9 {
 		rectframe.SetColor(color);
 
 		return rectframe.Draw(d3ddev9, effect, vertex_rect, &projMat, blendMode, topLayerPos);
-
 	}
 
 
@@ -341,35 +377,60 @@ namespace dx9 {
 			return false;
 		}
 
-		stencil::Mode mode = maskMng.getCurrectMode();
+		bool r1, r2;
 
-		// draw circle frame
-		figure::CircleFrame circleFrame;
-		circleFrame.SetPos({x, y}, w, h);
-		circleFrame.SetColor(color);
-		circleFrame.setLineWidth(lineWidth);
-		bool r = circleFrame.Draw(d3ddev9, effect, vertex_circle, &projMat, blendMode, topLayerPos);
+		// preserve now state of mask.
+		stencil::Mode mode = renderMng->getCurrectMode();
+		stencil::MaskColor maskCol = renderMng->getRefMaskColor();
 
 
 		switch (mode) {
 			case stencil::Mode::Masking:
-				maskMng.regionBegin(d3ddev9, false);
+				renderMng->regionEnd(d3ddev9);
 				break;
 			case stencil::Mode::Draw:
-				maskMng.drawBegin(d3ddev9);
+				renderMng->drawEnd(d3ddev9);
+				break;
+			case stencil::Mode::Idle:
+				break;
+			default:
+				break;
+		}
+		
+
+		// Create texture rendered a circle frame.
+		renderMng->SetRenderingTarget(d3ddev9, textureRT);
+
+		d3ddev9->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 0xffffff, 1.0f, 0);
+
+		figure::CircleFrame circleFrame;
+		circleFrame.SetPos({w/2, h/2}, w, h);
+		circleFrame.setLineWidth(lineWidth);
+		circleFrame.SetColor(0xff000000);
+		r1 = circleFrame.Draw(d3ddev9, effect, vertex_circle, &projMat, blendMode, topLayerPos);
+
+
+		// Draw the texture
+		renderMng->SetRenderingTarget(d3ddev9);
+
+		// restore previous state
+		switch (mode) {
+			case stencil::Mode::Masking:
+				renderMng->regionBegin(d3ddev9, false);
+				break;
+			case stencil::Mode::Draw:
+				renderMng->drawBegin(d3ddev9);
 				break;
 			case stencil::Mode::Idle:
 				break;
 		}
+		renderMng->setMaskingColor(d3ddev9, maskCol);
 
 
-		return r;
+		r2 = DrawTextureWithColor(textureRT, x-w/2, y-h/2, DrawTexCoord::TOP_L, color, 1.0f, 1.0f, 0, true);
+
+		return r1&r2;
 	}
-
-
-
-
-
 
 
 	bool DXDrawManager::DrawCircle(RectF &rectArea, DWORD color) {
@@ -578,9 +639,42 @@ namespace dx9 {
 		}
 
 
+		WRITELOG("D3D Present Parameters\n"
+			"%-30s:%u\n"
+			"%-30s:%u\n"
+			"%-30s:%u\n"
+			"%-30s:%u\n"
+			"%-30s:%u\n"
+			"%-30s:%ld\n"
+			"%-30s:%u\n"
+			"%-30s:%p\n"
+			"%-30s:%d\n"
+			"%-30s:%d\n"
+			"%-30s:%ld\n"
+			"%-30s:%ld\n"
+			"%-30s:%u\n"
+			"%-30s:%u", 
+			"BackBufferWidth", d3dpresent.BackBufferWidth,
+			"BackBufferHeight", d3dpresent.BackBufferHeight,
+			"BackBufferFormat", d3dpresent.BackBufferFormat,
+			"BackBufferCount", d3dpresent.BackBufferCount,
+			"MultiSampleType", d3dpresent.MultiSampleType,
+			"MultiSampleQuality", d3dpresent.MultiSampleQuality,
+			"SwapEffect", d3dpresent.SwapEffect,
+			"hDeviceWindow", d3dpresent.hDeviceWindow,
+			"Windowed", d3dpresent.Windowed,
+			"EnableAutoDepthStencil", d3dpresent.EnableAutoDepthStencil,
+			"AutoDepthStencilFormat", d3dpresent.AutoDepthStencilFormat,
+			"Flagsd3dpresent.Flags", d3dpresent.Flags, 
+			"FullScreen_RefreshRateInHz", d3dpresent.FullScreen_RefreshRateInHz,
+			"PresentationInterval", d3dpresent.PresentationInterval);
 
-		if (!maskMng.create(d3ddev9))
+
+
+
+		if (!renderMng->CreateRenderingTarget(d3ddev9, textureRT, d3dpresent.BackBufferWidth, d3dpresent.BackBufferHeight))
 			return false;
+
 
 
 		// 頂点バッファ作成
@@ -724,63 +818,45 @@ namespace dx9 {
 	}
 
 
+	bool DXDrawManager::DeviceLost() {
+
+		// Release all resources specified by D3DPOOL_DEFAULT
+		renderMng->OnLostDevice(d3ddev9);
+
+		effect->OnLostDevice();
+
+		return true;
+	}
+
 	bool DXDrawManager::DeviceReset() {
 		if (!isResCreated) {
 			return false;
 		}
 
 		if (isLost) {
+
 			if (d3ddev9->TestCooperativeLevel() != D3DERR_DEVICENOTRESET) {
 				// デバイスを復帰できる状態でない
 				return false;
 			}
 
-			if (FAILED(d3ddev9->Reset(&d3dpresent))) {
+			HRESULT hr;
+			if (FAILED(hr = d3ddev9->Reset(&d3dpresent))) {
+				WRITELOG("failed reset %u", hr);
+				return false;
+			}
+
+			effect->OnResetDevice();
+
+			if (!renderMng->OnResetDevice(d3ddev9)) {
+				WRITELOG("failed restore RT");
 				return false;
 			}
 
 
-
-			isLost = false;
-
-
-
-			effect.Release();
-			verDecl.Release();
-
-
-			// シェーダ作成
-			{
-				ID3DXBuffer *error = nullptr;
-				ID3DXEffect *ptr = nullptr;
-				if (FAILED(D3DXCreateEffectFromFile(d3ddev9, L"sprite2.fx", 0, 0, 0, 0, &ptr, &error))) {
-					OutputDebugStringA((const char*)error->GetBufferPointer());
-					return false;
-				}
-
-				effect.Attach(ptr);
-			}
-
-			// 頂点宣言作成
-			{
-				IDirect3DVertexDeclaration9 *ptr;
-				D3DVERTEXELEMENT9 elems[] = {
-					{0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
-					{0, sizeof(float) * 3, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
-					D3DDECL_END()
-				};
-
-				if (FAILED(d3ddev9->CreateVertexDeclaration(elems, &ptr))) {
-					WRITELOG("failed to create \"Bertex Declaration9\"");
-					return false;
-				}
-				verDecl.Attach(ptr);
-			}
-
-			
+		
 			// 頂点宣言を登録
 			d3ddev9->SetVertexDeclaration(verDecl);
-
 
 
 			// デフォルトステートのセット
@@ -801,6 +877,10 @@ namespace dx9 {
 			d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 			d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
 			d3ddev9->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+
+
+			isLost = false;
+			
 
 		
 			WRITELOG("Device Reset ... OK");

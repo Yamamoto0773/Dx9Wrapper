@@ -26,7 +26,7 @@
 #include "dx9.hpp"
 #include "DXTextureManager.hpp"
 #include "LogManager.hpp"
-#include "StencilClip.hpp"
+#include "RenderingManager.hpp"
 #include "Figure.hpp"
 
 
@@ -36,8 +36,9 @@ namespace dx9 {
 	class DXDrawManager : private resource::DX9ShareContainer {
 
 		texture::DXTextureManager	texMng;
-		stencil::MaskManager		maskMng;
+		dx9::renderer::RenderingManager *renderMng;
 
+		RenderingTarget textureRT;
 		
 		static size_t topLayerPos;
 	
@@ -55,14 +56,12 @@ namespace dx9 {
 		// DirectXインターフェース群の生成
 		bool Create(HWND hwnd, Size size, MultiSampleLv level=MultiSampleLv::_4SAMPLES, bool isRightHand=false);
 
+
 		// 描画開始
 		bool DrawBegin(bool isClear);
 
 		// 描画終了
 		bool DrawEnd();
-
-
-
 
 		// ---------------------------------------
 		// テクスチャの管理，描画などを行う関数
@@ -90,6 +89,7 @@ namespace dx9 {
 			size_t h
 			);
 
+
 		// 使用されていないテクスチャを削除
 		// 戻り値:解放したテクスチャの数
 		int CleanTexPool();
@@ -103,9 +103,45 @@ namespace dx9 {
 			float alpha=1.0f,
 			float xscale=1.0f,
 			float yscale=1.0f,
-			int rotDeg=0
+			int rotDeg=0,
+			bool isClip=false
 			);
 
+		bool DrawTexture(
+			RenderingTarget &rt,
+			float x,
+			float y,
+			DrawTexCoord coord=DrawTexCoord::TOP_L,
+			float alpha=1.0f,
+			float xscale=1.0f,
+			float yscale=1.0f,
+			int rotDeg=0,
+			bool isClip=false
+			);
+
+		bool DrawTextureWithColor(
+			Texture &tex,
+			float x,
+			float y,
+			DrawTexCoord coord=DrawTexCoord::TOP_L,
+			DWORD color=0xffffffff,
+			float xscale=1.0f,
+			float yscale=1.0f,
+			int rotDeg=0,
+			bool isClip=false
+			);
+
+		bool DrawTextureWithColor(
+			RenderingTarget &rt,
+			float x,
+			float y,
+			DrawTexCoord coord=DrawTexCoord::TOP_L,
+			DWORD color=0xffffffff,
+			float xscale=1.0f,
+			float yscale=1.0f,
+			int rotDeg=0,
+			bool isClip=false
+			);
 
 
 
@@ -208,6 +244,7 @@ namespace dx9 {
 		
 		void Delete();
 
+		bool DeviceLost();
 		bool DeviceReset();
 	};
 
