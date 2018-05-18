@@ -66,62 +66,6 @@ namespace stencil {
 
 
 
-
-
-	enum class MaskType : UINT {
-		Main = 0L,
-		Sub = 1L,
-	};
-
-
-	// manage changing some masks
-	class MaskManager {
-
-
-	public:
-		MaskManager();
-		~MaskManager();
-
-		bool create(IDirect3DDevice9 *dev);
-
-
-		//! クリッピング領域作成開始
-		bool regionBegin( IDirect3DDevice9* device, bool isClear=true );
-
-		//! クリッピング領域作成終了
-		bool regionEnd( IDirect3DDevice9* device );
-
-		//! クリッピング描画開始
-		bool drawBegin( IDirect3DDevice9* device);
-
-		//! クリッピング 
-		bool drawEnd(IDirect3DDevice9* device);
-
-		// set mask color for rendering
-		void setMaskingColor(IDirect3DDevice9* device, MaskColor color);
-
-
-		Mode getCurrectMode();
-		MaskColor getRefMaskColor();
-
-
-		// choose current mask in either Main or Sub.
-		bool changeMask(IDirect3DDevice9 *dev, MaskType type=MaskType::Main);
-
-		MaskType getCurrentMaskType() const {return currentMaskType;};
-
-	private:
-		CComPtr<IDirect3DSurface9>	reserveStencilBuf;	// be used when another mask is being maked
-		CComPtr<IDirect3DSurface9>	mainStencilBuf;		// be used for backup when change stencil buffer
-
-		std::array<StencilClip, 2>	stencilClip;
-		StencilClip					*currentMask;
-
-		MaskType					currentMaskType;
-	};
-
-
-
 }
 
 #endif

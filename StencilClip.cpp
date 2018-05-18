@@ -6,7 +6,7 @@
 
 namespace stencil {
 	StencilClip::StencilClip() :
-		mode			( Mode::Masking ),
+		mode			( Mode::Idle ),
 		writeColor		(MaskColor::Fill),
 		testColor		(MaskColor::Fill),
 		curZTest		( 0 ),
@@ -120,120 +120,6 @@ namespace stencil {
 
 	MaskColor StencilClip::getRefMaskColor() {
 		return testColor;
-	}
-
-
-
-	MaskManager::MaskManager() :
-		currentMaskType(MaskType::Main)
-	{
-	}
-
-	MaskManager::~MaskManager() {
-	}
-
-	bool MaskManager::create(IDirect3DDevice9 * dev) {
-		if (!dev) return false;
-
-		// create a reserve stencil buffer
-		IDirect3DSurface9 *ptr;
-		IDirect3DSurface9 *ptr_create;
-		D3DSURFACE_DESC desc;
-
-		dev->GetDepthStencilSurface(&ptr);
-		ptr->GetDesc(&desc);
-
-		if (FAILED(dev->CreateDepthStencilSurface(
-			desc.Width,
-			desc.Height,
-			desc.Format,
-			desc.MultiSampleType,
-			desc.MultiSampleQuality,
-			false,
-			&ptr_create,
-			NULL
-			))) {
-			return false;
-		}
-
-		ptr->Release();
-
-		reserveStencilBuf.Attach(ptr_create);
-
-		currentMask = &stencilClip[static_cast<size_t>(currentMaskType)];
-
-		return true;
-	}
-
-	bool MaskManager::regionBegin(IDirect3DDevice9 * device, bool isClear) {
-		if (!currentMask) return false;
-		return currentMask->regionBegin(device, isClear);
-	}
-
-	bool MaskManager::regionEnd(IDirect3DDevice9 * device) {
-		if (!currentMask) return false;
-		return currentMask->regionEnd(device);
-	}
-
-	bool MaskManager::drawBegin(IDirect3DDevice9 * device) {
-		if (!currentMask) return false;
-		return currentMask->drawBegin(device);
-	}
-
-	bool MaskManager::drawEnd(IDirect3DDevice9 * device) {
-		if (!currentMask) return false;
-		return currentMask->drawEnd(device);
-	}
-
-	void MaskManager::setMaskingColor(IDirect3DDevice9 * device, MaskColor color) {
-		if (!currentMask) return ;
-		currentMask->setMaskingColor(device, color);
-	}
-
-	Mode MaskManager::getCurrectMode() {
-		if (!currentMask) return Mode::Idle;
-		return currentMask->getCurrectMode();
-	}
-
-	MaskColor MaskManager::getRefMaskColor() {
-		if (!currentMask) return MaskColor::None;
-		return currentMask->getRefMaskColor();
-	}
-
-
-	bool MaskManager::changeMask(IDirect3DDevice9 *dev, MaskType type) {
-		if (!dev) return false;
-		if (!reserveStencilBuf) return false;
-			
-		if (currentMaskType != type) {
-
-			// reserve the main stencil buffer
-			if (currentMaskType == MaskType::Main) {
-				IDirect3DSurface9 *ptr;
-				dev->GetDepthStencilSurface(&ptr);
-				
-				// update
-				mainStencilBuf.Release();
-				mainStencilBuf.Attach(ptr);
-			}
-
-			// swap ownership
-			IDirect3DSurface9 *ptr1, *ptr2;
-			ptr1 = reserveStencilBuf.Detach();
-			ptr2 = mainStencilBuf.Detach();
-			reserveStencilBuf.Attach(ptr2);
-			mainStencilBuf.Attach(ptr1);
-
-			dev->SetDepthStencilSurface(mainStencilBuf);
-
-	
-			currentMask = &stencilClip[static_cast<size_t>(currentMaskType)];
-		
-
-			currentMaskType = type;
-		}
-
-		return true;
 	}
 
 
