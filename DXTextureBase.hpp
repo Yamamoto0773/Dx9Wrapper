@@ -43,9 +43,8 @@ namespace dx9 {
 			DXTextureBase();
 			virtual ~DXTextureBase();
 
-			// コピー不可
-			DXTextureBase(const DXTextureBase&) = delete;
-			DXTextureBase& operator=(const DXTextureBase&) = delete;
+			DXTextureBase(const DXTextureBase&);
+			DXTextureBase& operator=(const DXTextureBase&);
 			// ムーブはOK
 			DXTextureBase(DXTextureBase&&) = default;
 			DXTextureBase& operator=(DXTextureBase&&) = default;
@@ -54,8 +53,13 @@ namespace dx9 {
 			bool Create(IDirect3DDevice9* dev, const std::wstring& fileName);
 			// 空テクスチャ作成
 			bool Create(IDirect3DDevice9* dev, size_t width, size_t height);
+			// Create texture from IDirect3DTexture9. ownership of [tex] move.
+			bool Create(IDirect3DTexture9 *tex);
 
-			void CopyTo(DXTextureBase &dst);
+			void CopyFrom(const DXTextureBase &src);
+
+
+			bool operator!(); 
 
 
 			// テクスチャの明示的削除

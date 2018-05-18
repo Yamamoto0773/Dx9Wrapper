@@ -18,6 +18,15 @@ namespace dx9 {
 		DXTextureBase::~DXTextureBase() {
 		}
 
+		DXTextureBase::DXTextureBase(const DXTextureBase &t) {
+			CopyFrom(t);
+		}
+
+		DXTextureBase & DXTextureBase::operator=(const DXTextureBase &t) {
+			CopyFrom(t);
+			return *this;
+		}
+
 
 
 		bool DXTextureBase::Create(IDirect3DDevice9* dev, const std::wstring& fileName) {
@@ -87,13 +96,32 @@ namespace dx9 {
 			return true;
 		}
 
+		bool DXTextureBase::Create(IDirect3DTexture9 * tex) {
+			if (!tex) return false;
 
-		void DXTextureBase::CopyTo(DXTextureBase &dst) {
-			dst.d3dtex9 = this->d3dtex9;
-			dst.name = this->name;
-			dst.width = this->width;
-			dst.height = this->height;
-			dst.isLocked = this->isLocked;
+			D3DSURFACE_DESC desc;
+			tex->GetLevelDesc(0, &desc);
+
+			width = desc.Width;
+			height = desc.Height;
+			
+			d3dtex9.Attach(tex);
+			this->isLocked = false;
+
+			return true;
+		}
+
+
+		void DXTextureBase::CopyFrom(const DXTextureBase &src) {
+			this->d3dtex9 =	src.d3dtex9;
+			this->name = src.name;	
+			this->width = src.width;
+			this->height = src.height;
+			this->isLocked = src.isLocked;
+		}
+
+		bool DXTextureBase::operator!() {
+			return !d3dtex9;
 		}
 
 
