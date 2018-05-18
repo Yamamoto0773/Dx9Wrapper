@@ -83,9 +83,25 @@ namespace dx9 {
 			return true;
 		}
 
+		bool DXTextureManager::CreateFromD3DTex9(Texture & tex, DXTextureBase &texbase) {
+			if (!texbase) return false;
+
+			D3DSURFACE_DESC desc;
+			texbase.GetPointer()->GetLevelDesc(0, &desc);
+
+			texture::TexClip clip;
+			clip.size.w = desc.Width;
+			clip.size.h = desc.Height;
+			clip.uv		= {0.0f, 0.0f, 1.0f, 1.0f};
+
+			tex.set(std::make_shared<DXTextureBase>(texbase), clip);
+
+			return true;
+		}
 
 
-		bool DXTextureManager::DrawTexture(Texture &tex, float x, float y, DrawTexCoord coord, float alpha, float xscale, float yscale, int rotDeg) {
+
+		bool DXTextureManager::DrawTexture(Texture &tex, float x, float y, DrawTexCoord coord, DWORD color, float xscale, float yscale, int rotDeg, bool isClip) {
 			if (!tex) {
 				return false;
 			}
@@ -95,7 +111,7 @@ namespace dx9 {
 
 			rotDeg%=360;
 			float rotRad = (float)(rotDeg*M_PI/180);
-			float colorRGBA[4] = {1.0f, 1.0f, 1.0f, alpha};
+			float colorRGBA[4] = {(color>>16)&0xff, (color>>8)&0xff, (color)&0xff, (color>>24)&0xff};
 
 
 			// 描画位置の算出
@@ -143,9 +159,13 @@ namespace dx9 {
 			UINT numPass = 0;
 			effect->SetTechnique("Tech");
 			effect->Begin(&numPass, 0);
-			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Mul_UVTex_color));
 
+			if (isClip)
+				effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Mul_ColorAlpha_TexAlpha));
+			else 
+				effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Mul_UVTex_color));
 
+				
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:

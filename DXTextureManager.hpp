@@ -56,18 +56,29 @@ namespace dx9 {
 				size_t h
 				);
 
+			
+			// Create texture from IDirct3DTexture9
+			// ownership of [texbase] is moved
+			bool CreateFromD3DTex9(
+				Texture &tex,
+				DXTextureBase &texbase
+				);
+
 
 			// ---------------------------------------
 			// 描画を行う関数
+
+			// If [isClip] is true, clip data in [tex] is ignored.
 			bool DrawTexture(
 				Texture &tex,
 				float x,
 				float y,
 				DrawTexCoord coord=DrawTexCoord::TOP_L,
-				float alpha=1.0f,
+				DWORD color=0xffffffff,
 				float xscale=1.0f,
 				float yscale=1.0f,
-				int rotDeg=0
+				int rotDeg=0,
+				bool isClip = false		
 				);
 
 		
