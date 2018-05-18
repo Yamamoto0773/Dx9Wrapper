@@ -339,28 +339,36 @@ namespace dx9 {
 
 		bool CircleFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
 
-			using namespace stencil;
-			MaskManager maskMng;
+			auto *renderMng = &renderer::RenderingManager::GetInstance();
 
-			if (!maskMng.create(dev))
-				return false;
 
-			maskMng.changeMask(dev, stencil::MaskType::Sub);
-			
-			maskMng.regionBegin(dev, true);
+			// 板ポリゴンを登録
+			dev->SetStreamSource(0, vtx, 0, sizeof(float)*5);
+
+			// Create mask
+			renderMng->regionBegin(dev, true);
+			renderMng->setMaskingColor(dev, stencil::MaskColor::Fill);
 		
 			Circle circle;
 			float correction_w = (w>h) ? -w/h : h/w;
 			float correction_h = (w>h) ? w/h : -h/w;
 			circle.SetPos(center, w-lineWidth*2+correction_w, h-lineWidth*2+correction_h);
+			circle.SetColor(0xff000000);
 			circle.Draw(dev, effect, vtx, projMat, blendMode, layerPos);
 
-			maskMng.regionEnd(dev);
+			renderMng->regionEnd(dev);
 
 
-			// begin to draw with created-mask
-			maskMng.drawBegin(dev);
+			// Draw circle frame by mask
+			renderMng->drawBegin(dev);
 
+
+
+			// シェーダ開始
+			UINT numPass = 0;
+			effect->SetTechnique("Tech");
+			effect->Begin(&numPass, 0);
+			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Color));
 
 			// ブレンドモードを設定
 			switch (blendMode) {
@@ -374,15 +382,7 @@ namespace dx9 {
 					break;
 			}
 
-			// 板ポリゴンを登録
-			dev->SetStreamSource(0, vtx, 0, sizeof(float)*5);
-
-			// シェーダ開始
-			UINT numPass = 0;
-			effect->SetTechnique("Tech");
-			effect->Begin(&numPass, 0);
-			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Color));
-
+	
 
 			D3DXMATRIX world, rot;
 			D3DXMatrixScaling(&world, (float)w, h, 1.0f);	// ポリゴンサイズに
@@ -409,12 +409,7 @@ namespace dx9 {
 
 
 			// end a processing of drawing with mask
-			maskMng.drawEnd(dev);
-
-
-			// revert stencil buffer back
-			maskMng.changeMask(dev, stencil::MaskType::Main);
-
+			renderMng->drawEnd(dev);
 
 			return true;
 		}
