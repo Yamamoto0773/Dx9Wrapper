@@ -69,7 +69,7 @@ namespace dx9 {
 		if (alpha < 0.0f) alpha = 0.0f;
 		else if (alpha > 1.0f) alpha = 1.0f;
 
-		int a = alpha*255;
+		int a = (int)(alpha*255);
 
 		return texMng.DrawTexture(tex, x, y, coord, (a<<24)|0x00ffffff , xscale, yscale, rotDeg, isClip);
 	}
@@ -78,7 +78,7 @@ namespace dx9 {
 		if (alpha < 0.0f) alpha = 0.0f;
 		else if (alpha > 1.0f) alpha = 1.0f;
 
-		int a = alpha*255;
+		int a = (int)(alpha*255);
 
 
 		return DrawTextureWithColor(rt, x, y, coord, (a<<24)|0x00ffffff, xscale, yscale, rotDeg, isClip);
@@ -739,7 +739,7 @@ namespace dx9 {
 			};
 			vtx_circle[0] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 			for (int i=0; i<resource::CIRCLE_VERTEXCNT+1; i++) {
-				float rad = 2.0f*M_PI/resource::CIRCLE_VERTEXCNT * i;
+				float rad = 2.0f*(float)(M_PI)/resource::CIRCLE_VERTEXCNT * i;
 				vtx_circle[i+1] = {cos(-rad)/2.0f, sin(-rad)/2.0f, 0.0f, cos(-rad)/2.0f+0.5f, sin(-rad)/2.0f+0.5f}; // create vertex data for circle which is 1 in diameter
 			}
 		}
@@ -752,7 +752,7 @@ namespace dx9 {
 			};
 			vtx_circle[0] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 			for (int i=0; i<resource::CIRCLE_VERTEXCNT+1; i++) {
-				float rad = 2.0f*M_PI/resource::CIRCLE_VERTEXCNT * i;
+				float rad = 2.0f*(float)(M_PI)/resource::CIRCLE_VERTEXCNT * i;
 				vtx_circle[i+1] = {cos(rad)/2.0f, sin(rad)/2.0f, 0.0f, cos(rad)/2.0f+0.5f, sin(rad)/2.0f+0.5f};  // create vertex data for circle which is 1 in diameter
 			}
 		}

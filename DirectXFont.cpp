@@ -14,7 +14,7 @@ namespace dx9 {
 
 		// フォントハンドルの生成
 		LOGFONTW	lf;
-		lf.lfHeight				= fontSize;						// 文字の高さ
+		lf.lfHeight				= (LONG)fontSize;						// 文字の高さ
 		lf.lfWidth				= 0;							// 文字幅
 		lf.lfEscapement			= 0;							// 文字方向とX軸との角度
 		lf.lfOrientation		= 0;							// 各文字とX軸との角度
@@ -163,12 +163,12 @@ namespace dx9 {
 
 
 		// 描画位置の算出 
-		vector<pair<size_t, int>> headPos; // first:行頭のx座標 second:行頭文字が何番目か
+		vector<pair<float, size_t>> headPos; // first:行頭のx座標 second:行頭文字が何番目か
 		RectF strArea = {rect.right, rect.bottom, rect.left, rect.top};
 		size_t totalOffset = 0;
-		int width = rect.right - rect.left;
-		if (format == TextAlign::NONE) width = -1.0f;
-		int height = rect.bottom - rect.top;
+		int width = (int)(rect.right - rect.left);
+		if (format == TextAlign::NONE) width = -1;
+		int height = (int)(rect.bottom - rect.top);
 		size_t lineCnt;
 
 		for (lineCnt=0; true; lineCnt++) {
@@ -177,12 +177,12 @@ namespace dx9 {
 				break;
 
 			size_t len;
-			int offset = GetStrLength(workBuf.data(), totalOffset, width, len);
+			int offset = GetStrLength(workBuf.data(), totalOffset, (float)width, len);
 			if (offset <= 0) {
 				break;
 			}
 
-			size_t x;
+			float x;
 			switch (format) {
 				case dx9::TextAlign::LEFT:
 				case dx9::TextAlign::NONE: 
@@ -294,8 +294,8 @@ namespace dx9 {
 		effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Mul_ColorAlpha_TexAlpha));
 
 		D3DXMATRIX world, scale, rot;
-		Point pos = {0, 0};
-		Point finalPos = {0, 0};
+		PointF pos = {0, 0};
+		PointF finalPos = {0, 0};
 		auto nowHead = headPos.cbegin();
 		auto ch = workBuf.cbegin();
 
@@ -323,7 +323,7 @@ namespace dx9 {
 				rotOriginPt.y - finalPos.y
 			};
 
-			D3DXMatrixScaling(&world, (float)texRes[code]->GetWidth(), texRes[code]->GetHeight(), 1.0f);	// ポリゴンサイズに
+			D3DXMatrixScaling(&world, (float)texRes[code]->GetWidth(), (float)texRes[code]->GetHeight(), 1.0f);	// ポリゴンサイズに
 			D3DXMatrixScaling(&scale, 1.0f, 1.0f, 1.0f);	// ローカルスケール
 			D3DXMatrixRotationZ(&rot, rotateRad);						// 回転
 			world._41 = -origin.x;		// ピボット分オフセット
@@ -397,7 +397,7 @@ namespace dx9 {
 
 	
 	int DirectXFont::GetStrLength(const wchar_t* str, size_t offset, float limit, size_t & length) {
-		int strLength = wcslen(str);
+		size_t strLength = wcslen(str);
 
 		if (offset >= strLength) {
 			return -1;
@@ -410,7 +410,7 @@ namespace dx9 {
 		int charCnt = 0;
 		
 		size_t totalLen = 0;
-		for (int i=offset; i<strLength; i++) {
+		for (size_t i=offset; i<strLength; i++) {
 			
 			unsigned code = (unsigned)(str[i]);
 
@@ -452,7 +452,7 @@ namespace dx9 {
 		HFONT oldFont = (HFONT)SelectObject(hdc, hFont);
 
 		// 文字テクスチャ作成
-		int len = wcslen(wstr);
+		size_t len = wcslen(wstr);
 		for (int i=0; i<len; i++) {
 
 			UINT code = static_cast<UINT>(wstr[i]);

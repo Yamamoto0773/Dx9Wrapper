@@ -87,7 +87,7 @@ bool GameController::Update() {
 
 		for (int i=0; i<63; i++) {
 			double x;
-			if (!GetKeyPosition(KEYID[i], 0.0, 0.99, &x)) continue;
+			if (!GetKeyPosition(KEYID[i], 0.0f, 0.99f, &x)) continue;
 
 			int virKeyNum = (int)(x*KEYCOUNT);		// 仮想キーの位置に変換
 

@@ -111,7 +111,7 @@ namespace dx9 {
 
 			rotDeg%=360;
 			float rotRad = (float)(rotDeg*M_PI/180);
-			float colorRGBA[4] = {(color>>16)&0xff, (color>>8)&0xff, (color)&0xff, (color>>24)&0xff};
+			float colorRGBA[4] = {((color>>16)&0xff)/255.0f, ((color>>8)&0xff)/255.0f, ((color)&0xff)/255.0f, ((color>>24)&0xff)/255.0f};
 
 
 			// 描画位置の算出

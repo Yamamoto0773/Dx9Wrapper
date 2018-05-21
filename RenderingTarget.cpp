@@ -122,8 +122,8 @@ namespace dx9 {
 			{
 				IDirect3DTexture9 *rawPtr;
 				if (FAILED(hr = device->CreateTexture(
-					w,
-					h,
+					(UINT)w,
+					(UINT)h,
 					1,
 					D3DUSAGE_RENDERTARGET,
 					D3DFMT_A8R8G8B8,
@@ -138,8 +138,8 @@ namespace dx9 {
 			{
 				IDirect3DSurface9 *rawPtr;
 				if (FAILED(hr = device->CreateDepthStencilSurface(
-					w,
-					h,
+					(UINT)w,
+					(UINT)h,
 					D3DFMT_D24S8,
 					D3DMULTISAMPLE_NONE,
 					0,
@@ -161,8 +161,8 @@ namespace dx9 {
 
 
 				// set data for view-port
-				container.viewPort.Width = w;
-				container.viewPort.Height = h;
+				container.viewPort.Width = (DWORD)w;
+				container.viewPort.Height = (DWORD)h;
 				container.viewPort.X = 0;
 				container.viewPort.Y = 0;
 				container.viewPort.MinZ = 0.0f;

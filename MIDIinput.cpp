@@ -42,9 +42,9 @@ void CALLBACK MIDIInput::MidiInProc(HMIDIIN hMidiInHandle, UINT wMsg, DWORD dwIn
 				break;
 			}
 
-			unsigned char velocity = (dwParam1 & 0x00ff0000) >> 16;
+			byte velocity = (byte)((dwParam1 & 0x00ff0000) >> 16);
 			bool is_pressed = velocity != 0;
-			unsigned char note = ( dwParam1 & 0x0000ff00 ) >> 8;
+			byte note = (byte)(( dwParam1 & 0x0000ff00 ) >> 8);
 
 			// c4 - c6 まで
 			if (note < 48 || note > 72) break;

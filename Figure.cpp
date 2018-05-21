@@ -33,7 +33,7 @@ namespace dx9 {
 
 		void Figure::SetRot(int deg) {
 			deg%=360;
-			rotRad = M_PI*deg/180.0f;
+			rotRad = (float)M_PI*deg/180.0f;
 		}
 
 
@@ -66,7 +66,7 @@ namespace dx9 {
 		}
 
 
-		bool Line::Draw(IDirect3DDevice9 *dev, ID3DXEffect *effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX *projMat, BLENDMODE blendMode, float layerPos) {
+		bool Line::Draw(IDirect3DDevice9 *dev, ID3DXEffect *effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX *projMat, BLENDMODE blendMode, size_t layerPos) {
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -140,7 +140,7 @@ namespace dx9 {
 		}
 
 
-		bool Rect::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
+		bool Rect::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, size_t layerPos) {
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -205,7 +205,7 @@ namespace dx9 {
 		}
 
 
-		bool RectFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
+		bool RectFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, size_t layerPos) {
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -274,7 +274,7 @@ namespace dx9 {
 		}
 
 
-		bool Circle::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
+		bool Circle::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, size_t layerPos) {
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -337,7 +337,7 @@ namespace dx9 {
 			this->lineWidth = lineWidth;
 		}
 
-		bool CircleFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, float layerPos) {
+		bool CircleFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, size_t layerPos) {
 
 			auto *renderMng = &renderer::RenderingManager::GetInstance();
 

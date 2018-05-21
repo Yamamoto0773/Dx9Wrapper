@@ -3,8 +3,7 @@
 #define Successful (1)
 #define Failed (0)
 
-#define WRITELOG(x) { if (log != nullptr) { log->tlnwrite(x); } }
-
+#define WRITELOG(x, ...) { if (log != nullptr) { log->tlnwrite(x, __VA_ARGS__); } }
 
 namespace dx9 {
 
@@ -75,8 +74,8 @@ namespace dx9 {
 			IDirect3DTexture9 *ptr;
 
 			if (FAILED(dev->CreateTexture(
-				width,
-				height,
+				(UINT)width,
+				(UINT)height,
 				1,
 				0,
 				D3DFMT_A8R8G8B8,

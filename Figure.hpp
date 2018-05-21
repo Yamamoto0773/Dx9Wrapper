@@ -29,7 +29,7 @@ namespace dx9 {
 				IDirect3DVertexBuffer9 *vtx,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
-				float layerPos
+				size_t layerPos
 				) = 0;
 		};
 
@@ -61,7 +61,7 @@ namespace dx9 {
 				IDirect3DVertexBuffer9 *vtx,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
-				float layerPos
+				size_t layerPos
 				) override;
 		};
 
@@ -85,7 +85,7 @@ namespace dx9 {
 				IDirect3DVertexBuffer9 *vtx,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
-				float layerPos
+				size_t layerPos
 				) override;
 
 		};
@@ -111,7 +111,7 @@ namespace dx9 {
 				IDirect3DVertexBuffer9 *vtx,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
-				float layerPos
+				size_t layerPos
 				) override;
 
 		};
@@ -134,7 +134,7 @@ namespace dx9 {
 				IDirect3DVertexBuffer9 *vtx,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
-				float layerPos
+				size_t layerPos
 				) override;
 
 		};
@@ -157,7 +157,7 @@ namespace dx9 {
 				IDirect3DVertexBuffer9 *vtx,
 				D3DXMATRIX * projMat,
 				BLENDMODE blendMode,
-				float layerPos
+				size_t layerPos
 				) override;
 		};
 

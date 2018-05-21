@@ -70,9 +70,9 @@ namespace dx9 {
 			bool Unlock();
 
 			// テクスチャの幅を取得
-			unsigned long GetWidth() const { return width; }
+			size_t GetWidth() const { return width; }
 			// テクスチャの高さを取得
-			unsigned long GetHeight() const { return height; }
+			size_t GetHeight() const { return height; }
 
 
 			// テクスチャへ名前を格納
