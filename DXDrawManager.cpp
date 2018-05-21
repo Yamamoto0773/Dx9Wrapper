@@ -170,7 +170,7 @@ namespace dx9 {
 		r &= 0xff;
 		g &= 0xff;
 		b &= 0xff;
-		SetBackGroundColor((unsigned long)(r|g|b));
+		SetBackGroundColor((unsigned long)(r<<16|g<<8|b));
 	}
 
 
