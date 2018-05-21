@@ -94,7 +94,7 @@ namespace dx9 {
 		// 戻り値:解放したテクスチャの数
 		int CleanTexPool();
 
-		// 描画を行う関数
+		// テクスチャの描画
 		bool DrawTexture(
 			Texture &tex,
 			float x,
@@ -107,6 +107,7 @@ namespace dx9 {
 			bool isClip=false
 			);
 
+		// レンダリングターゲットの描画
 		bool DrawTexture(
 			RenderingTarget &rt,
 			float x,
@@ -119,6 +120,7 @@ namespace dx9 {
 			bool isClip=false
 			);
 
+		// テクスチャの描画
 		bool DrawTextureWithColor(
 			Texture &tex,
 			float x,
@@ -131,6 +133,8 @@ namespace dx9 {
 			bool isClip=false
 			);
 
+
+		// レンダリングターゲットの描画
 		bool DrawTextureWithColor(
 			RenderingTarget &rt,
 			float x,
@@ -214,6 +218,17 @@ namespace dx9 {
 		MaskType GetMaskType();
 
 
+		// ---------------------------------------
+		// レンダリングターゲット関係
+
+		// レンダリングターゲットの作成
+		bool CreateRenderingTarget(RenderingTarget &rt, size_t w, size_t h);
+
+		// レンダリングターゲットの切替
+		bool SetRenderingTarget(const RenderingTarget &rt);
+
+		// レンダリングターゲットをデフォルトに戻す
+		bool ResetRenderingTarget();
 	
 		// ---------------------------------------
 

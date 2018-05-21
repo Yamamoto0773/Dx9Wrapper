@@ -87,9 +87,9 @@ namespace dx9 {
 	bool DXDrawManager::DrawTextureWithColor(RenderingTarget & rt, float x, float y, DrawTexCoord coord, DWORD color, float xscale, float yscale, int rotDeg, bool isClip) {
 		Texture tex;
 
-		texture::DXTextureBase texbase = renderMng->GetTexture(rt);
+		const texture::DXTextureBase *texbase = renderMng->GetTexture(rt);
 
-		if (!texMng.CreateFromD3DTex9(tex, texbase))
+		if (!texMng.CreateFromD3DTex9(tex, *texbase))
 			return false;
 
 		return DrawTextureWithColor(tex, x, y, coord, color, xscale, yscale, rotDeg, isClip);
@@ -113,6 +113,14 @@ namespace dx9 {
 
 
 		if (!isDrawStarted) {
+
+			// check a current RT
+			if (!renderMng->GetCurrentRT()) {
+				// current RT is NOT valid
+				ResetRenderingTarget();
+			}
+			
+
 			if (isClear) {
 				d3ddev9->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, backGroundColor, 1.0f, 0);
 			}
@@ -268,6 +276,38 @@ namespace dx9 {
 	}
 
 
+
+	bool DXDrawManager::CreateRenderingTarget(RenderingTarget & rt, size_t w, size_t h) {
+		 return renderMng->CreateRenderingTarget(d3ddev9, rt, w, h); 
+	}
+
+	bool DXDrawManager::SetRenderingTarget(const RenderingTarget & rt) {
+		bool r = renderMng->SetRenderingTarget(d3ddev9, rt);
+
+		const auto *con = renderMng->GetRTContainer(rt);
+
+		D3DXMatrixIdentity(&projMat);
+		projMat._41 = -1.0f;
+		projMat._42 =  1.0f;
+		projMat._11 =  2.0f / con->viewPort.Width;
+		projMat._22 = -2.0f / con->viewPort.Height;
+
+		return r;
+	}
+
+	bool DXDrawManager::ResetRenderingTarget() {
+		bool r = renderMng->SetRenderingTarget(d3ddev9);
+
+		D3DXMatrixIdentity(&projMat);
+		projMat._41 = -1.0f;
+		projMat._42 =  1.0f;
+		projMat._11 =  2.0f / d3dpresent.BackBufferWidth;
+		projMat._22 = -2.0f / d3dpresent.BackBufferHeight;
+
+		return r;
+	}
+
+
 	bool DXDrawManager::DrawLine(float begin_x, float begin_y, float end_x, float end_y, DWORD color, float lineWidth) {
 		PointF begin = {begin_x, begin_y};
 		PointF end = {end_x, end_y};
@@ -382,7 +422,7 @@ namespace dx9 {
 		// preserve now state of mask.
 		stencil::Mode mode = renderMng->getCurrectMode();
 		stencil::MaskColor maskCol = renderMng->getRefMaskColor();
-
+		const auto curRT = renderMng->GetCurrentRT();
 
 		switch (mode) {
 			case stencil::Mode::Masking:
@@ -399,9 +439,12 @@ namespace dx9 {
 		
 
 		// Create texture rendered a circle frame.
-		renderMng->SetRenderingTarget(d3ddev9, textureRT);
+		SetRenderingTarget(textureRT);
 
+		if (isDrawStarted) d3ddev9->EndScene();
 		d3ddev9->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 0xffffff, 1.0f, 0);
+		if (isDrawStarted) d3ddev9->BeginScene();
+		
 
 		figure::CircleFrame circleFrame;
 		circleFrame.SetPos({w/2, h/2}, w, h);
@@ -411,7 +454,12 @@ namespace dx9 {
 
 
 		// Draw the texture
-		renderMng->SetRenderingTarget(d3ddev9);
+		if (curRT) {
+			SetRenderingTarget(curRT);
+		}
+		else {
+			renderMng->SetRenderingTarget(d3ddev9);
+		}
 
 		// restore previous state
 		switch (mode) {
