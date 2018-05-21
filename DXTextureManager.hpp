@@ -61,7 +61,7 @@ namespace dx9 {
 			// ownership of [texbase] is moved
 			bool CreateFromD3DTex9(
 				Texture &tex,
-				DXTextureBase &texbase
+				const DXTextureBase &texbase
 				);
 
 

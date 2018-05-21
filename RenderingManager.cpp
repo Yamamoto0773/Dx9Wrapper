@@ -18,7 +18,7 @@ namespace dx9 {
 		}
 
 
-		bool RenderingManager::SetRenderingTarget(IDirect3DDevice9 * device, RenderingTarget & rt) {
+		bool RenderingManager::SetRenderingTarget(IDirect3DDevice9 * device, const RenderingTarget & rt) {
 			if (!device) return nullptr;
 
 			const auto *destRTcon = RenderingTargetFactory::GetInstance().GetContainer(rt);
@@ -26,10 +26,9 @@ namespace dx9 {
 			if (destRTcon == nullptr)
 				return false;
 
-
-			if (!currentUsrRT || *currentUsrRT != rt) {
+			if (currentUsrRT.expired() || currentUsrRT.lock() != rt) {
 				
-				if (!currentUsrRT) {
+				if (currentUsrRT.expired()) {
 					// preserve data for default RT
 
 					if (!GetDefaultRT(device, defaultRTcon))
@@ -41,7 +40,7 @@ namespace dx9 {
 				device->SetDepthStencilSurface(destRTcon->depthStencilBuffer);
 				device->SetViewport(&destRTcon->viewPort);
 
-				currentUsrRT = &rt;
+				currentUsrRT = rt;		// get reference
 
 			}
 			
@@ -51,7 +50,7 @@ namespace dx9 {
 		bool RenderingManager::SetRenderingTarget(IDirect3DDevice9 * device) {
 			if (!device) return nullptr;
 			
-			if (currentUsrRT) {
+			if (!currentUsrRT.expired()) {
 
 				// change Rendering Target
 				if (FAILED(device->SetRenderTarget(0, defaultRTcon.texSurface))) {
@@ -66,7 +65,7 @@ namespace dx9 {
 				defaultRTcon.depthStencilBuffer.Release();
 				ZeroMemory(&defaultRTcon, sizeof(defaultRTcon));
 
-				currentUsrRT = nullptr;
+				currentUsrRT.reset();
 			}
 
 			return true;
@@ -77,7 +76,7 @@ namespace dx9 {
 			auto *fac = &RenderingTargetFactory::GetInstance();
 
 			
-			if (currentUsrRT) {
+			if (!currentUsrRT.expired()) {
 				// If current RT is users one, change it to default.
 				SetRenderingTarget(device);
 			}
@@ -85,7 +84,7 @@ namespace dx9 {
 			// Release all user RT
 			fac->ReleaseAll();
 
-			currentUsrRT = nullptr;
+			currentUsrRT.reset();
 
 			return true;
 		}
@@ -96,10 +95,14 @@ namespace dx9 {
 		}
 
 
-		texture::DXTextureBase RenderingManager::GetTexture(RenderingTarget & rt) {
-			auto *fac = &RenderingTargetFactory::GetInstance();
+		const texture::DXTextureBase *RenderingManager::GetTexture(const RenderingTarget & rt) {
 
-			return fac->GetContainer(rt)->texture;
+			const auto *con = RenderingTargetFactory::GetInstance().GetContainer(rt);
+
+			if (con == nullptr)
+				return nullptr;
+
+			return &con->texture;
 		}
 
 	

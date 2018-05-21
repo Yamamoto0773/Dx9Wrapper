@@ -83,8 +83,8 @@ namespace dx9 {
 			return true;
 		}
 
-		bool DXTextureManager::CreateFromD3DTex9(Texture & tex, DXTextureBase &texbase) {
-			if (!texbase) return false;
+		bool DXTextureManager::CreateFromD3DTex9(Texture & tex, const DXTextureBase &texbase) {
+			if (!(&texbase)) return false;
 
 			D3DSURFACE_DESC desc;
 			texbase.GetPointer()->GetLevelDesc(0, &desc);

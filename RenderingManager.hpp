@@ -14,7 +14,6 @@
 
 #include "RenderingTarget.hpp"
 #include "StencilClip.hpp"
-#include "LogManager.hpp"
 
 
 namespace dx9 {
@@ -33,7 +32,7 @@ namespace dx9 {
 			bool CreateRenderingTarget(IDirect3DDevice9 *device, RenderingTarget &rt, size_t w, size_t h);
 
 			// Change current Rendering Target to [rt]. * "Clear" method is NOT called in this function*
-			bool SetRenderingTarget(IDirect3DDevice9 *device, RenderingTarget &rt);
+			bool SetRenderingTarget(IDirect3DDevice9 *device, const RenderingTarget &rt);
 			
 			// Change Rendering Target to default one.
 			bool SetRenderingTarget(IDirect3DDevice9 *device);
@@ -45,7 +44,12 @@ namespace dx9 {
 			bool OnResetDevice(IDirect3DDevice9 *device);
 
 			// Get a texture from [rt].
-			texture::DXTextureBase GetTexture(RenderingTarget &rt);
+			const texture::DXTextureBase* GetTexture(const RenderingTarget &rt);
+
+			// Get a current RT. If it is default one, this function return nullptr.
+			const RenderingTarget GetCurrentRT() { return currentUsrRT.lock(); };
+
+			const RTContainer::Container *GetRTContainer(const RenderingTarget &rt) { return RenderingTargetFactory::GetInstance().GetContainer(rt); };
 
 		protected:
 			RenderingManager() {};
@@ -56,7 +60,7 @@ namespace dx9 {
 			RTContainer::Container		defaultRTcon;
 
 			// maintain current Rendering Target created by user
-			RenderingTarget *currentUsrRT;
+			std::weak_ptr<renderer::RenderingTarget_class> currentUsrRT;
 
 
 			bool GetDefaultRT(IDirect3DDevice9 *device, RTContainer::Container &rt);

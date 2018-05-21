@@ -8,12 +8,12 @@ namespace dx9 {
 
 
 
-		RenderingTarget_::RenderingTarget_() :
+		RenderingTarget_class::RenderingTarget_class() :
 			isValid(false),
 			index(0) {
 		}
 
-		RenderingTarget_::~RenderingTarget_() {
+		RenderingTarget_class::~RenderingTarget_class() {
 		}
 
 
@@ -24,9 +24,7 @@ namespace dx9 {
 
 			if (pos != -1) {
 
-				RenderingTarget rt = std::unique_ptr<RenderingTarget_, RT_deleter_t>(new RenderingTarget_);
-
-				rt.get_deleter() = [this](RenderingTarget_ *rt) {
+				auto deleter = [this](RenderingTarget_class *rt) {
 					if (rt->isValid) {
 						RTpool[rt->index].user--;
 
@@ -43,6 +41,8 @@ namespace dx9 {
 
 					delete rt;
 				};
+
+				RenderingTarget rt = std::shared_ptr<RenderingTarget_class>(new RenderingTarget_class, deleter);
 
 
 				// create RT-resources
@@ -97,7 +97,7 @@ namespace dx9 {
 		}
 
 
-		const RTContainer::Container* RenderingTargetFactory::GetContainer(const RenderingTarget_t &rt) {
+		const RTContainer::Container* RenderingTargetFactory::GetContainer(const RenderingTarget_sptr &rt) {
 			if (!rt->isValid) return nullptr;
 
 			return &RTpool[rt->index].res;
