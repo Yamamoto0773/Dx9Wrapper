@@ -784,7 +784,19 @@ namespace dx9 {
 		{
 			ID3DXBuffer *error = nullptr;
 			ID3DXEffect *ptr = nullptr;
-			if (FAILED(D3DXCreateEffectFromFile(d3ddev9, L"sprite2.fx", 0, 0, 0, 0, &ptr, &error))) {
+			HRESULT hr;
+			LPWSTR srcRes = MAKEINTRESOURCE(RESID_EFFECT_FX);
+  			if (FAILED(hr = D3DXCreateEffectFromResource(
+				d3ddev9,
+				NULL,
+				srcRes,
+				0,
+				0,
+				0,
+				0,
+				&ptr,
+				&error
+				))) {
 				OutputDebugStringA((const char*)error->GetBufferPointer());
 				return false;
 			}

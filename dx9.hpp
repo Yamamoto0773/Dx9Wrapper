@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include "template.hpp"
+#include "resource.h"
 
 namespace dx9 {
 
@@ -100,7 +101,7 @@ namespace dx9 {
 		LEFT		= 0b00000001,	// 左寄せ
 		CENTERX		= 0b00000010,	// 中央寄せ
 		RIGHT		= 0b00000100,	// 右寄せ
-		CENTERXY	= 0b00001000,	// 中心寄せ　※1行のみ
+		CENTERXY	= 0b00001000,	// 中心寄せ　
 		NONE		= 0b00000000,	// 指定なし　(描画領域は無視され、折り返しされません)
 	};
 
