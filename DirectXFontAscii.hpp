@@ -147,7 +147,7 @@ namespace dx9 {
 		// 文字列strのoffset番目の文字から，長さlimitに1行で入る文字数を取得
 		// 1行の長さは，lengthに書き込まれる
 		// limit < 0.0fの場合，長さの指定を無視する
-		int GetStrLength(const char* str, size_t offset, float limit, size_t &length);
+		int GetStrLength(const char* str, size_t offset, float limit, int &length);
 
 
 

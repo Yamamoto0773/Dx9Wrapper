@@ -178,14 +178,14 @@ namespace dx9 {
 		int width = (int)(rect.right - rect.left);
 		if (format == TextAlign::NONE) width = -1;
 		int height = (int)(rect.bottom - rect.top);
-		size_t lineCnt;
+		int lineCnt;
 
 		for (lineCnt = 0; true; lineCnt++) {
 
-			if (format != TextAlign::NONE && fontSize*lineCnt > height)
+			if (format != TextAlign::NONE && fontSize*(lineCnt+1) > height)
 				break;
 
-			size_t len;
+			int len;
 			int offset = GetStrLength(workBuf.data(), totalOffset, (float)width, len);
 			if (offset <= 0) {
 				break;
@@ -225,7 +225,7 @@ namespace dx9 {
 
 
 		if (format == TextAlign::CENTERXY)
-			strArea.top = rect.top + (height - lineCnt*fontSize)/2.0f;
+			strArea.top = rect.top + (height - lineCnt*(int)fontSize)/2.0f;
 		else
 			strArea.top = rect.top;
 
@@ -378,7 +378,7 @@ namespace dx9 {
 		return true;
 	}
 
-	int DirectXFontAscii::GetStrLength(const char* str, size_t offset, float limit, size_t & length) {
+	int DirectXFontAscii::GetStrLength(const char* str, size_t offset, float limit, int & length) {
 		size_t strLength = strlen(str);
 
 		if (offset >= strLength) {
@@ -391,7 +391,7 @@ namespace dx9 {
 		bool isLimitOn = (limit >= 0.0f);
 		int charCnt = 0;
 
-		size_t totalLen = 0;
+		int totalLen = 0;
 		unsigned code;
 		for (size_t i=offset; i<strLength; i++) {
 
