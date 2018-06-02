@@ -73,7 +73,7 @@ namespace dx9 {
 	bool DirectXFont::DrawInRect(RectF& rect, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
-		bool result = DrawFont(rect, false, 0, -1, fontSize, s, vlist);
+		bool result = DrawFont(rect, true, 0, -1, fontSize, s, vlist);
 		va_end(vlist);
 
 		return result;
