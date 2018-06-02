@@ -63,17 +63,17 @@ namespace dx9 {
 
 		va_list vlist;
 		va_start(vlist, s);
-		bool result = DrawFont(rect, TextAlign::NONE, 0, -1, fontSize, 0, 0, FontRotOrigin::CENTER, s, vlist);
+		bool result = DrawFont(rect, false, 0, -1, fontSize, s, vlist);
 		va_end(vlist);
 
 		return result;
 	}
 
 
-	bool DirectXFont::DrawInRect(RectF& rect, TextAlign format, const wchar_t * s, ...) {
+	bool DirectXFont::DrawInRect(RectF& rect, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
-		bool result = DrawFont(rect, format, 0, -1, fontSize, 0, 0, FontRotOrigin::CENTER, s, vlist);
+		bool result = DrawFont(rect, false, 0, -1, fontSize, s, vlist);
 		va_end(vlist);
 
 		return result;
@@ -84,45 +84,25 @@ namespace dx9 {
 
 		va_list vlist;
 		va_start(vlist, s);
-		bool result = DrawFont(rect, TextAlign::NONE, startCharCnt, drawCharCnt, fontSize, 0, 0, FontRotOrigin::CENTER, s, vlist);
+		bool result = DrawFont(rect, false, startCharCnt, drawCharCnt, fontSize, s, vlist);
 		va_end(vlist);
 
 		return result;
 	}
 
-	bool DirectXFont::DrawInRect(RectF & rect, TextAlign format, size_t startCharCnt, int drawCharCnt, const wchar_t * s, ...) {
+	bool DirectXFont::DrawInRect(RectF & rect, size_t startCharCnt, int drawCharCnt, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
-		bool result = DrawFont(rect, format, startCharCnt, drawCharCnt, fontSize, 0, 0, FontRotOrigin::CENTER, s, vlist);
+		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, fontSize, s, vlist);
 		va_end(vlist);
 
 		return result;
 	}
 
-	bool DirectXFont::Draw(float x, float y, float rotateDeg, FontRotOrigin rotOrigin, const wchar_t * s, ...) {
-		RectF rect = {x, y, 0.0f, 0.0f};
-
+	bool DirectXFont::DrawInRect(RectF & rect, size_t startCharCnt, int drawCharCnt, size_t fontSize, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
-		bool result = DrawFont(rect, TextAlign::NONE, 0, -1, fontSize, 0, rotateDeg, rotOrigin, s, vlist);
-		va_end(vlist);
-
-		return result;
-	}
-
-	bool DirectXFont::DrawInRect(RectF & rect, TextAlign format, float rotateDeg, FontRotOrigin rotOrigin, const wchar_t * s, ...) {
-		va_list vlist;
-		va_start(vlist, s);
-		bool result = DrawFont(rect, format, 0, -1, fontSize, 0, rotateDeg, rotOrigin, s, vlist);
-		va_end(vlist);
-
-		return result;
-	}
-
-	bool DirectXFont::DrawInRect(RectF & rect, TextAlign format, size_t startCharCnt, int drawCharCnt, size_t fontSize, float letterSpace, float rotateDeg, FontRotOrigin rotOrigin, const wchar_t * s, ...) {
-		va_list vlist;
-		va_start(vlist, s);
-		bool result = DrawFont(rect, format, startCharCnt, drawCharCnt, fontSize, letterSpace, rotateDeg, rotOrigin, s, vlist);
+		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, fontSize, s, vlist);
 		va_end(vlist);
 
 		return result;
@@ -130,27 +110,24 @@ namespace dx9 {
 
 
 
-
-	bool DirectXFont::DrawFont(RectF & rect, TextAlign format, size_t startCharCnt, int drawCharCnt, size_t fontSize, float letterSpace, float rotateDeg, FontRotOrigin rotOrigin, const wchar_t * s, va_list vlist) {
+	bool DirectXFont::DrawFont(RectF & rect, bool isAlign, size_t startCharCnt, int drawCharCnt, size_t fontSize, const wchar_t * s, va_list vlist) {
 		if (!isDrawable()) {
 			return false;
 		}
 		if (!hFont) {
 			return false;
 		}
-		if (format != TextAlign::NONE) {
-			if (rect.left > rect.right || rect.top > rect.bottom) {
+
+		if (isAlign) {
+			if (rect.left > rect.right || rect.top > rect.bottom) 
 				return false;
-			}
 		}
 
 		using namespace std;
 
-		// 書式文字列をwchar_t型の文字列に変換
-		_locale_t locale = _wcreate_locale(LC_CTYPE, L"jpn");
+
+		int len = _vsnwprintf_s(workBuf.data(), CHARACTER_MAXCNT+1, CHARACTER_MAXCNT, s, vlist);
 		
-		int len = _vsnwprintf_s_l(workBuf.data(), CHARACTER_MAXCNT+1, CHARACTER_MAXCNT, s, locale, vlist);
-		_free_locale(locale);
 
 
 		if (strlen == 0) {
@@ -164,47 +141,51 @@ namespace dx9 {
 
 		// 描画位置の算出 
 		vector<pair<float, size_t>> headPos; // first:行頭のx座標 second:行頭文字が何番目か
-		RectF strArea = {rect.right, rect.bottom, rect.left, rect.top};
+		RectF strArea = {0.0f, 0.0f, 0.0f, 0.0f};
 		size_t totalOffset = 0;
 		int width = (int)(rect.right - rect.left);
-		if (format == TextAlign::NONE) width = -1;
+		if (!isAlign) width = -1;
 		int height = (int)(rect.bottom - rect.top);
 		int lineCnt;
 
 		for (lineCnt=0; true; lineCnt++) {
 
-			if (format != TextAlign::NONE && fontSize*(lineCnt+1) > height)
+			if (isAlign && fontSize*(lineCnt+1) > height)
 				break;
 
 			int len;
-			int offset = GetStrLength(workBuf.data(), totalOffset, (float)width, len);
+			int offset = GetStrLength(workBuf.data(), totalOffset, letterSpace, fontSize, (float)width, len);
 			if (offset <= 0) {
 				break;
 			}
 
 			float x;
-			switch (format) {
-				case dx9::TextAlign::LEFT:
-				case dx9::TextAlign::NONE: 
-					x = rect.left;
-					break;
-				case dx9::TextAlign::CENTERX:
-					x = rect.left + (width - len)/2.0f;
-					break;
-				case dx9::TextAlign::CENTERXY:
-					x = rect.left + (width - len)/2.0f;
-					break;
-				case dx9::TextAlign::RIGHT:
-					x = rect.left + (width - len);
-					break;
+			if (isAlign) {
+				switch (textAlign) {
+					case dx9::TextAlign::LEFT:
+					case dx9::TextAlign::NONE:
+						x = rect.left;
+						break;
+					case dx9::TextAlign::CENTERX:
+						x = rect.left + (width - len)/2.0f;
+						break;
+					case dx9::TextAlign::CENTERXY:
+						x = rect.left + (width - len)/2.0f;
+						break;
+					case dx9::TextAlign::RIGHT:
+						x = rect.left + (width - len);
+						break;
+				}
 			}
-
+			else {
+				x = rect.left;
+			}
 			
 			headPos.push_back({x, totalOffset});
 
-			if (x < strArea.left)
+			if (lineCnt == 0 || x < strArea.left)
 				strArea.left = x;
-			if (x + len > strArea.right)
+			if (lineCnt == 0 || x + len > strArea.right)
 				strArea.right = x + len;
 
 
@@ -214,7 +195,7 @@ namespace dx9 {
 
 
 		
-		if (format == TextAlign::CENTERXY)
+		if (textAlign == TextAlign::CENTERXY)
 			strArea.top = rect.top + (height - lineCnt*(int)fontSize)/2.0f;
 		else
 			strArea.top = rect.top;
@@ -224,7 +205,6 @@ namespace dx9 {
 
 
 		// 引数を最適化
-		float rotateRad = (float)(M_PI * rotateDeg/180.0f);
 		size_t endCharCnt = 0;
 		if (drawCharCnt < 0 || startCharCnt + drawCharCnt > totalOffset) {
 			endCharCnt = totalOffset;
@@ -236,7 +216,7 @@ namespace dx9 {
 
 		// 文字列回転の原点を設定 
 		PointF rotOriginPt;
-		switch (rotOrigin) {
+		switch (fontRotOrigin) {
 			case FontRotOrigin::TOP_L:
 				rotOriginPt.x = strArea.left;
 				rotOriginPt.y = strArea.top;
@@ -287,17 +267,22 @@ namespace dx9 {
 		// 板ポリゴンを登録
 		d3ddev9->SetStreamSource(0, vertex_rect, 0, sizeof(float)*5);
 
+		D3DXMATRIX world, rot;
+		PointF pos = {0, 0};
+		PointF finalPos = {0, 0};
+		auto nowHead = headPos.cbegin();
+		auto ch = workBuf.cbegin();
+		float fontscale = (float)fontSize/this->fontSize;
+
+
 		// シェーダ開始
 		UINT numPass = 0;
 		effect->SetTechnique("Tech");
 		effect->Begin(&numPass, 0);
 		effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Mul_ColorAlpha_TexAlpha));
 
-		D3DXMATRIX world, scale, rot;
-		PointF pos = {0, 0};
-		PointF finalPos = {0, 0};
-		auto nowHead = headPos.cbegin();
-		auto ch = workBuf.cbegin();
+		effect->SetMatrix("proj", &projMat);
+		effect->SetFloatArray("color", fontColor, 4);
 
 		for (size_t i=0; i<endCharCnt; i++) {
 			UINT code = static_cast<UINT>(*ch);
@@ -315,20 +300,19 @@ namespace dx9 {
 			if (i < startCharCnt)
 				continue;
 
-			finalPos.x = pos.x + texRes[code]->_chInfo().originX;
-			finalPos.y = pos.y - texRes[code]->_chInfo().originY;
+			finalPos.x = pos.x + texRes[code]->_chInfo().originX*fontscale;
+			finalPos.y = pos.y - texRes[code]->_chInfo().originY*fontscale;
 
 			PointF origin = {
 				rotOriginPt.x - finalPos.x,
 				rotOriginPt.y - finalPos.y
 			};
 
-			D3DXMatrixScaling(&world, (float)texRes[code]->GetWidth(), (float)texRes[code]->GetHeight(), 1.0f);	// ポリゴンサイズに
-			D3DXMatrixScaling(&scale, 1.0f, 1.0f, 1.0f);	// ローカルスケール
-			D3DXMatrixRotationZ(&rot, rotateRad);						// 回転
+			D3DXMatrixScaling(&world, (float)texRes[code]->GetWidth()*fontscale, (float)texRes[code]->GetHeight()*fontscale, 1.0f);	// ポリゴンサイズに
+			D3DXMatrixRotationZ(&rot, charTravelAngle_rad);						// 回転
 			world._41 = -origin.x;		// ピボット分オフセット
 			world._42 = -origin.y;
-			world = world * scale * rot;
+			world = world * rot;
 			world._41 += finalPos.x + origin.x;	// ピボット分オフセット
 			world._42 += finalPos.y + origin.y;
 			world._43 += topLayerPos/1000.0f;
@@ -339,13 +323,11 @@ namespace dx9 {
 
 
 			effect->SetMatrix("world", &world);
-			effect->SetMatrix("proj", &projMat);
 			effect->SetTexture("tex", texRes[code]->GetPointer());
-			effect->SetFloatArray("color", fontColor, 4);
 			effect->CommitChanges();
 			d3ddev9->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
-			pos.x += texRes[code]->_chInfo().AreaW;
+			pos.x += texRes[code]->_chInfo().AreaW*fontscale + letterSpace;
 		}
 
 		effect->EndPass();
@@ -360,10 +342,6 @@ namespace dx9 {
 
 	DirectXFont::DirectXFont() {
 		hFont = nullptr;
-		fontColor[0] = 0.0f;
-		fontColor[1] = 0.0f;
-		fontColor[2] = 0.0f;
-		fontColor[3] = 1.0f;
 	}
 
 	DirectXFont::~DirectXFont() {
@@ -384,6 +362,17 @@ namespace dx9 {
 	bool DirectXFont::DeleteAll() {
 		fontSize = 0;
 		antialiasLv = AntialiasLevel::_15STEPS;
+		fontColor[0] = 0.0f;
+		fontColor[1] = 0.0f;
+		fontColor[2] = 0.0f;
+		fontColor[3] = 1.0f;
+
+		letterSpace = 0;
+
+		charTravelAngle_rad = 0.0f;
+
+		fontRotOrigin = FontRotOrigin::TOP_L;
+		textAlign = TextAlign::LEFT;
 		
 		if (hFont != nullptr) {
 			DeleteObject(hFont);
@@ -396,7 +385,7 @@ namespace dx9 {
 
 
 	
-	int DirectXFont::GetStrLength(const wchar_t* str, size_t offset, float limit, int & length) {
+	int DirectXFont::GetStrLength(const wchar_t* str, size_t offset, int letterSpace, size_t fontSize, float limit, int & length) {
 		size_t strLength = wcslen(str);
 
 		if (offset >= strLength) {
@@ -408,8 +397,10 @@ namespace dx9 {
 
 		bool isLimitOn = (limit >= 0.0f);
 		int charCnt = 0;
+
+		float scale = (float)fontSize/this->fontSize;
 		
-		int totalLen = 0;
+		float totalLen = 0;
 		for (size_t i=offset; i<strLength; i++) {
 			
 			unsigned code = (unsigned)(str[i]);
@@ -430,15 +421,15 @@ namespace dx9 {
 					continue;
 			}
 		
-			if (isLimitOn && totalLen + texRes[code]->_chInfo().sizeW > limit)
+			if (isLimitOn && totalLen + texRes[code]->_chInfo().sizeW*scale > limit)
 				break;
 
-			totalLen += texRes[code]->_chInfo().AreaW;
+			totalLen += texRes[code]->_chInfo().AreaW*scale + letterSpace;
 			charCnt++;
 
 		}
 
-		length = totalLen;
+		length = (int)totalLen;
 		
 		return charCnt;
 	}
@@ -503,6 +494,14 @@ namespace dx9 {
 		fontColor[1] = g/255.0f;
 		fontColor[2] = b/255.0f;
 		fontColor[3] = a/255.0f;
+	}
+
+	void DirectXFont::SetCharTravelDirection(int deg) {
+		charTravelAngle_rad = deg*M_PI/180.0f;
+	}
+
+	void DirectXFont::SetCharTravelDirection(float rad) {
+		charTravelAngle_rad = rad;
 	}
 
 
