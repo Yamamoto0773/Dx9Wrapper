@@ -27,12 +27,18 @@ namespace dx9 {
 
 		size_t fontSize;
 		std::array<float, 4> fontColor;
+		int letterSpace;
+
+		float charTravelAngle_rad; // travel direction of character (rad)
+
+		FontRotOrigin fontRotOrigin;
+		TextAlign textAlign;
 
 	public:
 		DirectXFontAscii();
 		~DirectXFontAscii();
 
-		virtual bool Create(
+		bool Create(
 			const char*		fontName,
 			size_t			fontSize,
 			FontWeight		fontWeight = FontWeight::NORMAL,
@@ -49,6 +55,20 @@ namespace dx9 {
 		// 0-255の成分指定
 		void SetFontColor(size_t r, size_t g, size_t b, size_t a=255);
 
+		// 字間の指定 pixel単位で指定
+		void SetLetterSpace(int size) { letterSpace = size; };
+
+		// 文字が進む方向の指定 degreeで指定
+		void SetCharTravelDirection(int deg);
+		// 文字が進む方向の指定 radianで指定
+		void SetCharTravelDirection(float rad);
+
+		// 文字寄せの設定
+		void SetAlignment(dx9::TextAlign align) { textAlign = align; };
+
+		// 文字回転の中心を設定
+		void SetRotateOrigin(FontRotOrigin origin) { fontRotOrigin = origin; };
+
 		
 		//////////////////////////////////////////////
 		// 文字描画
@@ -62,8 +82,7 @@ namespace dx9 {
 
 		// 指定領域内へ文字描画
 		bool DrawInRect(
-			RectF &rect,
-			TextAlign format,			
+			RectF &rect,	
 			const char* s, ...
 			);
 
@@ -80,42 +99,19 @@ namespace dx9 {
 		// 文字送りx指定領域内描画
 		// note:最後の文字まで描画する時は，drawChCntに負数を指定
 		bool DrawInRect(
-			RectF &rect,
-			TextAlign format,			
+			RectF &rect,	
 			size_t startCharCnt,
 			int drawCharCnt,
 			const char* s, ...
 			);
 
-		// 回転
-		bool Draw(
-			float x,
-			float y,			
-			float rotateDeg,
-			FontRotOrigin rotOrigin,
-			const char* s, ...
-			);
-
-		// 回転x指定領域内へ文字描画
-		bool DrawInRect(
-			RectF &rect,
-			TextAlign format,			
-			float rotateDeg,
-			FontRotOrigin rotOrigin,
-			const char* s, ...
-			);
-
-
+	
 		// カスタム描画
 		bool DrawInRect(
-			RectF &rect,
-			TextAlign format,			
+			RectF &rect,	
 			size_t startCharCnt,
 			int drawCharCnt,
 			size_t fontSize,
-			float letterSpace,
-			float rotateDeg,
-			FontRotOrigin rotOrigin,
 			const char* s, ...
 			);
 
@@ -126,15 +122,12 @@ namespace dx9 {
 
 
 		// 描画を管理する関数
-		virtual bool DrawFont(
+		bool DrawFont(
 			RectF &rect,
-			TextAlign format,		
+			bool isAlign,
 			size_t startCharCnt,
 			int drawCharCnt,
 			size_t fontSize,
-			float letterSpace,
-			float rotateDeg,
-			FontRotOrigin rotOrigin,
 			const char* s,
 			va_list vlist
 			);
@@ -147,7 +140,7 @@ namespace dx9 {
 		// 文字列strのoffset番目の文字から，長さlimitに1行で入る文字数を取得
 		// 1行の長さは，lengthに書き込まれる
 		// limit < 0.0fの場合，長さの指定を無視する
-		int GetStrLength(const char* str, size_t offset, float limit, int &length);
+		int GetStrLength(const char* str, size_t offset, int letterSpace, size_t fontSize, float limit, int &length);
 
 
 
