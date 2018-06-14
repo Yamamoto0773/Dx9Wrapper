@@ -4,6 +4,7 @@
 #include "DX9ShareContainer.hpp"
 #include "Texture.hpp"
 #include <vector>
+#include <array>
 
 
 // テクスチャの作成と描画を管理するクラス
@@ -19,13 +20,20 @@ namespace dx9 {
 
 		class DXTextureManager : private resource::DX9ShareContainer {
 		public:
-			DXTextureManager() {};
-			~DXTextureManager() {};
+			DXTextureManager();
+			~DXTextureManager();
 
 		private:
 
 			// 画像ファイル用のテクスチャプール
 			tex_vector texPool;
+
+			DrawTexCoord drawTexCoord;
+			
+			std::array<float, 3> filterColor;
+			BLENDMODE filterBlendMode;
+
+			TextureAdjust textureAdjust;
 
 
 		public:
@@ -43,10 +51,7 @@ namespace dx9 {
 			bool CreateFromFile(
 				Texture &tex,
 				const std::wstring& fileName,
-				size_t x,
-				size_t y,
-				size_t w,
-				size_t h
+				ClipArea clipArea
 				);
 
 			// 空のテクスチャを作成
@@ -66,21 +71,50 @@ namespace dx9 {
 
 
 			// ---------------------------------------
-			// 描画を行う関数
+			// Setting of rendering
 
-			// If [isClip] is true, clip data in [tex] is ignored.
+
+			void SetTextureAdjust(TextureAdjust pos) { textureAdjust = pos; }
+			
+			void SetDrawTexCoord(DrawTexCoord coord) { drawTexCoord = coord; }
+
+			void SetColorFilter(DWORD color, BLENDMODE blendmode);
+			void SetColorFilter(size_t r, size_t g, size_t b, BLENDMODE blendmode);
+			void RemoveColorFilter();
+
+			std::pair<DWORD, BLENDMODE> GetTexFilter();
+
+
+			// ---------------------------------------
+			// 描画を行う関数
+	
 			bool DrawTexture(
 				Texture &tex,
 				float x,
 				float y,
-				DrawTexCoord coord=DrawTexCoord::TOP_L,
-				DWORD color=0xffffffff,
-				float xscale=1.0f,
-				float yscale=1.0f,
-				int rotDeg=0,
-				bool isClip = false		
-				);
+				float scale_x = 1.0f,
+				float scale_y = 1.0f,
+				float alpha = 1.0f,
+				int rotDeg = 0,
+				bool isClip = false
+			);
 
+			bool DrawTexture(
+				Texture &tex,
+				RectF posArea,
+				float alpha = 1.0f,
+				int rotDeg = 0,
+				bool isClip = false
+			);
+			
+			bool DrawTexture(
+				Texture &tex,
+				RectF posArea,
+				ClipArea clipArea,
+				float alpha = 1.0f,
+				int rotDeg = 0,
+				bool isClip = false		// if true, pixel shader discard (don't render) transparent pixels.
+			);
 		
 			// 使用されていないテクスチャを削除
 			// 戻り値:解放したテクスチャの数
@@ -88,9 +122,26 @@ namespace dx9 {
 			
 
 		private:
+			bool DrawTexture_main(
+				Texture &tex,
+				float x,
+				float y,
+				float uv_left,
+				float uv_top,
+				float uv_w,
+				float uv_h,
+				float scale_x,
+				float scale_y,
+				float alpha,
+				int rotDeg,
+				bool isClip
+			);
+			
 
-			 tex_vector::iterator FindTexture(const std::wstring& fileName);
-			 tex_vector::iterator FindEmptyPool();
+			
+
+			tex_vector::iterator FindTexture(const std::wstring& fileName);
+			tex_vector::iterator FindEmptyPool();
 
 		};
 

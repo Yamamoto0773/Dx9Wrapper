@@ -52,53 +52,60 @@ namespace dx9 {
 		return texMng.CreateFromFile(tex, fileName);
 	}
 
-	bool DXDrawManager::CreateFromFile(Texture & tex, const std::wstring & fileName, size_t x, size_t y, size_t w, size_t h) {
-		return texMng.CreateFromFile(tex, fileName, x, y, w, h);
+	bool DXDrawManager::CreateFromFile(Texture & tex, const std::wstring & fileName, ClipArea clipArea) {
+		return texMng.CreateFromFile(tex, fileName, clipArea);
 	}
 
 	bool DXDrawManager::CreateEmptyTex(Texture & tex, size_t w, size_t h) {
 		return texMng.CreateEmptyTex(tex, w, h);
 	}
 
+	Texture DXDrawManager::GetTextureFromRT(const RenderingTarget & rt) {
+		const texture::DXTextureBase *texbase = renderMng->GetTexture(rt);
+		Texture tex;
+		texMng.CreateFromD3DTex9(tex, *texbase);
+		return std::move(tex);
+	}
+
+	void DXDrawManager::SetTexColorFilter(size_t r, size_t g, size_t b, BLENDMODE blendmode) {
+		texMng.SetColorFilter(r, g, b, blendmode);
+	}
+
+	void DXDrawManager::RemoveTexColorFilter() {
+		texMng.RemoveColorFilter();
+	}
+
+	void DXDrawManager::SetTextureAdjust(TextureAdjust mode) {
+		texMng.SetTextureAdjust(mode);
+	}
+
+	void DXDrawManager::SetTextureCoord(DrawTexCoord coord) {
+		texMng.SetDrawTexCoord(coord);
+	}
+
 
 	int DXDrawManager::CleanTexPool() {
 		return texMng.CleanTexPool();
 	}
+
+
+
+	bool DXDrawManager::DrawTexture(Texture & tex, float x, float y, float scale_x, float scale_y, float alpha, int rotDeg, bool isClip) {
+		return texMng.DrawTexture(tex, x, y, scale_x, scale_y, alpha, rotDeg, isClip);
+	}
+
+	bool DXDrawManager::DrawTexture(Texture & tex, RectF posArea, float alpha, int rotDeg, bool isClip) {
+		return texMng.DrawTexture(tex, posArea, alpha, rotDeg, isClip);
+	}
+
+	bool DXDrawManager::DrawTexture(Texture & tex, RectF posArea, ClipArea clipArea, float alpha, int rotDeg, bool isClip) {
+		return texMng.DrawTexture(tex, posArea, clipArea, alpha, rotDeg, isClip);
+	}
+
 	
-	bool DXDrawManager::DrawTexture(Texture & tex, float x, float y, DrawTexCoord coord, float alpha, float xscale, float yscale, int rotDeg, bool isClip) {
-		if (alpha < 0.0f) alpha = 0.0f;
-		else if (alpha > 1.0f) alpha = 1.0f;
-
-		int a = (int)(alpha*255);
-
-		return texMng.DrawTexture(tex, x, y, coord, (a<<24)|0x00ffffff , xscale, yscale, rotDeg, isClip);
-	}
-
-	bool DXDrawManager::DrawTexture(RenderingTarget & rt, float x, float y, DrawTexCoord coord, float alpha, float xscale, float yscale, int rotDeg, bool isClip) {
-		if (alpha < 0.0f) alpha = 0.0f;
-		else if (alpha > 1.0f) alpha = 1.0f;
-
-		int a = (int)(alpha*255);
 
 
-		return DrawTextureWithColor(rt, x, y, coord, (a<<24)|0x00ffffff, xscale, yscale, rotDeg, isClip);
-	}
 
-	bool DXDrawManager::DrawTextureWithColor(RenderingTarget & rt, float x, float y, DrawTexCoord coord, DWORD color, float xscale, float yscale, int rotDeg, bool isClip) {
-		Texture tex;
-
-		const texture::DXTextureBase *texbase = renderMng->GetTexture(rt);
-
-		if (!texMng.CreateFromD3DTex9(tex, *texbase))
-			return false;
-
-		return DrawTextureWithColor(tex, x, y, coord, color, xscale, yscale, rotDeg, isClip);
-	}
-
-
-	bool DXDrawManager::DrawTextureWithColor(Texture & tex, float x, float y, DrawTexCoord coord, DWORD color, float xscale, float yscale, int rotDeg, bool isClip) {
-		return texMng.DrawTexture(tex, x, y, coord, color, xscale, yscale, rotDeg, isClip);
-	}
 
 
 	bool DXDrawManager::DrawBegin(bool isClear) {
@@ -474,8 +481,16 @@ namespace dx9 {
 		}
 		renderMng->setMaskingColor(d3ddev9, maskCol);
 
+		Texture tex = GetTextureFromRT(textureRT);
+		RectF posArea = {
+			x, y, (float)tex.getSize().w, (float)tex.getSize().h
+		};
 
-		r2 = DrawTextureWithColor(textureRT, x-w/2, y-h/2, DrawTexCoord::TOP_L, color, 1.0f, 1.0f, 0, true);
+		auto texFilter = texMng.GetTexFilter();
+
+		r2 = texMng.DrawTexture(tex, posArea, 1.0f, 0, true);
+
+		texMng.SetColorFilter(texFilter.first, texFilter.second);
 
 		return r1&r2;
 	}

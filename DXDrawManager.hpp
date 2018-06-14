@@ -76,10 +76,7 @@ namespace dx9 {
 		bool CreateFromFile(
 			Texture &tex,
 			const std::wstring& fileName,
-			size_t x,
-			size_t y,
-			size_t w,
-			size_t h
+			ClipArea clipArea
 			);
 
 		// 空のテクスチャを作成
@@ -88,6 +85,14 @@ namespace dx9 {
 			size_t w,
 			size_t h
 			);
+
+
+		Texture GetTextureFromRT(const RenderingTarget &rt);
+
+		void SetTexColorFilter(size_t r, size_t g, size_t b, BLENDMODE blendmode);
+		void RemoveTexColorFilter();
+		void SetTextureAdjust(TextureAdjust mode);
+		void SetTextureCoord(DrawTexCoord coord);
 
 
 		// 使用されていないテクスチャを削除
@@ -99,53 +104,31 @@ namespace dx9 {
 			Texture &tex,
 			float x,
 			float y,
-			DrawTexCoord coord=DrawTexCoord::TOP_L,
-			float alpha=1.0f,
-			float xscale=1.0f,
-			float yscale=1.0f,
-			int rotDeg=0,
-			bool isClip=false
-			);
+			float scale_x = 1.0f,
+			float scale_y = 1.0f,
+			float alpha = 1.0f,
+			int rotDeg = 0,
+			bool isClip = false
+		);
 
-		// レンダリングターゲットの描画
 		bool DrawTexture(
-			RenderingTarget &rt,
-			float x,
-			float y,
-			DrawTexCoord coord=DrawTexCoord::TOP_L,
-			float alpha=1.0f,
-			float xscale=1.0f,
-			float yscale=1.0f,
-			int rotDeg=0,
-			bool isClip=false
-			);
-
-		// テクスチャの描画
-		bool DrawTextureWithColor(
 			Texture &tex,
-			float x,
-			float y,
-			DrawTexCoord coord=DrawTexCoord::TOP_L,
-			DWORD color=0xffffffff,
-			float xscale=1.0f,
-			float yscale=1.0f,
-			int rotDeg=0,
-			bool isClip=false
-			);
+			RectF posArea,
+			float alpha = 1.0f,
+			int rotDeg = 0,
+			bool isClip = false
+		);
+
+		bool DrawTexture(
+			Texture &tex,
+			RectF posArea,
+			ClipArea clipArea,
+			float alpha = 1.0f,
+			int rotDeg = 0,
+			bool isClip = false
+		);
 
 
-		// レンダリングターゲットの描画
-		bool DrawTextureWithColor(
-			RenderingTarget &rt,
-			float x,
-			float y,
-			DrawTexCoord coord=DrawTexCoord::TOP_L,
-			DWORD color=0xffffffff,
-			float xscale=1.0f,
-			float yscale=1.0f,
-			int rotDeg=0,
-			bool isClip=false
-			);
 
 
 
