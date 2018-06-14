@@ -28,12 +28,20 @@
 #include "LogManager.hpp"
 #include "RenderingManager.hpp"
 #include "Figure.hpp"
-
+#include "Singleton.hpp"
+#include "NonCopyable.hpp"
 
 
 namespace dx9 {
 
-	class DXDrawManager : private resource::DX9ShareContainer {
+	class DXDrawManager : 
+		private resource::DX9ShareContainer,
+		public Singleton<DXDrawManager>,
+		public Noncopyable {
+		
+		friend class Singleton<DXDrawManager>;
+
+
 
 		texture::DXTextureManager	texMng;
 		dx9::renderer::RenderingManager *renderMng;
@@ -42,16 +50,8 @@ namespace dx9 {
 		
 		static size_t topLayerPos;
 	
-	private:
-		// コピー不可
-		DXDrawManager(const DXDrawManager&) = delete;	
-		DXDrawManager& operator=(const DXDrawManager&) = delete;
-		
 
 	public:
-
-		DXDrawManager();
-		virtual ~DXDrawManager();
 
 		// DirectXインターフェース群の生成
 		bool Create(HWND hwnd, Size size, MultiSampleLv level=MultiSampleLv::_4SAMPLES, bool isRightHand=false);
@@ -62,6 +62,7 @@ namespace dx9 {
 
 		// 描画終了
 		bool DrawEnd();
+
 
 		// ---------------------------------------
 		// テクスチャの管理，描画などを行う関数
@@ -109,7 +110,7 @@ namespace dx9 {
 			float alpha = 1.0f,
 			int rotDeg = 0,
 			bool isClip = false
-		);
+			);
 
 		bool DrawTexture(
 			Texture &tex,
@@ -117,7 +118,7 @@ namespace dx9 {
 			float alpha = 1.0f,
 			int rotDeg = 0,
 			bool isClip = false
-		);
+			);
 
 		bool DrawTexture(
 			Texture &tex,
@@ -126,10 +127,7 @@ namespace dx9 {
 			float alpha = 1.0f,
 			int rotDeg = 0,
 			bool isClip = false
-		);
-
-
-
+			);
 
 
 		// ---------------------------------------
@@ -227,7 +225,8 @@ namespace dx9 {
 		
 
 	private:
-		
+		DXDrawManager();
+		virtual ~DXDrawManager();
 	
 		bool Create(
 			HWND hwnd,

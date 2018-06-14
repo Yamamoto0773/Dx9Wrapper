@@ -3,6 +3,7 @@
 #include "DXTextureBase.hpp"
 #include "DX9ShareContainer.hpp"
 #include "Texture.hpp"
+#include "Singleton.hpp"
 #include <vector>
 #include <array>
 
@@ -18,12 +19,17 @@ namespace dx9 {
 
 		using tex_vector = std::vector<std::shared_ptr<texture::DXTextureBase>>;
 
-		class DXTextureManager : private resource::DX9ShareContainer {
-		public:
+		class DXTextureManager :
+			private resource::DX9ShareContainer,
+			public Singleton<DXTextureManager> {
+
+			friend class Singleton<DXTextureManager>;
+
+		
+		private:
 			DXTextureManager();
 			~DXTextureManager();
 
-		private:
 
 			// 画像ファイル用のテクスチャプール
 			tex_vector texPool;
