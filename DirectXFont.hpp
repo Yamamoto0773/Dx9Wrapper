@@ -26,7 +26,7 @@ namespace dx9 {
 
 		size_t fontSize;
 
-		float fontColor[4];
+		std::array<float, 4> fontColor;
 
 		int letterSpace;
 
@@ -41,7 +41,7 @@ namespace dx9 {
 		~DirectXFont();
 
 
-		virtual bool Create(
+		bool Create(
 			const std::wstring&	fontName,
 			size_t			fontSize,
 			FontWeight		fontWeight = FontWeight::NORMAL,

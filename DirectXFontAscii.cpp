@@ -288,7 +288,11 @@ namespace dx9 {
 		UINT numPass = 0;
 		effect->SetTechnique("Tech");
 		effect->Begin(&numPass, 0);
-		effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Mul_ColorAlpha_TexAlpha));
+		effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Mul_ColorAlpha_UVTexAlpha));
+		effect->SetFloat("uv_left", 0.0f);
+		effect->SetFloat("uv_top", 0.0f);
+		effect->SetFloat("uv_width", 1.0f);
+		effect->SetFloat("uv_height", 1.0f);
 
 		effect->SetMatrix("proj", &projMat);
 		effect->SetFloatArray("color", fontColor.data(), 4);
@@ -429,7 +433,7 @@ namespace dx9 {
 	}
 
 	void DirectXFontAscii::SetCharTravelDirection(int deg) {
-		charTravelAngle_rad = deg*M_PI/180.0f;
+		charTravelAngle_rad = deg*(float)M_PI/180.0f;
 	}
 
 	void DirectXFontAscii::SetCharTravelDirection(float rad) {
