@@ -151,7 +151,7 @@ namespace dx9 {
 
 	}
 
-	void DXDrawManager::SetTexFilter(TextureFilter mode) {
+	void DXDrawManager::SetTextureSamplerState(TextureFilter mode) {
 		texFilter = mode;
 	}
 

@@ -106,7 +106,9 @@ namespace dx9 {
 		// ブレンドモードの設定
 		void SetBlendMode(BLENDMODE mode);
 
-		void SetTexFilter(TextureFilter mode);
+		// テクスチャサンプラの設定
+		// note:テクスチャにジャギがかかる場合に設定してください
+		void SetTextureSamplerState(TextureFilter mode);
 
 		
 		// ------------------------------------------
