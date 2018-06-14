@@ -19,6 +19,7 @@ namespace dx9 {
 		float bottom;
 	};
 
+
 	struct PointF {
 		float x, y;
 	};
@@ -36,6 +37,13 @@ namespace dx9 {
 		float top;
 		float w;
 		float h;
+	};
+
+	struct ClipArea {
+		size_t upleft_x;
+		size_t upleft_y;
+		size_t size_w;
+		size_t size_h;
 	};
 
 
@@ -72,6 +80,13 @@ namespace dx9 {
 		ANISOTROPIC,	// 異方性テクスチャ フィルタリング。テクスチャ ポリゴンとスクリーン平面間の角度の相違により起こる歪みを補正する。
 		PYRAMIDALQUAD,	// 4 サンプルのテント フィルタ。
 		GAUSSIANQUAD	// 4 サンプルのガウス フィルタ。
+	};
+
+
+	enum class TextureAdjust {
+		NONE = 0u,
+		UNFIXED,	// アスペクト比を維持しない
+		FIXED,		// アスペクト比を維持
 	};
 
 
@@ -125,11 +140,12 @@ namespace dx9 {
 			Color = 0,
 			Tex,
 			Mul_Tex_Color,
-			Mul_ColorAlpha_TexAlpha,
+			Mul_ColorAlpha_UVTexAlpha,
 			Mul_ColorAlpha_InvTexAlpha,
 			Mul_UVTex_color,
 			Mul_ColorAlpha_InvUVTexAlpha,
-			RectFrame
+			RectFrame, 
+			Add_UVTex_color
 		};
 
 	}
