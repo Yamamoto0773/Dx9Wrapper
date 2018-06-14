@@ -88,9 +88,19 @@ float4 ps_tex(VS_OUT In) : COLOR0 {
 
 
 // テクスチャサンプリングX指定色
-float4 ps_tex_color(VS_OUT In) : COLOR0 {
+float4 ps_tex_mul_color(VS_OUT In) : COLOR0 {
 	float4 texColor = tex2D( smp_tex, In.uv );
 	texColor*=color;
+
+	return texColor;
+}
+
+
+// テクスチャサンプリング+指定色
+float4 ps_tex_add_color(VS_OUT In) : COLOR0 {
+	float4 texColor = tex2D( smp_tex, In.uv );
+	texColor.rgb += color.rgb;
+	texColor.a *= color.a;
 
 	return texColor;
 }
@@ -165,14 +175,14 @@ technique Tech {
 	// テクスチャと指定色を掛け算
 	pass p2 {
 		VertexShader = compile vs_2_0 vs_tex();
-		PixelShader  = compile ps_2_0 ps_tex_color();
+		PixelShader  = compile ps_2_0 ps_tex_mul_color();
 
 		AlphaBlendEnable = true;
 	}
 
 	// テクスチャの透明度を元に，指定色で塗りつぶし
 	pass p3 {
-		VertexShader = compile vs_2_0 vs_tex();
+		VertexShader = compile vs_2_0 vs_texWithUV();
 		PixelShader  = compile ps_2_0 ps_color_texAlpha();
 
 		AlphaBlendEnable = true;
@@ -189,7 +199,7 @@ technique Tech {
 	// テクスチャをUV指定で描画
 	pass p5 {
 		VertexShader = compile vs_2_0 vs_texWithUV();
-		PixelShader  = compile ps_2_0 ps_tex_color();
+		PixelShader  = compile ps_2_0 ps_tex_mul_color();
 
 		AlphaBlendEnable = true;
 	}
@@ -207,6 +217,15 @@ technique Tech {
 	pass p7 {
 		VertexShader = compile vs_2_0 vs_tex();
 		PixelShader	 = compile ps_2_0 ps_rectFrame();
+
+		AlphaBlendEnable = true;
+	}
+
+
+	// テクスチャと指定色を加算
+	pass p8 {
+		VertexShader = compile vs_2_0 vs_texWithUV();
+		PixelShader  = compile ps_2_0 ps_tex_add_color();
 
 		AlphaBlendEnable = true;
 	}
