@@ -24,12 +24,13 @@
 #include<vector>
 
 #include "dx9.hpp"
-#include "DXTextureManager.hpp"
 #include "LogManager.hpp"
 #include "RenderingManager.hpp"
+#include "DX9ShareContainer.hpp"
 #include "Figure.hpp"
 #include "Singleton.hpp"
 #include "NonCopyable.hpp"
+#include "Texture.hpp"
 
 
 namespace dx9 {
@@ -41,9 +42,6 @@ namespace dx9 {
 		
 		friend class Singleton<DXDrawManager>;
 
-
-
-		texture::DXTextureManager	texMng;
 		dx9::renderer::RenderingManager *renderMng;
 
 		RenderingTarget textureRT;
@@ -64,70 +62,6 @@ namespace dx9 {
 		bool DrawEnd();
 
 
-		// ---------------------------------------
-		// テクスチャの管理，描画などを行う関数
-
-		// 画像ファイルからテクスチャを作成
-		bool CreateFromFile(
-			Texture &tex,
-			const std::wstring& fileName
-			);
-
-		// 画像ファイルからトリミングしてテクスチャを作成
-		bool CreateFromFile(
-			Texture &tex,
-			const std::wstring& fileName,
-			ClipArea clipArea
-			);
-
-		// 空のテクスチャを作成
-		bool CreateEmptyTex(
-			Texture &tex,
-			size_t w,
-			size_t h
-			);
-
-
-		Texture GetTextureFromRT(const RenderingTarget &rt);
-
-		void SetTexColorFilter(size_t r, size_t g, size_t b, BLENDMODE blendmode);
-		void RemoveTexColorFilter();
-		void SetTextureAdjust(TextureAdjust mode);
-		void SetTextureCoord(DrawTexCoord coord);
-
-
-		// 使用されていないテクスチャを削除
-		// 戻り値:解放したテクスチャの数
-		int CleanTexPool();
-
-		// テクスチャの描画
-		bool DrawTexture(
-			Texture &tex,
-			float x,
-			float y,
-			float scale_x = 1.0f,
-			float scale_y = 1.0f,
-			float alpha = 1.0f,
-			int rotDeg = 0,
-			bool isClip = false
-			);
-
-		bool DrawTexture(
-			Texture &tex,
-			RectF posArea,
-			float alpha = 1.0f,
-			int rotDeg = 0,
-			bool isClip = false
-			);
-
-		bool DrawTexture(
-			Texture &tex,
-			RectF posArea,
-			ClipArea clipArea,
-			float alpha = 1.0f,
-			int rotDeg = 0,
-			bool isClip = false
-			);
 
 
 		// ---------------------------------------
@@ -207,6 +141,10 @@ namespace dx9 {
 
 		// レンダリングターゲットの切替
 		bool SetRenderingTarget(const RenderingTarget &rt);
+
+		// レンダリングターゲットからテクスチャ取得
+		Texture GetTextureFromRT(const RenderingTarget & rt);
+
 
 		// レンダリングターゲットをデフォルトに戻す
 		bool ResetRenderingTarget();

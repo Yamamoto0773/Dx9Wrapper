@@ -1,5 +1,7 @@
 ﻿#include "DXDrawManager.hpp"
 
+#include "DXTextureManager.hpp"
+
 #define _USE_MATH_DEFINES
 #include <math.h>  
 #include <array>
@@ -47,64 +49,12 @@ namespace dx9 {
 
 
 
-
-	bool DXDrawManager::CreateFromFile(Texture & tex, const std::wstring & fileName) {
-		return texMng.CreateFromFile(tex, fileName);
-	}
-
-	bool DXDrawManager::CreateFromFile(Texture & tex, const std::wstring & fileName, ClipArea clipArea) {
-		return texMng.CreateFromFile(tex, fileName, clipArea);
-	}
-
-	bool DXDrawManager::CreateEmptyTex(Texture & tex, size_t w, size_t h) {
-		return texMng.CreateEmptyTex(tex, w, h);
-	}
-
 	Texture DXDrawManager::GetTextureFromRT(const RenderingTarget & rt) {
 		const texture::DXTextureBase *texbase = renderMng->GetTexture(rt);
 		Texture tex;
-		texMng.CreateFromD3DTex9(tex, *texbase);
+		texture::DXTextureManager::GetInstance().CreateFromD3DTex9(tex, *texbase);
 		return std::move(tex);
 	}
-
-	void DXDrawManager::SetTexColorFilter(size_t r, size_t g, size_t b, BLENDMODE blendmode) {
-		texMng.SetColorFilter(r, g, b, blendmode);
-	}
-
-	void DXDrawManager::RemoveTexColorFilter() {
-		texMng.RemoveColorFilter();
-	}
-
-	void DXDrawManager::SetTextureAdjust(TextureAdjust mode) {
-		texMng.SetTextureAdjust(mode);
-	}
-
-	void DXDrawManager::SetTextureCoord(DrawTexCoord coord) {
-		texMng.SetDrawTexCoord(coord);
-	}
-
-
-	int DXDrawManager::CleanTexPool() {
-		return texMng.CleanTexPool();
-	}
-
-
-
-	bool DXDrawManager::DrawTexture(Texture & tex, float x, float y, float scale_x, float scale_y, float alpha, int rotDeg, bool isClip) {
-		return texMng.DrawTexture(tex, x, y, scale_x, scale_y, alpha, rotDeg, isClip);
-	}
-
-	bool DXDrawManager::DrawTexture(Texture & tex, RectF posArea, float alpha, int rotDeg, bool isClip) {
-		return texMng.DrawTexture(tex, posArea, alpha, rotDeg, isClip);
-	}
-
-	bool DXDrawManager::DrawTexture(Texture & tex, RectF posArea, ClipArea clipArea, float alpha, int rotDeg, bool isClip) {
-		return texMng.DrawTexture(tex, posArea, clipArea, alpha, rotDeg, isClip);
-	}
-
-	
-
-
 
 
 
@@ -486,6 +436,7 @@ namespace dx9 {
 			x, y, (float)tex.getSize().w, (float)tex.getSize().h
 		};
 
+		auto &texMng = texture::DXTextureManager::GetInstance();
 		auto texFilter = texMng.GetTexFilter();
 
 		r2 = texMng.DrawTexture(tex, posArea, 1.0f, 0, true);
