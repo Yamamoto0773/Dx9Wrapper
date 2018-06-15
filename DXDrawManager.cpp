@@ -52,7 +52,7 @@ namespace dx9 {
 	Texture DXDrawManager::GetTextureFromRT(const RenderingTarget & rt) {
 		const texture::DXTextureBase *texbase = renderMng->GetTexture(rt);
 		Texture tex;
-		texture::DXTextureManager::GetInstance().CreateFromD3DTex9(tex, *texbase);
+		DXTextureManager::GetInstance().CreateFromD3DTex9(tex, *texbase);
 		return std::move(tex);
 	}
 
@@ -431,17 +431,25 @@ namespace dx9 {
 		}
 		renderMng->setMaskingColor(d3ddev9, maskCol);
 
+
 		Texture tex = GetTextureFromRT(textureRT);
-		RectF posArea = {
-			x, y, (float)tex.getSize().w, (float)tex.getSize().h
+		auto &texMng = DXTextureManager::GetInstance();
+		auto texFilter = texMng.GetColorFilter();
+
+		RectF drawArea = {
+			x-w/2, y-h/2, x+w/2, y+h/2
 		};
 
-		auto &texMng = texture::DXTextureManager::GetInstance();
-		auto texFilter = texMng.GetTexFilter();
+		ClipArea clipArea = {
+			0, 0, w, h
+		};
 
-		r2 = texMng.DrawTexture(tex, posArea, 1.0f, 0, true);
+		texMng.SetColorFilter(color, BLENDMODE::NORMAL);
+
+		r2 = texMng.DrawTexture(tex, drawArea, clipArea, 1.0f, 0, true);
 
 		texMng.SetColorFilter(texFilter.first, texFilter.second);
+		
 
 		return r1&r2;
 	}
