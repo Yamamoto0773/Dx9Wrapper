@@ -19,7 +19,7 @@ namespace dx9 {
 			virtual ~Figure();
 
 		public:
-			void SetColor(DWORD color);
+			void SetColor(Color &color);
 		
 			void SetRot(int deg);
 

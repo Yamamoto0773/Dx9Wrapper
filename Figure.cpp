@@ -21,13 +21,8 @@ namespace dx9 {
 		Figure::~Figure() {
 		}
 
-		void Figure::SetColor(DWORD color) {
-			colorRGBA = {
-				(color>>16 & 0xff) / 255.0f,
-				(color>>8 & 0xff) /255.0f,
-				(color & 0xff) / 255.0f,
-				(color>>24 & 0xff) / 255.0f
-			};
+		void Figure::SetColor(Color &color) {
+			colorRGBA = color.getRGBAFloat();
 		}
 
 
@@ -353,7 +348,7 @@ namespace dx9 {
 			float correction_w = (w>h) ? -w/h : h/w;
 			float correction_h = (w>h) ? w/h : -h/w;
 			circle.SetPos(center, w-lineWidth*2+correction_w, h-lineWidth*2+correction_h);
-			circle.SetColor(0xff000000);
+			circle.SetColor(ColorRGB(0, 0, 0, 255));
 			circle.Draw(dev, effect, vtx, projMat, blendMode, layerPos);
 
 			renderMng->regionEnd(dev);

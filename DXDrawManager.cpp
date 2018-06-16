@@ -171,7 +171,7 @@ namespace dx9 {
 		if (!d3ddev9) return false;
 
 		renderMng->regionBegin(d3ddev9);
-		bool r = DrawRect(maskArea, 0xff000000);
+		bool r = DrawRect(maskArea, ColorRGB(0xff000000));
 		renderMng->regionEnd(d3ddev9);
 
 		if (!r) return false;
@@ -185,7 +185,7 @@ namespace dx9 {
 		if (!d3ddev9) return false;
 
 		renderMng->regionBegin(d3ddev9);
-		bool r = DrawCircle(maskArea, 0xff000000);
+		bool r = DrawCircle(maskArea, ColorRGB(0xff000000));
 		renderMng->regionEnd(d3ddev9);
 
 		if (!r) return false;
@@ -265,13 +265,13 @@ namespace dx9 {
 	}
 
 
-	bool DXDrawManager::DrawLine(float begin_x, float begin_y, float end_x, float end_y, DWORD color, float lineWidth) {
+	bool DXDrawManager::DrawLine(float begin_x, float begin_y, float end_x, float end_y, Color & color, float lineWidth) {
 		PointF begin = {begin_x, begin_y};
 		PointF end = {end_x, end_y};
 		return DrawLine(begin, end, color, lineWidth);
 	}
 
-	bool DXDrawManager::DrawLine(PointF &begin, PointF &end, DWORD color, float lineWidth) {
+	bool DXDrawManager::DrawLine(PointF &begin, PointF &end, Color & color, float lineWidth) {
 		if (lineWidth < 0.0f) {
 			return false;
 		}
@@ -293,15 +293,15 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawRectFrame(PointF &topLeft, PointF &bottomRight, DWORD color, float lineWidth) {
+	bool DXDrawManager::DrawRectFrame(PointF &topLeft, PointF &bottomRight, Color & color, float lineWidth) {
 		return DrawRectFrame(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y, color, lineWidth);
 	}
 
-	bool DXDrawManager::DrawRectFrame(RectF &rect, DWORD color, float lineWidth) {
+	bool DXDrawManager::DrawRectFrame(RectF &rect, Color & color, float lineWidth) {
 		return DrawRectFrame(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, color, lineWidth);
 	}
 
-	bool DXDrawManager::DrawRectFrame(float x, float y, float w, float h, DWORD color, float lineWidth) {
+	bool DXDrawManager::DrawRectFrame(float x, float y, float w, float h, Color & color, float lineWidth) {
 		if (lineWidth < 0.0f) {
 			return false;
 		}
@@ -325,15 +325,15 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawRect(RectF & rect, DWORD color) {
+	bool DXDrawManager::DrawRect(RectF & rect, Color & color) {
 		return DrawRect(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, color);
 	}
 
-	bool DXDrawManager::DrawRect(PointF & topLeft, PointF & bottomRight, DWORD color) {
+	bool DXDrawManager::DrawRect(PointF & topLeft, PointF & bottomRight, Color & color) {
 		return DrawRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, color);
 	}
 
-	bool DXDrawManager::DrawRect(float x, float y, float w, float h, DWORD color) {
+	bool DXDrawManager::DrawRect(float x, float y, float w, float h, Color & color) {
 		if (w < 0.0f || h < 0.0f) {
 			return false;
 		}
@@ -352,7 +352,7 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawCircleFrame(RectF & rectArea, DWORD color, float lineWidth) {
+	bool DXDrawManager::DrawCircleFrame(RectF & rectArea, Color & color, float lineWidth) {
 		return DrawCircleFrame(
 			(rectArea.left+rectArea.right)/2.0f,
 			(rectArea.top+rectArea.bottom)/2.0f,
@@ -363,7 +363,7 @@ namespace dx9 {
 			);
 	}
 
-	bool DXDrawManager::DrawCircleFrame(float x, float y, float w, float h, DWORD color, float lineWidth) {
+	bool DXDrawManager::DrawCircleFrame(float x, float y, float w, float h, Color & color, float lineWidth) {
 		if (w < 0.0f || h < 0.0f) {
 			return false;
 		}
@@ -406,7 +406,7 @@ namespace dx9 {
 		figure::CircleFrame circleFrame;
 		circleFrame.SetPos({w/2, h/2}, w, h);
 		circleFrame.setLineWidth(lineWidth);
-		circleFrame.SetColor(0xff000000);
+		circleFrame.SetColor(ColorRGB(0xff000000));
 		r1 = circleFrame.Draw(d3ddev9, effect, vertex_circle, &projMat, blendMode, topLayerPos);
 
 
@@ -434,14 +434,14 @@ namespace dx9 {
 
 		Texture tex = GetTextureFromRT(textureRT);
 		auto &texMng = DXTextureManager::GetInstance();
-		auto texFilter = texMng.GetColorFilter();
+		auto texFilter = texMng.GetColorFilterRGB();
 
 		RectF drawArea = {
 			x-w/2, y-h/2, x+w/2, y+h/2
 		};
 
 		ClipArea clipArea = {
-			0, 0, w, h
+			0, 0, (int)w, (int)h
 		};
 
 		texMng.SetColorFilter(color, BLENDMODE::NORMAL);
@@ -455,7 +455,7 @@ namespace dx9 {
 	}
 
 
-	bool DXDrawManager::DrawCircle(RectF &rectArea, DWORD color) {
+	bool DXDrawManager::DrawCircle(RectF &rectArea, Color & color) {
 		return DrawCircle(
 			(rectArea.left+rectArea.right)/2.0f,
 			(rectArea.top+rectArea.bottom)/2.0f,
@@ -465,7 +465,7 @@ namespace dx9 {
 			);
 	}
 
-	bool DXDrawManager::DrawCircle(float x, float y, float w, float h, DWORD color) {
+	bool DXDrawManager::DrawCircle(float x, float y, float w, float h, Color & color) {
 		if (w < 0.0f || h < 0.0f) {
 			return false;
 		}

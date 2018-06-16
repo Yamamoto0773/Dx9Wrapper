@@ -3,15 +3,11 @@
 #include <Windows.h>
 #include "template.hpp"
 #include "resource.h"
+#include "Color.hpp"
 
 namespace dx9 {
 
-	inline DWORD getRGBA(size_t r, size_t g, size_t b, size_t a) {
-		r &= 0xff, g &= 0xff, b &= 0xff, a &= 0xff;
-		return static_cast<DWORD>((r<<24)|(g<<16)|(b<<8)|a);
-	}
-
-
+	
 	struct RectF {
 		float left;
 		float top;

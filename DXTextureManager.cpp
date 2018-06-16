@@ -114,11 +114,6 @@ namespace dx9 {
 
 
 
-
-	std::pair<DWORD, BLENDMODE> DXTextureManager::GetColorFilter() {
-		return  { (DWORD)(filterColor[0]*2e16 + filterColor[1]*2e8 + filterColor[2]), blendMode };
-	}
-
 	bool DXTextureManager::DrawTexture(Texture & tex, float x, float y, float scale_x, float scale_y, float alpha, int rotDeg, bool isClip) {
 		if (!tex) {
 			return false;
@@ -261,29 +256,29 @@ namespace dx9 {
 		return releasedCnt;
 	}
 
-
-	void DXTextureManager::SetColorFilter(DWORD color, BLENDMODE blendmode) {
-		color &= 0xffffffff;
+	void DXTextureManager::SetColorFilter(Color &color, BLENDMODE blendmode) {
+		auto ary = color.getRGBAFloat();
 		filterColor = {
-			((color >> 16)&0xff)/255.0f,
-			((color >> 8)&0xff)/255.0f,
-			((color >> 0)&0xff)/255.0f
+			ary[0], ary[1], ary[2]
 		};
 		filterBlendMode = blendmode;
 	}
 
-	void DXTextureManager::SetColorFilter(size_t r, size_t g, size_t b, BLENDMODE blendmode) {
-		r &= 0xff, g &= 0xff, b &= 0xff;
-		filterColor = {
-			r/255.f,
-			g/255.f,
-			b/255.f
-		};
-		filterBlendMode = blendmode;
+	std::pair<ColorRGB, BLENDMODE> DXTextureManager::GetColorFilterRGB() {
+		return std::pair<ColorRGB, BLENDMODE>(
+			{ColorRGB(filterColor[0], filterColor[1], filterColor[2]), blendMode }
+		);
+	}
+
+	std::pair<ColorHSB, BLENDMODE> DXTextureManager::GetColorFilterHSB() {
+		auto ary = ColorRGB(filterColor[0], filterColor[1], filterColor[2]).getColorHSB().getFloat();
+		return std::pair<ColorHSB, BLENDMODE>(
+			{ ColorHSB(ary.h, ary.s, ary.b), blendMode }
+		);
 	}
 
 	void DXTextureManager::RemoveColorFilter() {
-		SetColorFilter(255, 255, 255, BLENDMODE::NORMAL);
+		SetColorFilter(ColorRGB(255, 255, 255), BLENDMODE::NORMAL);
 	}
 
 

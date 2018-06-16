@@ -50,10 +50,7 @@ namespace dx9 {
 
 
 		// ARGBの順
-		void SetFontColor(DWORD &color);
-
-		// 0-255の成分指定
-		void SetFontColor(size_t r, size_t g, size_t b, size_t a=255);
+		void SetFontColor(Color &color);
 
 		// 字間の指定 pixel単位で指定
 		void SetLetterSpace(int size) { letterSpace = size; };

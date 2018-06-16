@@ -82,10 +82,10 @@ namespace dx9 {
 		void SetDrawTexCoord(DrawTexCoord coord) { drawTexCoord = coord; }
 		DrawTexCoord GetDrawTexCoord() { return drawTexCoord; }
 
-		void SetColorFilter(DWORD color, BLENDMODE blendmode);
-		void SetColorFilter(size_t r, size_t g, size_t b, BLENDMODE blendmode);
+		void SetColorFilter(Color &color, BLENDMODE blendmode);
 		
-		std::pair<DWORD, BLENDMODE> GetColorFilter();
+		std::pair<ColorRGB, BLENDMODE> GetColorFilterRGB();
+		std::pair<ColorHSB, BLENDMODE> GetColorFilterHSB();
 
 		void RemoveColorFilter();
 

@@ -480,24 +480,8 @@ namespace dx9 {
 		return true;
 	}
 
-	void DirectXFont::SetFontColor(DWORD &color) {
-		color &= 0xffffffff;
-		fontColor[0] = (color>>16 & 0xff) / 255.0f;
-		fontColor[1] = (color>>8 & 0xff) /255.0f;
-		fontColor[2] = (color & 0xff) / 255.0f;
-		fontColor[3] = (color>>24 & 0xff) / 255.0f;
-	}
-
-	void DirectXFont::SetFontColor(size_t r, size_t g, size_t b, size_t a) {
-		r &= 255;
-		g &= 255;
-		b &= 255;
-		a &= 255;
-
-		fontColor[0] = r/255.0f;
-		fontColor[1] = g/255.0f;
-		fontColor[2] = b/255.0f;
-		fontColor[3] = a/255.0f;
+	void DirectXFont::SetFontColor(Color &color) {
+		fontColor = color.getRGBAFloat();
 	}
 
 	void DirectXFont::SetCharTravelDirection(int deg) {
