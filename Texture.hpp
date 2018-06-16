@@ -10,6 +10,8 @@
 
 namespace dx9 {
 
+	class DXTextureManager;
+
 	namespace texture {
 		
 		struct TexClip {
@@ -17,12 +19,11 @@ namespace dx9 {
 			UVCoord uv;
 		};
 		
-		class DXTextureManager;
+		
 	}
 
-
 	class Texture {
-		friend class texture::DXTextureManager;
+		friend class DXTextureManager;
 
 	private:
 		std::shared_ptr<texture::DXTextureBase> tex;
