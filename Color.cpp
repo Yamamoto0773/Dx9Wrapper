@@ -11,7 +11,7 @@ namespace dx9 {
 		set(r, g, b, a);
 	}
 
-	ColorRGB::ColorRGB(unsigned int argb) {
+	ColorRGB::ColorRGB(DWORD argb) {
 		set(argb);
 	}
 
@@ -36,37 +36,85 @@ namespace dx9 {
 		set((argb>>16)&0xff, (argb>>8)&&0xff, (argb)&0xff, (argb>>24)&0xff);
 	}
 
-	unsigned int ColorRGB::getHex() {
+	DWORD ColorRGB::getHex() {
 		return (color.a<<24 | color.r<<16 | color.g<<8 | color.b);
 	}
 
 	ColorHSB ColorRGB::getColorHSB() {
-		int max = (color.r > color.g) ? color.r : color.b;
-		max = (max > color.b) ? max : color.b;
+		int h, s, b;
 
-		int min = (color.r < color.g) ? color.r : color.g;
-		min = (min < color.b) ? min : color.b;
+		// get max and min value in RGB
+		std::array<int, 3> col = {color.r, color.g, color.b};
+		int max = 0, min = 255;
+		for (int i=0; i<3; i++) {
+			if (col[i] > max) max = col[i];
+			if (col[i] < min) min = col[i];
+		}
 
+		// calc hue
+		if (max == min) {
+			h = 0;
+		}
+		else {
+			if (max == color.r) {
+				h = (int)(60*(color.g - color.b)/(float)(max - min));
+			}
+			else if (max == color.g) {
+				h = (int)(60*(color.b - color.r)/(float)(max - min) + 120);
+			}
+			else if (max == color.b) {
+				h = (int)(60*(color.r - color.g)/(float)(max - min) + 240);
+			}
+
+
+			if (h < 0) h += 360;
+		}
+
+		// calc saturation
+		s = (int)(100.f*(max - min)/max);
+
+		// calc brightness
+		b = (int)(max*100/255.f);
+
+
+		return ColorHSB(h, s, b, (int)(color.a*100/255.f));
 	}
 
-	Color_RGBA &ColorRGB::get() {
+	colorRGBA_t ColorRGB::get() {
 		return color;
 	}
 
-	Color_RGBAF & ColorRGB::getFloat() {
-		return std::move(Color_RGBAF({ color.a/255.f, color.a/255.f, color.a/255.f, color.a/255.f }));
+	colorRGBAF_t ColorRGB::getFloat() {
+		colorRGBAF_t col = {
+			color.a/255.f,
+			color.g/255.f,
+			color.b/255.f,
+			color.a/255.f
+		};
+
+		return col;
+	}
+
+	colorArray_t ColorRGB::getRGBAFloat() {
+		colorArray_t col = {
+			color.r/255.f, color.g/255.f, color.b/255.f, color.a/255.f
+		};
+
+		return col;
 	}
 
 
 
 
-	colorArrey_t ColorRGB::getRGBAFloat() {
-		return std::array<float, 4>({ color.r/255.f, color.g/255.f, color.b/255.f, color.a/255.f });
+
+
+	ColorHSB::ColorHSB(int h, int s, int b, int a) {
+		set(h, s, b, a);
 	}
 
-	ColorHSB::ColorHSB(int h, int s, int b, int a) {}
-
-	ColorHSB::ColorHSB(float h, float s, float b, float a) {}
+	ColorHSB::ColorHSB(float h, float s, float b, float a) {
+		set(h, s, b, a);
+	}
 
 	ColorHSB::~ColorHSB() {}
 
@@ -75,10 +123,11 @@ namespace dx9 {
 		if (h < 0) {
 			h = abs(h)%360;
 			color.h = 360 - h;
-		} else {
+		}
+		else {
 			color.h = h%360;
 		}
-		
+
 		color.s = fit(s, 0, 100);
 		color.b = fit(b, 0, 100);
 		color.a = fit(a, 0, 100);
@@ -86,38 +135,89 @@ namespace dx9 {
 
 	void ColorHSB::set(float h, float s, float b, float a) {
 		if (h < 0) {
-			color.h = 1 - (h - floorf(h));
-		} else {
-			color.h = h - (int)h;
+			h = 1 - (h - floorf(h));
+		}
+		else {
+			h = h - (int)h;
 		}
 
-		color.h = (int)(color.h*255);
-		color.s = (int)(fit(s, 0.0f, 1.0f)*255);
-		color.b = (int)(fit(b, 0.0f, 1.0f)*255);
-		color.a = (int)(fit(a, 0.0f, 1.0f)*255);
+		color.h = (int)(color.h*360);
+		color.s = (int)(fit(s, 0.0f, 1.0f)*100);
+		color.b = (int)(fit(b, 0.0f, 1.0f)*100);
+		color.a = (int)(fit(a, 0.0f, 1.0f)*100);
 	}
-	
-	
+
+
 	ColorRGB ColorHSB::getColorRGB() {
-		
-		return ColorRGB();
+		auto ary = getRGBAFloat();
+		return ColorRGB(ary[0], ary[1], ary[2], ary[3]);
 	}
 
-	Color_HSBA &ColorHSB::get() {
-		return Color_HSBA();
+	colorHSBA_t ColorHSB::get() {
+		return color;
 	}
 
-	Color_HSBAF &ColorHSB::getFloat() {
-		return Color_HSBAF();
+	colorHSBAF_t ColorHSB::getFloat() {
+		colorHSBAF_t col = {
+			color.h/360.f,
+			color.s/100.f,
+			color.b/100.f,
+			color.a/100.f
+		};
+
+		return col;
 	}
 
-	unsigned int ColorHSB::getHex() {
-		return 0;
+	DWORD ColorHSB::getHex() {
+		auto col = getColorRGB();
+		return col.getHex();
 	}
 
-	colorArrey_t ColorHSB::getRGBAFloat() {
-		return std::array<float, 4>();
+	colorArray_t ColorHSB::getRGBAFloat() {
+		float max = (float)color.b*255/100;
+		float min = max - color.s*max/100;
+		float r, g, b;
+
+		if (0 <= color.h && color.h < 60) {
+			r = max;
+			g = ((color.h/60.f)*(max - min) + min);
+			b = min;
+		}
+		else if (60 <= color.h && color.h < 120) {
+			r = ((120 - color.h)/60.f*(max - min) + min);
+			g = max;
+			b = min;
+		}
+		else if (120 <= color.h && color.h < 180) {
+			r = min;
+			g = max;
+			b = ((color.h - 120)/60.f*(max - min) + min);
+		}
+		else if (180 <= color.h && color.h < 240) {
+			r = min;
+			g = ((240 - color.h)/60.f*(max - min) + min);
+			b = max;
+		}
+		else if (240 <= color.h && color.h < 300) {
+			r = ((color.h - 240)/60.f*(max - min) + min);
+			g = min;
+			b = max;
+		}
+		else {
+			r = max;
+			g = min;
+			b = ((360 - color.h)/60.f*(max - min) + min);
+		}
+
+
+		colorArray_t ary = {
+			r/255.f, g/255.f, b/255.f, color.a/100.f
+		};
+
+		return ary;
 	}
+
+	
 
 
 }

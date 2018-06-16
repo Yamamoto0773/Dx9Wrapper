@@ -1,61 +1,76 @@
 #pragma once
 
-#include "dx9.hpp"
-
 #include <array>
-
+#include <Windows.h>
 
 namespace dx9 {
+
+	// srcをminからmaxの範囲内に収める
+	template <typename T>
+	T fit(T src, T min, T max) {
+		if (src < min)
+			src = min;
+		else if (src > max)
+			src = max;
+
+		return src;
+	}
+
 
 	class Color;
 	class ColorRGB;
 	class ColorHSB;
 
-	struct Color_RGBA {
+	struct colorRGBA_t {
 		int r;
 		int g;
 		int b;
 		int a;
 	};
 
-	struct Color_HSBA {
+	struct colorHSBA_t {
 		int h;
 		int s;
 		int b;
 		int a;
 	};
 
-	struct Color_RGBAF {
+	struct colorRGBAF_t {
 		float r;
 		float g;
 		float b;
 		float a;
 	};
 
-	struct Color_HSBAF {
+	struct colorHSBAF_t {
 		float h;
 		float s;
 		float b;
 		float a;
 	};
 
-	using colorArrey_t = std::array<float, 4>;
+	using colorArray_t = std::array<float, 4>;
+
+
 
 	class Color {
 
+	public:
 		// htmlカラーコードの先頭にアルファ値を追加した値を返します
 		// 0xAARRGGBB (各成分は8bit)
-		virtual unsigned int getHex() = 0;
+		virtual DWORD getHex() = 0;
 
 		// rgbaの各成分を0.0-1.0fで表した配列を返します
-		virtual std::array<float, 4> getRGBAFloat() = 0;
+		virtual colorArray_t getRGBAFloat() = 0;
+
+
 	};
 
 
 
-	class ColorRGB : Color {
+	class ColorRGB : public Color {
 		
-		Color_RGBA color;
+		colorRGBA_t color;
 
 	public:
 
@@ -63,8 +78,8 @@ namespace dx9 {
 		ColorRGB(int r, int g, int b, int a = 255);
 		// 各成分を0.0-1.0で指定して作成
 		ColorRGB(float r, float g, float b, float a = 1.0f);
-		// ARGBの並びで32bitで指定
-		ColorRGB(unsigned int argb);
+		// ARGBの並びで32bitで指定して作成
+		ColorRGB(DWORD argb);
 
 		~ColorRGB();
 
@@ -75,25 +90,26 @@ namespace dx9 {
 		// ARGBの並びで32bitで指定
 		void set(int argb);
 
-		// 
-		unsigned int getHex() override;
+		// htmlカラーコードの先頭にアルファ値を追加した値を返します
+		// 0xAARRGGBB (各成分は8bit)
+		DWORD getHex() override;
 
 
 		ColorHSB getColorHSB();
 
-		Color_RGBA &get();
-		Color_RGBAF &getFloat();
+		colorRGBA_t get();
+		colorRGBAF_t getFloat();
 
-		colorArrey_t getRGBAFloat() override;
+		colorArray_t getRGBAFloat() override;
 
 	};
 
 
 
 
-	class ColorHSB : Color {
+	class ColorHSB : public Color {
 
-		Color_HSBA color;
+		colorHSBA_t color;
 		
 	public:
 
@@ -112,16 +128,12 @@ namespace dx9 {
 		void set(float h, float s, float b, float a = 1.0f);
 	
 		ColorRGB getColorRGB();
-		Color_HSBA &get();
-		Color_HSBAF &getFloat();
+		colorHSBA_t get();
+		colorHSBAF_t getFloat();
 
+		DWORD getHex() override;
 
-
-		unsigned int getHex() override;
-
-		colorArrey_t getRGBAFloat() override;
-
-
+		colorArray_t getRGBAFloat() override;
 	};
 
 }
