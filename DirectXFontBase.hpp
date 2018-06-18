@@ -21,9 +21,12 @@ namespace dx9 {
 
 		FontRotOrigin fontRotOrigin;
 		TextAlign textAlign;
+		TextureAdjust texAdjust;
 
 		DirectXFontBase();
 		~DirectXFontBase();
+
+		void Clear();
 
 	public:
 

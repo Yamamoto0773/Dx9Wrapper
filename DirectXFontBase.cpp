@@ -10,6 +10,19 @@ namespace dx9 {
 
 	DirectXFontBase::~DirectXFontBase() {}
 
+	void DirectXFontBase::Clear() {
+		fontSize = 0;
+		antialiasLv = AntialiasLevel::_15STEPS;
+		fontColor = {0.0f, 0.0f, 0.0f, 0.0f};
+
+		letterSpace = 0;
+
+		charTravelAngle_rad = 0.0f;
+
+		fontRotOrigin = FontRotOrigin::TOP_L;
+		textAlign = TextAlign::LEFT;
+	}
+
 	void DirectXFontBase::SetFontColor(Color &color) {
 		fontColor = color.getRGBAFloat();
 	}
