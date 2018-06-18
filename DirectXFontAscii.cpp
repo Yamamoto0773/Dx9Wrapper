@@ -207,7 +207,7 @@ namespace dx9 {
 
 
 
-		if (textAlign == TextAlign::CENTERXY)
+		if (isAlign && textAlign == TextAlign::CENTERXY)
 			strArea.top = rect.top + (height - lineCnt*(int)fontSize)/2.0f;
 		else
 			strArea.top = rect.top;
