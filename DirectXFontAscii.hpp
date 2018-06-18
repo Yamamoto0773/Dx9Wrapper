@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "FontTexture.hpp"
-#include "DX9ShareContainer.hpp"
+#include "DirectXFontBase.hpp"
 #include <array>
 
 // ASCII文字描画クラス
@@ -9,7 +9,7 @@
 
 namespace dx9 {
 
-	class DirectXFontAscii : resource::DX9ShareContainer {
+	class DirectXFontAscii : public DirectXFontBase {
 
 		static const int CHARACTER_MAXCNT = 1024;	// 文字列の最大文字数
 
@@ -20,19 +20,9 @@ namespace dx9 {
 
 		std::array<char, CHARACTER_MAXCNT+1> workBuf;
 
-		TEXTMETRICA				tm;
-	
+		TEXTMETRICA				tm;	
 
 		std::vector< std::unique_ptr<texture::FontTextureA> > texRes;
-
-		size_t fontSize;
-		std::array<float, 4> fontColor;
-		int letterSpace;
-
-		float charTravelAngle_rad; // travel direction of character (rad)
-
-		FontRotOrigin fontRotOrigin;
-		TextAlign textAlign;
 
 	public:
 		DirectXFontAscii();
@@ -49,24 +39,6 @@ namespace dx9 {
 			);
 
 
-		// ARGBの順
-		void SetFontColor(Color &color);
-
-		// 字間の指定 pixel単位で指定
-		void SetLetterSpace(int size) { letterSpace = size; };
-
-		// 文字が進む方向の指定 degreeで指定
-		void SetCharTravelDirection(int deg);
-		// 文字が進む方向の指定 radianで指定
-		void SetCharTravelDirection(float rad);
-
-		// 文字寄せの設定
-		void SetAlignment(dx9::TextAlign align) { textAlign = align; };
-
-		// 文字回転の中心を設定
-		void SetRotateOrigin(FontRotOrigin origin) { fontRotOrigin = origin; };
-
-		
 		//////////////////////////////////////////////
 		// 文字描画
 

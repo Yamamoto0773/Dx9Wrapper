@@ -409,20 +409,4 @@ namespace dx9 {
 		return charCnt;
 	}
 
-
-
-
-	void DirectXFontAscii::SetFontColor(Color &color) {
-		fontColor = color.getRGBAFloat();
-	}
-
-	void DirectXFontAscii::SetCharTravelDirection(int deg) {
-		charTravelAngle_rad = deg*(float)M_PI/180.0f;
-	}
-
-	void DirectXFontAscii::SetCharTravelDirection(float rad) {
-		charTravelAngle_rad = rad;
-	}
-
-
 }

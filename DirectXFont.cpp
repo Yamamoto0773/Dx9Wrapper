@@ -1,5 +1,4 @@
-﻿#define _USE_MATH_DEFINES
-#include <math.h>  
+﻿
 #include <string>
 
 #include "DirectXFont.hpp"
@@ -345,7 +344,6 @@ namespace dx9 {
 
 
 	DirectXFont::DirectXFont() {
-		hFont = nullptr;
 	}
 
 	DirectXFont::~DirectXFont() {
@@ -480,17 +478,6 @@ namespace dx9 {
 		return true;
 	}
 
-	void DirectXFont::SetFontColor(Color &color) {
-		fontColor = color.getRGBAFloat();
-	}
-
-	void DirectXFont::SetCharTravelDirection(int deg) {
-		charTravelAngle_rad = deg*(float)M_PI/180.0f;
-	}
-
-	void DirectXFont::SetCharTravelDirection(float rad) {
-		charTravelAngle_rad = rad;
-	}
 
 
 

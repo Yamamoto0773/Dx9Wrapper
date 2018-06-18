@@ -2,14 +2,14 @@
 
 
 #include "FontTexture.hpp"
-#include "DX9ShareContainer.hpp"
+#include "DirectXFontBase.hpp"
 #include <array>
 
 
 namespace dx9 {
 
 	// 文字列描画クラス
-	class DirectXFont : resource::DX9ShareContainer {
+	class DirectXFont : public DirectXFontBase {
 
 		static const int CHARACTER_MAXCNT = 1024;	// 文字列の最大文字数
 
@@ -24,16 +24,7 @@ namespace dx9 {
 		std::array<wchar_t, CHARACTER_MAXCNT+1> workBuf;
 		
 
-		size_t fontSize;
-
-		std::array<float, 4> fontColor;
-
-		int letterSpace;
-
-		float charTravelAngle_rad; // travel direction of character (rad)
-
-		FontRotOrigin fontRotOrigin;
-		TextAlign textAlign;
+		
 		
 
 	public:
@@ -55,23 +46,7 @@ namespace dx9 {
 		// 文字列テクスチャを明示的に作成
 		bool StoreFontTex(const wchar_t* wstr);
 	
-		// ARGBの順
-		void SetFontColor(Color &color);
-
-
-		// 字間の指定 pixel単位で指定
-		void SetLetterSpace(int size) { letterSpace = size; };
-
-		// 文字が進む方向の指定 degreeで指定
-		void SetCharTravelDirection(int deg);
-		// 文字が進む方向の指定 radianで指定
-		void SetCharTravelDirection(float rad);
-
-		// 文字寄せの設定
-		void SetAlignment(dx9::TextAlign align) { textAlign = align; };
-
-		// 文字回転の中心を設定
-		void SetRotateOrigin(FontRotOrigin origin) { fontRotOrigin = origin; };
+		
 
 
 		//////////////////////////////////////////////
