@@ -21,6 +21,7 @@ namespace dx9 {
 
 		fontRotOrigin = FontRotOrigin::TOP_L;
 		textAlign = TextAlign::LEFT;
+		strAdjust = TextureAdjust::NONE;
 	}
 
 	void DirectXFontBase::SetFontColor(Color &color) {
@@ -35,4 +36,8 @@ namespace dx9 {
 		charTravelAngle_rad = rad;
 	}
 
+	void DirectXFontBase::SetStringAdjust(TextureAdjust adjust) {
+		strAdjust = adjust;
+	}
+		
 }

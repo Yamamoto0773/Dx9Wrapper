@@ -5,6 +5,7 @@
 
 namespace dx9 {
 
+
 	class DirectXFontBase : public resource::DX9ShareContainer {
 
 	protected:
@@ -21,12 +22,13 @@ namespace dx9 {
 
 		FontRotOrigin fontRotOrigin;
 		TextAlign textAlign;
-		TextureAdjust texAdjust;
+		TextureAdjust strAdjust;
 
 		DirectXFontBase();
 		~DirectXFontBase();
 
 		void Clear();
+		bool isNOMAG(TextureAdjust adjust) { return (static_cast<int>(adjust) >> 2); }
 
 	public:
 
@@ -48,6 +50,9 @@ namespace dx9 {
 		// 文字回転の中心を設定
 		void SetRotateOrigin(FontRotOrigin origin) { fontRotOrigin = origin; };
 
+		// 文字列の拡大縮小に関する設定
+		// note:フラグがNONE以外の場合は，一行しか描画されません
+		void SetStringAdjust(TextureAdjust adjust);
 
 	};
 
