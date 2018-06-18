@@ -80,9 +80,11 @@ namespace dx9 {
 
 
 	enum class TextureAdjust {
-		NONE = 0u,
-		ASPECT_UNFIXED,	// アスペクト比を維持しない
-		ASPECT_FIXED,		// アスペクト比を維持
+		NONE					= 0b000,	// 自動で拡大縮小しない
+		ASPECT_UNFIXED			= 0b001,	// アスペクト比を維持しない
+		ASPECT_FIXED			= 0b010,	// アスペクト比を維持
+		ASPECT_UNFIXED_REDUCEONLY	= 0b101,	// アスペクト比を維持しない，縮小のみ
+		ASPECT_FIXED_REDUCEONLY		= 0b110,	// アスペクト比を維持，縮小のみ
 	};
 
 
