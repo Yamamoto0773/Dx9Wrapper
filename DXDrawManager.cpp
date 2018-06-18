@@ -374,7 +374,7 @@ namespace dx9 {
 			return false;
 		}
 
-		bool r1=false, r2=false;
+		//bool r1=false, r2=false;
 
 		//// preserve now state of mask.
 		//stencil::Mode mode = renderMng->getCurrectMode();
@@ -452,9 +452,13 @@ namespace dx9 {
 		//
 
 
+		figure::CircleFrame circleFrame;
+		circleFrame.SetPos( {x, y}, w, h);
+		circleFrame.setLineWidth(lineWidth);
+		circleFrame.SetColor(color);
 
 
-		return r1&r2;
+		return circleFrame.Draw(d3ddev9, effect, vertex_circle, &projMat, blendMode, topLayerPos);
 	}
 
 
