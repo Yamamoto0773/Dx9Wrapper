@@ -409,6 +409,54 @@ namespace dx9 {
 
 
 
+			dev->SetStreamSource(0, vtx, 0, sizeof(float)*5);
+
+			// シェーダ開始
+			UINT numPass = 0;
+			effect->SetTechnique("Tech");
+			effect->Begin(&numPass, 0);
+			effect->BeginPass(9);
+
+			// ブレンドモードを設定
+			switch (blendMode) {
+			case BLENDMODE::NORMAL:
+				dev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+				dev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+				break;
+			case BLENDMODE::ADD:
+				dev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+				dev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+				break;
+			}
+
+			D3DXMATRIX world, rot;
+			D3DXMatrixScaling(&world, (float)w, h, 1.0f);	// ポリゴンサイズに
+			D3DXMatrixRotationZ(&rot, 0);						// 回転
+			world._41 = -w/2.0f;
+			world._42 = -h/2.0f;
+			world = world * rot;
+			world._41 += w/2.0f + center.x;
+			world._42 += h/2.0f + center.y;
+			world._43 += 0/1000.0f;
+
+			// ラスタライゼーションルールを用いて，テクスチャをずらす
+			world._41 = ceil(world._41) - 0.5f;
+			world._42 = floor(world._42) + 0.5f;
+
+
+			effect->SetMatrix("world", &world);
+			effect->SetMatrix("proj", projMat);
+			effect->SetFloat("circle_w", w);
+			effect->SetFloat("circle_h", h);
+			effect->SetFloat("frameWeight_u", lineWidth*2/w);
+			effect->SetFloat("frameWeight_v", lineWidth*2/h);
+			effect->SetFloatArray("color", colorRGBA.data(), 4);
+			effect->CommitChanges();
+			dev->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, resource::CIRCLE_VERTEXCNT);
+
+			effect->EndPass();
+			effect->End();
+
 
 
 			return true;
