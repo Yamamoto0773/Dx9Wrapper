@@ -374,82 +374,85 @@ namespace dx9 {
 			return false;
 		}
 
-		bool r1, r2;
+		bool r1=false, r2=false;
 
-		// preserve now state of mask.
-		stencil::Mode mode = renderMng->getCurrectMode();
-		stencil::MaskColor maskCol = renderMng->getRefMaskColor();
-		const auto curRT = renderMng->GetCurrentRT();
+		//// preserve now state of mask.
+		//stencil::Mode mode = renderMng->getCurrectMode();
+		//stencil::MaskColor maskCol = renderMng->getRefMaskColor();
+		//const auto curRT = renderMng->GetCurrentRT();
 
-		switch (mode) {
-			case stencil::Mode::Masking:
-				renderMng->regionEnd(d3ddev9);
-				break;
-			case stencil::Mode::Draw:
-				renderMng->drawEnd(d3ddev9);
-				break;
-			case stencil::Mode::Idle:
-				break;
-			default:
-				break;
-		}
-		
+		//switch (mode) {
+		//	case stencil::Mode::Masking:
+		//		renderMng->regionEnd(d3ddev9);
+		//		break;
+		//	case stencil::Mode::Draw:
+		//		renderMng->drawEnd(d3ddev9);
+		//		break;
+		//	case stencil::Mode::Idle:
+		//		break;
+		//	default:
+		//		break;
+		//}
+		//
 
-		// Create texture rendered a circle frame.
-		SetRenderingTarget(textureRT);
+		//// Create texture rendered a circle frame.
+		//SetRenderingTarget(textureRT);
 
-		if (isDrawStarted) d3ddev9->EndScene();
-		d3ddev9->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 0xffffff, 1.0f, 0);
-		if (isDrawStarted) d3ddev9->BeginScene();
-		
+		//if (isDrawStarted) d3ddev9->EndScene();
+		//d3ddev9->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 0xffffff, 1.0f, 0);
+		//if (isDrawStarted) d3ddev9->BeginScene();
+		//
 
-		figure::CircleFrame circleFrame;
-		circleFrame.SetPos({w/2, h/2}, w, h);
-		circleFrame.setLineWidth(lineWidth);
-		circleFrame.SetColor(ColorRGB(0xff000000));
-		r1 = circleFrame.Draw(d3ddev9, effect, vertex_circle, &projMat, blendMode, topLayerPos);
-
-
-		// Draw the texture
-		if (curRT) {
-			SetRenderingTarget(curRT);
-		}
-		else {
-			renderMng->SetRenderingTarget(d3ddev9);
-		}
-
-		// restore previous state
-		switch (mode) {
-			case stencil::Mode::Masking:
-				renderMng->regionBegin(d3ddev9, false);
-				break;
-			case stencil::Mode::Draw:
-				renderMng->drawBegin(d3ddev9);
-				break;
-			case stencil::Mode::Idle:
-				break;
-		}
-		renderMng->setMaskingColor(d3ddev9, maskCol);
+		//figure::CircleFrame circleFrame;
+		//circleFrame.SetPos({w/2, h/2}, w, h);
+		//circleFrame.setLineWidth(lineWidth);
+		//circleFrame.SetColor(ColorRGB(0xff000000));
+		//r1 = circleFrame.Draw(d3ddev9, effect, vertex_circle, &projMat, blendMode, topLayerPos);
 
 
-		Texture tex = GetTextureFromRT(textureRT);
-		auto &texMng = DXTextureManager::GetInstance();
-		auto texFilter = texMng.GetColorFilterRGB();
+		//// Draw the texture
+		//if (curRT) {
+		//	SetRenderingTarget(curRT);
+		//}
+		//else {
+		//	renderMng->SetRenderingTarget(d3ddev9);
+		//}
 
-		RectF drawArea = {
-			x-w/2, y-h/2, x+w/2, y+h/2
-		};
+		//// restore previous state
+		//switch (mode) {
+		//	case stencil::Mode::Masking:
+		//		renderMng->regionBegin(d3ddev9, false);
+		//		break;
+		//	case stencil::Mode::Draw:
+		//		renderMng->drawBegin(d3ddev9);
+		//		break;
+		//	case stencil::Mode::Idle:
+		//		break;
+		//}
+		//renderMng->setMaskingColor(d3ddev9, maskCol);
 
-		ClipArea clipArea = {
-			0, 0, (int)w, (int)h
-		};
 
-		texMng.SetColorFilter(color, BLENDMODE::NORMAL);
+		//Texture tex = GetTextureFromRT(textureRT);
+		//auto &texMng = DXTextureManager::GetInstance();
+		//auto texFilter = texMng.GetColorFilterRGB();
 
-		r2 = texMng.DrawTexture(tex, drawArea, clipArea, 1.0f, 0, true);
+		//RectF drawArea = {
+		//	x-w/2, y-h/2, x+w/2, y+h/2
+		//};
 
-		texMng.SetColorFilter(texFilter.first, texFilter.second);
-		
+		//ClipArea clipArea = {
+		//	0, 0, (int)w, (int)h
+		//};
+
+		//texMng.SetColorFilter(color, BLENDMODE::NORMAL);
+
+		//r2 = texMng.DrawTexture(tex, drawArea, clipArea, 1.0f, 0, true);
+
+		//texMng.SetColorFilter(texFilter.first, texFilter.second);
+		//
+
+
+
 
 		return r1&r2;
 	}
@@ -714,7 +717,7 @@ namespace dx9 {
 			vtx_circle[0] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 			for (int i=0; i<resource::CIRCLE_VERTEXCNT+1; i++) {
 				float rad = 2.0f*(float)(M_PI)/resource::CIRCLE_VERTEXCNT * i;
-				vtx_circle[i+1] = {cos(-rad)/2.0f, sin(-rad)/2.0f, 0.0f, cos(-rad)/2.0f+0.5f, sin(-rad)/2.0f+0.5f}; // create vertex data for circle which is 1 in diameter
+				vtx_circle[i+1] = {cos(-rad)/2.0f, sin(-rad)/2.0f, 0.0f, cos(-rad), sin(-rad)}; // create vertex data for circle which is 1 in diameter
 			}
 		}
 		else {
@@ -727,7 +730,7 @@ namespace dx9 {
 			vtx_circle[0] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 			for (int i=0; i<resource::CIRCLE_VERTEXCNT+1; i++) {
 				float rad = 2.0f*(float)(M_PI)/resource::CIRCLE_VERTEXCNT * i;
-				vtx_circle[i+1] = {cos(rad)/2.0f, sin(rad)/2.0f, 0.0f, cos(rad)/2.0f+0.5f, sin(rad)/2.0f+0.5f};  // create vertex data for circle which is 1 in diameter
+				vtx_circle[i+1] = {cos(rad)/2.0f, sin(rad)/2.0f, 0.0f, cos(rad), sin(rad)};  // create vertex data for circle which is 1 in diameter
 			}
 		}
 

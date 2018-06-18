@@ -334,77 +334,82 @@ namespace dx9 {
 
 		bool CircleFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, size_t layerPos) {
 
-			auto *renderMng = &renderer::RenderingManager::GetInstance();
+			//auto *renderMng = &renderer::RenderingManager::GetInstance();
 
 
-			// 板ポリゴンを登録
-			dev->SetStreamSource(0, vtx, 0, sizeof(float)*5);
+			//// 板ポリゴンを登録
+			//dev->SetStreamSource(0, vtx, 0, sizeof(float)*5);
 
-			// Create mask
-			renderMng->regionBegin(dev, true);
-			renderMng->setMaskingColor(dev, stencil::MaskColor::Fill);
+			//// Create mask
+			//renderMng->regionBegin(dev, true);
+			//renderMng->setMaskingColor(dev, stencil::MaskColor::Fill);
 		
-			Circle circle;
-			float correction_w = (w>h) ? -w/h : h/w;
-			float correction_h = (w>h) ? w/h : -h/w;
-			circle.SetPos(center, w-lineWidth*2+correction_w, h-lineWidth*2+correction_h);
-			circle.SetColor(ColorRGB(0, 0, 0, 255));
-			circle.Draw(dev, effect, vtx, projMat, blendMode, layerPos);
+			//Circle circle;
+			//float correction_w = (w>h) ? -w/h : h/w;
+			//float correction_h = (w>h) ? w/h : -h/w;
+			//circle.SetPos(center, w-lineWidth*2+correction_w, h-lineWidth*2+correction_h);
+			//circle.SetColor(ColorRGB(0, 0, 0, 255));
+			//circle.Draw(dev, effect, vtx, projMat, blendMode, layerPos);
 
-			renderMng->regionEnd(dev);
-
-
-			// Draw circle frame by mask
-			renderMng->drawBegin(dev);
+			//renderMng->regionEnd(dev);
 
 
+			//// Draw circle frame by mask
+			//renderMng->drawBegin(dev);
 
-			// シェーダ開始
-			UINT numPass = 0;
-			effect->SetTechnique("Tech");
-			effect->Begin(&numPass, 0);
-			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Color));
 
-			// ブレンドモードを設定
-			switch (blendMode) {
-				case BLENDMODE::NORMAL:
-					dev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-					dev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-					break;
-				case BLENDMODE::ADD:
-					dev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-					dev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-					break;
-			}
+
+			//// シェーダ開始
+			//UINT numPass = 0;
+			//effect->SetTechnique("Tech");
+			//effect->Begin(&numPass, 0);
+			//effect->BeginPass(static_cast<UINT>(shader::ShaderPass::Color));
+
+			//// ブレンドモードを設定
+			//switch (blendMode) {
+			//	case BLENDMODE::NORMAL:
+			//		dev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			//		dev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+			//		break;
+			//	case BLENDMODE::ADD:
+			//		dev->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			//		dev->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+			//		break;
+			//}
 
 	
 
-			D3DXMATRIX world, rot;
-			D3DXMatrixScaling(&world, (float)w, h, 1.0f);	// ポリゴンサイズに
-			D3DXMatrixRotationZ(&rot, rotRad);						// 回転
-			world._41 = -w/2.0f;
-			world._42 = -h/2.0f;
-			world = world * rot;
-			world._41 += w/2.0f + center.x;
-			world._42 += h/2.0f + center.y;
-			world._43 += layerPos/1000.0f;
+			//D3DXMATRIX world, rot;
+			//D3DXMatrixScaling(&world, (float)w, h, 1.0f);	// ポリゴンサイズに
+			//D3DXMatrixRotationZ(&rot, rotRad);						// 回転
+			//world._41 = -w/2.0f;
+			//world._42 = -h/2.0f;
+			//world = world * rot;
+			//world._41 += w/2.0f + center.x;
+			//world._42 += h/2.0f + center.y;
+			//world._43 += layerPos/1000.0f;
 
-			// ラスタライゼーションルールを用いて，テクスチャをずらす
-			world._41 = ceil(world._41) - 0.5f;
-			world._42 = floor(world._42) + 0.5f;
+			//// ラスタライゼーションルールを用いて，テクスチャをずらす
+			//world._41 = ceil(world._41) - 0.5f;
+			//world._42 = floor(world._42) + 0.5f;
 
-			effect->SetMatrix("world", &world);
-			effect->SetMatrix("proj", projMat);
-			effect->SetFloatArray("color", colorRGBA.data(), 4);
-			effect->CommitChanges();
-			dev->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, resource::CIRCLE_VERTEXCNT);
+			//effect->SetMatrix("world", &world);
+			//effect->SetMatrix("proj", projMat);
+			//effect->SetFloatArray("color", colorRGBA.data(), 4);
+			//effect->CommitChanges();
+			//dev->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, resource::CIRCLE_VERTEXCNT);
 
-			effect->EndPass();
-			effect->End();
+			//effect->EndPass();
+			//effect->End();
 
 
-			// end a processing of drawing with mask
-			renderMng->drawEnd(dev);
+			//// end a processing of drawing with mask
+			//renderMng->drawEnd(dev);
+
+
+
+
+
 
 			return true;
 		}
