@@ -362,19 +362,7 @@ namespace dx9 {
 	}
 
 	bool DirectXFont::DeleteAll() {
-		fontSize = 0;
-		antialiasLv = AntialiasLevel::_15STEPS;
-		fontColor[0] = 0.0f;
-		fontColor[1] = 0.0f;
-		fontColor[2] = 0.0f;
-		fontColor[3] = 1.0f;
-
-		letterSpace = 0;
-
-		charTravelAngle_rad = 0.0f;
-
-		fontRotOrigin = FontRotOrigin::TOP_L;
-		textAlign = TextAlign::LEFT;
+		Clear();
 		
 		if (hFont != nullptr) {
 			DeleteObject(hFont);

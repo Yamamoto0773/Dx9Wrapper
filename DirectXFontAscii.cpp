@@ -352,8 +352,7 @@ namespace dx9 {
 
 
 	bool DirectXFontAscii::DeleteAll() {
-		fontSize = 0;
-		antialiasLv = AntialiasLevel::_15STEPS;
+		Clear();
 
 		if (hFont != nullptr) {
 			DeleteObject(hFont);
