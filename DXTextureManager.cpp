@@ -216,8 +216,10 @@ namespace dx9 {
 			xscale = yscale = 1.0f;
 			break;
 		case dx9::TextureAdjust::ASPECT_UNFIXED:
+		case dx9::TextureAdjust::ASPECT_UNFIXED_REDUCEONLY:
 			break;
 		case dx9::TextureAdjust::ASPECT_FIXED:
+		case dx9::TextureAdjust::ASPECT_FIXED_REDUCEONLY:
 			if (xscale > yscale) {
 				xscale = yscale;
 			} else {
@@ -225,6 +227,16 @@ namespace dx9 {
 			}
 			break;
 		}
+
+		if (textureAdjust == TextureAdjust::ASPECT_FIXED_REDUCEONLY ||
+			textureAdjust == TextureAdjust::ASPECT_UNFIXED_REDUCEONLY) {
+
+			if (xscale < 1.0f && yscale < 1.0f) {
+				xscale = 1.0f;
+				yscale = 1.0f;
+			}
+		}
+
 
 		PointF pos = {
 			posArea.left + (pos_w - clipArea.size_w*xscale)/2.0f,
