@@ -29,8 +29,7 @@ namespace dx9 {
 			~DirectXFontBase();
 
 			void Clear();
-			bool isNOMAG(TextureAdjust adjust) { return (static_cast<int>(adjust) >> 2); }
-
+			
 		public:
 
 			// ARGB‚Ì‡
