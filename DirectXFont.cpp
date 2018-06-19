@@ -243,9 +243,11 @@ namespace dx9 {
 			if (strAdjust == TextureAdjust::ASPECT_FIXED_REDUCEONLY ||
 				strAdjust == TextureAdjust::ASPECT_UNFIXED_REDUCEONLY) {
 				
-				if (scale_x > 1.0f && scale_y > 1.0f) {
-					adjustScale = {1.0f, 1.0f};
-				}
+				if (adjustScale.x > 1.0f)
+					adjustScale.x = 1.0f;
+
+				if (adjustScale.y > 1.0f)
+					adjustScale.y = 1.0f;
 
 			}
 
