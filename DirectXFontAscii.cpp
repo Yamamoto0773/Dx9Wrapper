@@ -268,7 +268,7 @@ namespace dx9 {
 			}
 
 
-			len *= adjustScale.x;
+			len = (int)(len*adjustScale.x);
 
 
 			// calc position of line head
