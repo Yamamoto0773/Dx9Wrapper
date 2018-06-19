@@ -119,6 +119,23 @@ namespace dx9 {
 		return true;
 	}
 
+	bool DXDrawManager::ClearBackGround() {
+		if (!isResCreated) return false;
+
+		if (isDrawStarted) {
+			d3ddev9->EndScene();
+		}
+
+		d3ddev9->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, backGroundColor, 1.0f, 0);
+
+		if (isDrawStarted) {
+			if (FAILED(d3ddev9->BeginScene()))
+				return false;
+		}
+
+		return true;
+	}
+
 	
 
 
