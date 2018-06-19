@@ -231,10 +231,12 @@ namespace dx9 {
 		if (textureAdjust == TextureAdjust::ASPECT_FIXED_REDUCEONLY ||
 			textureAdjust == TextureAdjust::ASPECT_UNFIXED_REDUCEONLY) {
 
-			if (xscale < 1.0f && yscale < 1.0f) {
+			if (xscale > 1.0f)
 				xscale = 1.0f;
+
+			if (yscale > 1.0f)
 				yscale = 1.0f;
-			}
+
 		}
 
 
