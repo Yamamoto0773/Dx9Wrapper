@@ -9,7 +9,7 @@
 namespace dx9 {
 
 	// 文字列描画クラス
-	class DirectXFont : public DirectXFontBase {
+	class DirectXFont : public font::DirectXFontBase {
 
 		static const int CHARACTER_MAXCNT = 1024;	// 文字列の最大文字数
 
