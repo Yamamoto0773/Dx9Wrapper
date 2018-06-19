@@ -151,27 +151,37 @@ namespace dx9 {
 
 		// 描画位置の算出 
 		vector<pair<float, size_t>> headPos; // first:行頭のx座標 second:行頭文字が何番目か
-		RectF strArea = {rect.right, rect.bottom, rect.left, rect.top};
+		RectF strArea = { rect.right, rect.bottom, rect.left, rect.top };
 		size_t totalOffset = 0;
 		int width = (int)(rect.right - rect.left);
-		if (!isAlign) width = -1;
 		int height = (int)(rect.bottom - rect.top);
-		int lineCnt;
+		PointF adjustScale = {1.0f, 1.0f};
 
-		for (lineCnt = 0; true; lineCnt++) {
 
-			if (isAlign && fontSize*(lineCnt+1) > height)
-				break;
+		if (strAdjust == TextureAdjust::NONE || !isAlign) {
 
-			int len;
-			int offset = GetStrLength(workBuf.data(), totalOffset, letterSpace, fontSize, (float)width, len);
-			if (offset <= 0) {
-				break;
+			if (!isAlign) {
+				width = -1;
 			}
 
-			float x;
-			if (isAlign) {
-				switch (textAlign) {
+			int lineCnt;
+			for (lineCnt = 0; true; lineCnt++) {
+
+				if (isAlign && fontSize*(lineCnt+1) > height)
+					break;
+
+
+				// calc length of string
+				int len;
+				int offset = GetStrLength(workBuf.data(), totalOffset, letterSpace, fontSize, (float)width, len);
+				if (offset <= 0) {
+					break;
+				}
+
+				// calc position of line head
+				float x;
+				if (isAlign) {
+					switch (textAlign) {
 					case dx9::TextAlign::LEFT:
 					case dx9::TextAlign::NONE:
 						x = rect.left;
@@ -185,37 +195,120 @@ namespace dx9 {
 					case dx9::TextAlign::RIGHT:
 						x = rect.left + (width - len);
 						break;
+					}
+				} else {
+					x = rect.left;
 				}
+
+				headPos.push_back({ x, totalOffset });
+
+				if (lineCnt == 0 || x < strArea.left)
+					strArea.left = x;
+				if (lineCnt == 0 || x + len > strArea.right)
+					strArea.right = x + len;
+
+
+				totalOffset += offset;
+
 			}
-			else {
+
+
+			if (isAlign && textAlign == TextAlign::CENTERXY)
+				strArea.top = rect.top + (height - lineCnt*(int)fontSize)/2.0f;
+			else
+				strArea.top = rect.top;
+
+			strArea.bottom = strArea.top + lineCnt*fontSize;
+
+
+
+		}
+		else {
+
+
+			// calc length of string
+			int len;
+			int offset = GetStrLength(workBuf.data(), totalOffset, letterSpace, fontSize, -1.0f, len);
+			if (offset <= 0) {
+				return false;
+			}
+
+			// calc scale of string adjust
+			float scale_x = 1.0f, scale_y = 1.0f;
+			scale_x = (rect.right - rect.left)/len;
+			scale_y = (float)height/fontSize;
+
+
+			switch (strAdjust) {
+			case dx9::TextureAdjust::ASPECT_UNFIXED:
+			case dx9::TextureAdjust::ASPECT_UNFIXED_REDUCEONLY:
+				adjustScale = {scale_x, scale_y};
+				break;
+			case dx9::TextureAdjust::ASPECT_FIXED:
+			case dx9::TextureAdjust::ASPECT_FIXED_REDUCEONLY:
+				if (scale_x < scale_y) {
+					adjustScale = { scale_x, scale_x };
+				}
+				else {
+					adjustScale = { scale_y, scale_y };
+				}
+				break;
+			}
+
+
+			if (strAdjust == TextureAdjust::ASPECT_FIXED_REDUCEONLY ||
+				strAdjust == TextureAdjust::ASPECT_UNFIXED_REDUCEONLY) {
+
+				if (scale_x > 1.0f && scale_y > 1.0f) {
+					adjustScale = {1.0f, 1.0f};
+				}
+
+			}
+
+
+			len *= adjustScale.x;
+
+
+			// calc position of line head
+			float x;
+			if (isAlign) {
+				switch (textAlign) {
+				case dx9::TextAlign::LEFT:
+				case dx9::TextAlign::NONE:
+					x = rect.left;
+					break;
+				case dx9::TextAlign::CENTERX:
+					x = rect.left + (width - len)/2.0f;
+					break;
+				case dx9::TextAlign::CENTERXY:
+					x = rect.left + (width - len)/2.0f;
+					break;
+				case dx9::TextAlign::RIGHT:
+					x = rect.left + (width - len);
+					break;
+				}
+			} else {
 				x = rect.left;
 			}
 
+			headPos.push_back({ x, 0 });
 
-			headPos.push_back({x, totalOffset});
 
-
-			if (lineCnt == 0 || x < strArea.left)
-				strArea.left = x;
-			if (lineCnt == 0 || x + len > strArea.right)
-				strArea.right = x + len;
-
+			// set string area
+			strArea.left = x;
+			strArea.right = x+len;
+			strArea.top = rect.top + (height - (int)fontSize*adjustScale.y)/2.0f;
+			strArea.bottom = strArea.top + (int)fontSize*adjustScale.y;
 
 			totalOffset += offset;
+
 		}
+
+			
 		if (totalOffset == 0) return true;
 
 
-
-		if (isAlign && textAlign == TextAlign::CENTERXY)
-			strArea.top = rect.top + (height - lineCnt*(int)fontSize)/2.0f;
-		else
-			strArea.top = rect.top;
-
-		strArea.bottom = strArea.top + lineCnt*fontSize;
-
-
-		// 引数を最適化
+		// set range of string which shold be drawn
 		size_t endCharCnt = 0;
 		if (drawCharCnt < 0 || startCharCnt + drawCharCnt > totalOffset) {
 			endCharCnt = totalOffset;
@@ -313,8 +406,8 @@ namespace dx9 {
 			if (i < startCharCnt)
 				continue;
 
-			finalPos.x = pos.x + texRes[subscr]->_chInfo().originX*fontscale;
-			finalPos.y = pos.y - texRes[subscr]->_chInfo().originY*fontscale;
+			finalPos.x = pos.x + texRes[subscr]->_chInfo().originX*fontscale*adjustScale.x;
+			finalPos.y = pos.y - texRes[subscr]->_chInfo().originY*fontscale*adjustScale.y;
 
 			PointF origin = {
 				rotOriginPt.x - finalPos.x,
@@ -322,7 +415,12 @@ namespace dx9 {
 			};
 
 
-			D3DXMatrixScaling(&world, (float)texRes[subscr]->GetWidth()*fontscale, (float)texRes[subscr]->GetHeight()*fontscale, 1.0f);	// ポリゴンサイズに
+			D3DXMatrixScaling(
+				&world,
+				(float)texRes[subscr]->GetWidth()*fontscale*adjustScale.x, 
+				(float)texRes[subscr]->GetHeight()*fontscale*adjustScale.y, 
+				1.0f
+			);	// ポリゴンサイズに
 			D3DXMatrixRotationZ(&rot, charTravelAngle_rad);						// 回転
 			world._41 = -origin.x;		// ピボット分オフセット
 			world._42 = -origin.y;
@@ -341,7 +439,7 @@ namespace dx9 {
 			d3ddev9->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
 
-			pos.x += texRes[subscr]->_chInfo().AreaW*fontscale + letterSpace;
+			pos.x += texRes[subscr]->_chInfo().AreaW*fontscale*adjustScale.x + letterSpace;
 		}
 
 		effect->EndPass();
