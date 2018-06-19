@@ -9,6 +9,9 @@ texture tex2;
 float frameWeight_u;
 float frameWeight_v;
 
+float circle_w;
+float circle_h;
+
 float uv_left;
 float uv_top;
 float uv_width;
@@ -153,9 +156,17 @@ float4 ps_rectFrame(VS_OUT In) : COLOR0 {
 }
 
 
+float4 ps_circleFrame(VS_OUT In) : COLOR0{
+
+	if (In.uv[0]*In.uv[0] + In.uv[1]*In.uv[1] < 
+		(1.0f-frameWeight_u)*(1.0f-frameWeight_v)) clip(-1);
+
+	return color;
+}
+
 
 technique Tech {
-
+	
 	// 指定色で塗りつぶし
 	pass p0 {
 		VertexShader = compile vs_2_0 vs_noTex();
@@ -226,6 +237,14 @@ technique Tech {
 	pass p8 {
 		VertexShader = compile vs_2_0 vs_texWithUV();
 		PixelShader  = compile ps_2_0 ps_tex_add_color();
+
+		AlphaBlendEnable = true;
+	}
+
+
+	pass p9 {
+		VertexShader = compile vs_2_0 vs_texWithUV();
+		PixelShader = compile ps_2_0 ps_circleFrame();
 
 		AlphaBlendEnable = true;
 	}
