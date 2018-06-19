@@ -143,7 +143,8 @@ namespace dx9 {
 			Mul_UVTex_color,
 			Mul_ColorAlpha_InvUVTexAlpha,
 			RectFrame, 
-			Add_UVTex_color
+			Add_UVTex_color,
+			CircleFrame
 		};
 
 	}

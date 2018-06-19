@@ -415,7 +415,7 @@ namespace dx9 {
 			UINT numPass = 0;
 			effect->SetTechnique("Tech");
 			effect->Begin(&numPass, 0);
-			effect->BeginPass(9);
+			effect->BeginPass(static_cast<UINT>(shader::ShaderPass::CircleFrame));
 
 			// ブレンドモードを設定
 			switch (blendMode) {
