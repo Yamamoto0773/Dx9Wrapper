@@ -62,8 +62,6 @@ namespace dx9 {
 		bool DrawEnd();
 
 
-
-
 		// ---------------------------------------
 		// 図形の描画
 
@@ -128,6 +126,8 @@ namespace dx9 {
 		bool SetCircleMask(RectF maskArea);
 		// 円形のマスクを適用
 		bool SetCircleMask(float x, float y, float w, float h);
+		// マスク内容のクリア
+		void ClearMask();
 
 		// マスクを解除
 		bool RemoveMask();

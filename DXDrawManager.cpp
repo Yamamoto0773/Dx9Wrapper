@@ -202,6 +202,10 @@ namespace dx9 {
 		return SetCircleMask({x-w/2, y-h/2, x+w/2, y+h/2});
 	}
 
+	void DXDrawManager::ClearMask() {
+		renderMng->clear(d3ddev9);
+	}
+
 	bool DXDrawManager::RemoveMask() {
 		return renderMng->drawEnd(d3ddev9);
 	}

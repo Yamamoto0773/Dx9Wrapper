@@ -51,6 +51,7 @@ namespace stencil {
 		// set mask color for rendering
 		void setMaskingColor(IDirect3DDevice9* device, MaskColor color);
 
+		void clear(IDirect3DDevice9 *device);
 		
 		Mode getCurrectMode();
 		MaskColor getRefMaskColor();

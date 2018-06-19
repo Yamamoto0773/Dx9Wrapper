@@ -113,6 +113,12 @@ namespace stencil {
 		}
 	}
 
+	void StencilClip::clear(IDirect3DDevice9 * device) {
+		if (device) {
+			device->Clear(0, NULL, D3DCLEAR_STENCIL, 0, 1.0f, static_cast<DWORD>(MaskColor::Trans));
+		}
+	}
+
 
 	Mode StencilClip::getCurrectMode() {
 		return mode;
