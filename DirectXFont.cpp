@@ -147,8 +147,6 @@ namespace dx9 {
 		PointF adjustScale = { 1.0f, 1.0f };
 
 
-
-		
 		if (strAdjust == TextureAdjust::NONE || !isAlign) {
 
 			if (!isAlign) {
@@ -224,6 +222,7 @@ namespace dx9 {
 			scale_x = (rect.right - rect.left)/len;
 			scale_y = (float)height/fontSize;
 
+
 			switch (strAdjust) {
 			case dx9::TextureAdjust::ASPECT_UNFIXED:
 			case dx9::TextureAdjust::ASPECT_UNFIXED_REDUCEONLY:
@@ -239,6 +238,7 @@ namespace dx9 {
 				}
 				break;
 			}
+
 
 			if (strAdjust == TextureAdjust::ASPECT_FIXED_REDUCEONLY ||
 				strAdjust == TextureAdjust::ASPECT_UNFIXED_REDUCEONLY) {
@@ -293,10 +293,7 @@ namespace dx9 {
 		if (totalOffset == 0) return true;
 
 
-
-		
-
-		// 引数を最適化
+		// set range of string which shold be drawn
 		size_t endCharCnt = 0;
 		if (drawCharCnt < 0 || startCharCnt + drawCharCnt > totalOffset) {
 			endCharCnt = totalOffset;
