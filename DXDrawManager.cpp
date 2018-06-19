@@ -195,6 +195,13 @@ namespace dx9 {
 		return true;
 	}
 
+	bool DXDrawManager::SetCircleMask(float x, float y, float w, float h) {
+		if (w < 0) return false;
+		if (h < 0) return false;
+
+		return SetCircleMask({x-w/2, y-h/2, x+w/2, y+h/2});
+	}
+
 	bool DXDrawManager::RemoveMask() {
 		return renderMng->drawEnd(d3ddev9);
 	}
