@@ -119,7 +119,7 @@ namespace dx9 {
 		return true;
 	}
 
-	bool DXDrawManager::ClearBackGround() {
+	bool DXDrawManager::ClearDrawingTarget() {
 		if (!isResCreated) return false;
 
 		if (isDrawStarted) {
