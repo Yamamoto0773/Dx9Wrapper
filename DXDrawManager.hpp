@@ -84,12 +84,13 @@ namespace dx9 {
 
 		// 円の輪郭の描画
 		bool DrawCircleFrame(float x, float y, float w, float h, Color & color, float lineWidth=1.0f);
-		// rectArea... circle-frame will be postioned inside to come contact with [rectArea].
+		// 円の輪郭の描画
+		// reatAreaで指定した矩形領域内にピッタリ収まる円の輪郭を描画します
 		bool DrawCircleFrame(RectF &rectArea, Color & color, float lineWidth=1.0f); 
 
 		// 円の描画
 		bool DrawCircle(float x, float y, float w, float h, Color & color);
-		// rectArea... circle will be postioned inside to come contact with [rectArea].
+		// reatAreaで指定した矩形領域内にピッタリ収まる円を描画します
 		bool DrawCircle(RectF &rectArea, Color & color);	
 
 

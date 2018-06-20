@@ -21,35 +21,35 @@ namespace dx9 {
 	class ColorRGB;
 	class ColorHSB;
 
-	struct colorRGBA_t {
+	struct rgba_t {
 		int r;
 		int g;
 		int b;
 		int a;
 	};
 
-	struct colorHSBA_t {
+	struct hsba_t {
 		int h;
 		int s;
 		int b;
 		int a;
 	};
 
-	struct colorRGBAF_t {
+	struct rgba_float_t {
 		float r;
 		float g;
 		float b;
 		float a;
 	};
 
-	struct colorHSBAF_t {
+	struct hsba_float_t {
 		float h;
 		float s;
 		float b;
 		float a;
 	};
 
-	using colorArray_t = std::array<float, 4>;
+	using color_array_t = std::array<float, 4>;
 
 
 
@@ -61,7 +61,7 @@ namespace dx9 {
 		virtual DWORD getHex() = 0;
 
 		// rgbaÇÃäeê¨ï™Ç0.0-1.0fÇ≈ï\ÇµÇΩîzóÒÇï‘ÇµÇ‹Ç∑
-		virtual colorArray_t getRGBAFloat() = 0;
+		virtual color_array_t getRGBAFloat() = 0;
 
 
 	};
@@ -70,7 +70,7 @@ namespace dx9 {
 
 	class ColorRGB : public Color {
 		
-		colorRGBA_t color;
+		rgba_t color;
 
 	public:
 
@@ -97,10 +97,10 @@ namespace dx9 {
 
 		ColorHSB getColorHSB();
 
-		colorRGBA_t get();
-		colorRGBAF_t getFloat();
+		rgba_t get();
+		rgba_float_t getFloat();
 
-		colorArray_t getRGBAFloat() override;
+		color_array_t getRGBAFloat() override;
 
 	};
 
@@ -109,7 +109,7 @@ namespace dx9 {
 
 	class ColorHSB : public Color {
 
-		colorHSBA_t color;
+		hsba_t color;
 		
 	public:
 
@@ -128,12 +128,12 @@ namespace dx9 {
 		void set(float h, float s, float b, float a = 1.0f);
 	
 		ColorRGB getColorRGB();
-		colorHSBA_t get();
-		colorHSBAF_t getFloat();
+		hsba_t get();
+		hsba_float_t getFloat();
 
 		DWORD getHex() override;
 
-		colorArray_t getRGBAFloat() override;
+		color_array_t getRGBAFloat() override;
 	};
 
 }

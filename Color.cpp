@@ -80,12 +80,12 @@ namespace dx9 {
 		return ColorHSB(h, s, b, (int)(color.a*100/255.f));
 	}
 
-	colorRGBA_t ColorRGB::get() {
+	rgba_t ColorRGB::get() {
 		return color;
 	}
 
-	colorRGBAF_t ColorRGB::getFloat() {
-		colorRGBAF_t col = {
+	rgba_float_t ColorRGB::getFloat() {
+		rgba_float_t col = {
 			color.a/255.f,
 			color.g/255.f,
 			color.b/255.f,
@@ -95,8 +95,8 @@ namespace dx9 {
 		return col;
 	}
 
-	colorArray_t ColorRGB::getRGBAFloat() {
-		colorArray_t col = {
+	color_array_t ColorRGB::getRGBAFloat() {
+		color_array_t col = {
 			color.r/255.f, color.g/255.f, color.b/255.f, color.a/255.f
 		};
 
@@ -153,12 +153,12 @@ namespace dx9 {
 		return ColorRGB(ary[0], ary[1], ary[2], ary[3]);
 	}
 
-	colorHSBA_t ColorHSB::get() {
+	hsba_t ColorHSB::get() {
 		return color;
 	}
 
-	colorHSBAF_t ColorHSB::getFloat() {
-		colorHSBAF_t col = {
+	hsba_float_t ColorHSB::getFloat() {
+		hsba_float_t col = {
 			color.h/360.f,
 			color.s/100.f,
 			color.b/100.f,
@@ -173,7 +173,7 @@ namespace dx9 {
 		return col.getHex();
 	}
 
-	colorArray_t ColorHSB::getRGBAFloat() {
+	color_array_t ColorHSB::getRGBAFloat() {
 		float max = (float)color.b*255/100;
 		float min = max - color.s*max/100;
 		float r, g, b;
@@ -210,7 +210,7 @@ namespace dx9 {
 		}
 
 
-		colorArray_t ary = {
+		color_array_t ary = {
 			r/255.f, g/255.f, b/255.f, color.a/100.f
 		};
 
