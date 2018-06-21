@@ -167,7 +167,7 @@ namespace dx9 {
 			int lineCnt;
 			for (lineCnt = 0; true; lineCnt++) {
 
-				if (isAlign && fontSize*(lineCnt+1) > height)
+				if (isAlign && (int)fontSize*(lineCnt+1) > height)
 					break;
 
 

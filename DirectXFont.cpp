@@ -156,7 +156,7 @@ namespace dx9 {
 			int lineCnt;
 			for (lineCnt = 0; true; lineCnt++) {
 
-				if (isAlign && fontSize*(lineCnt+1) > height)
+				if (isAlign && (int)fontSize*(lineCnt+1) > height)
 					break;
 
 				// calc length of string
@@ -529,7 +529,7 @@ namespace dx9 {
 
 		// 文字テクスチャ作成
 		size_t len = wcslen(wstr);
-		for (int i = 0; i<len; i++) {
+		for (size_t i = 0; i<len; i++) {
 
 			UINT code = static_cast<UINT>(wstr[i]);
 
