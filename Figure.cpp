@@ -21,7 +21,7 @@ namespace dx9 {
 		Figure::~Figure() {
 		}
 
-		void Figure::SetColor(Color &color) {
+		void Figure::SetColor(const Color &color) {
 			colorRGBA = color.getRGBAFloat();
 		}
 
@@ -44,7 +44,7 @@ namespace dx9 {
 		Line::~Line() {
 		}
 
-		void Line::SetPos(PointF & begin, PointF & end) {
+		void Line::SetPos(PointF begin, PointF end) {
 			this->begin = begin;
 			vec = {end.x - begin.x, end.y - begin.y};
 

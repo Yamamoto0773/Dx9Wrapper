@@ -114,7 +114,7 @@ namespace dx9 {
 
 
 
-	bool DXTextureManager::DrawTexture(Texture & tex, float x, float y, float scale_x, float scale_y, float alpha, int rotDeg, bool isClip) {
+	bool DXTextureManager::DrawTexture(const Texture & tex, float x, float y, float scale_x, float scale_y, float alpha, int rotDeg, bool isClip) {
 		if (!tex) {
 			return false;
 		}
@@ -157,7 +157,7 @@ namespace dx9 {
 		return DrawTexture_main(tex, pos.x, pos.y, uv.left, uv.top, uv.w, uv.h, scale_x, scale_y, alpha, rotDeg, isClip);
 	}
 
-	bool DXTextureManager::DrawTexture(Texture & tex, RectF posArea, float alpha, int rotDeg, bool isClip) {
+	bool DXTextureManager::DrawTexture(const Texture & tex, RectF posArea, float alpha, int rotDeg, bool isClip) {
 		if (!tex) {
 			return false;
 		}
@@ -183,7 +183,7 @@ namespace dx9 {
 		return DrawTexture(tex, posArea, clipArea, alpha, rotDeg, isClip);
 	}
 
-	bool DXTextureManager::DrawTexture(Texture &tex, RectF posArea, ClipArea clipArea, float alpha, int rotDeg, bool isClip) {
+	bool DXTextureManager::DrawTexture(const Texture &tex, RectF posArea, ClipArea clipArea, float alpha, int rotDeg, bool isClip) {
 		if (!tex) {
 			return false;
 		}
@@ -270,7 +270,7 @@ namespace dx9 {
 		return releasedCnt;
 	}
 
-	void DXTextureManager::SetColorFilter(Color &color, BLENDMODE blendmode) {
+	void DXTextureManager::SetColorFilter(const Color &color, BLENDMODE blendmode) {
 		auto ary = color.getRGBAFloat();
 		filterColor = {
 			ary[0], ary[1], ary[2]
@@ -297,7 +297,7 @@ namespace dx9 {
 
 
 
-	bool DXTextureManager::DrawTexture_main(Texture & tex, float x, float y, float uv_left, float uv_top, float uv_w, float uv_h, float scale_x, float scale_y, float alpha, int rotDeg, bool isClip) {
+	bool DXTextureManager::DrawTexture_main(const Texture & tex, float x, float y, float uv_left, float uv_top, float uv_w, float uv_h, float scale_x, float scale_y, float alpha, int rotDeg, bool isClip) {
 		if (!tex) {
 			return false;
 		}

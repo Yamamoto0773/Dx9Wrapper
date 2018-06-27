@@ -19,7 +19,7 @@ namespace dx9 {
 			virtual ~Figure();
 
 		public:
-			void SetColor(Color &color);
+			void SetColor(const Color &color);
 		
 			void SetRot(int deg);
 
@@ -52,7 +52,7 @@ namespace dx9 {
 
 			void SetRot(int) = delete;
 
-			void SetPos(PointF &begin, PointF &end);
+			void SetPos(PointF begin, PointF end);
 			void SetLineWidth(float lineWidth);
 
 			bool Draw(

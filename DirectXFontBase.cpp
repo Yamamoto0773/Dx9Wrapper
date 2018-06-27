@@ -27,7 +27,7 @@ namespace dx9 {
 			strAdjust = TextureAdjust::NONE;
 		}
 
-		void DirectXFontBase::SetFontColor(Color &color) {
+		void DirectXFontBase::SetFontColor(const Color &color) {
 			fontColor = color.getRGBAFloat();
 		}
 

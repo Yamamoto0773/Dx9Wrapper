@@ -293,13 +293,13 @@ namespace dx9 {
 	}
 
 
-	bool DXDrawManager::DrawLine(float begin_x, float begin_y, float end_x, float end_y, Color & color, float lineWidth) {
+	bool DXDrawManager::DrawLine(float begin_x, float begin_y, float end_x, float end_y, const Color & color, float lineWidth) {
 		PointF begin = {begin_x, begin_y};
 		PointF end = {end_x, end_y};
 		return DrawLine(begin, end, color, lineWidth);
 	}
 
-	bool DXDrawManager::DrawLine(PointF &begin, PointF &end, Color & color, float lineWidth) {
+	bool DXDrawManager::DrawLine(PointF begin, PointF end, const Color & color, float lineWidth) {
 		if (lineWidth < 0.0f) {
 			return false;
 		}
@@ -321,15 +321,15 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawRectFrame(PointF &topLeft, PointF &bottomRight, Color & color, float lineWidth) {
+	bool DXDrawManager::DrawRectFrame(PointF topLeft, PointF bottomRight, const Color & color, float lineWidth) {
 		return DrawRectFrame(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y, color, lineWidth);
 	}
 
-	bool DXDrawManager::DrawRectFrame(RectF &rect, Color & color, float lineWidth) {
+	bool DXDrawManager::DrawRectFrame(RectF rect, const Color & color, float lineWidth) {
 		return DrawRectFrame(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, color, lineWidth);
 	}
 
-	bool DXDrawManager::DrawRectFrame(float x, float y, float w, float h, Color & color, float lineWidth) {
+	bool DXDrawManager::DrawRectFrame(float x, float y, float w, float h, const Color & color, float lineWidth) {
 		if (lineWidth < 0.0f) {
 			return false;
 		}
@@ -353,15 +353,15 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawRect(RectF & rect, Color & color) {
+	bool DXDrawManager::DrawRect(RectF rect, const Color & color) {
 		return DrawRect(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, color);
 	}
 
-	bool DXDrawManager::DrawRect(PointF & topLeft, PointF & bottomRight, Color & color) {
+	bool DXDrawManager::DrawRect(PointF topLeft, PointF bottomRight, const Color & color) {
 		return DrawRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, color);
 	}
 
-	bool DXDrawManager::DrawRect(float x, float y, float w, float h, Color & color) {
+	bool DXDrawManager::DrawRect(float x, float y, float w, float h, const Color & color) {
 		if (w < 0.0f || h < 0.0f) {
 			return false;
 		}
@@ -380,7 +380,7 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawCircleFrame(RectF & rectArea, Color & color, float lineWidth) {
+	bool DXDrawManager::DrawCircleFrame(RectF rectArea, const Color & color, float lineWidth) {
 		return DrawCircleFrame(
 			(rectArea.left+rectArea.right)/2.0f,
 			(rectArea.top+rectArea.bottom)/2.0f,
@@ -391,7 +391,7 @@ namespace dx9 {
 			);
 	}
 
-	bool DXDrawManager::DrawCircleFrame(float x, float y, float w, float h, Color & color, float lineWidth) {
+	bool DXDrawManager::DrawCircleFrame(float x, float y, float w, float h, const Color & color, float lineWidth) {
 		if (w < 0.0f || h < 0.0f) {
 			return false;
 		}
@@ -490,7 +490,7 @@ namespace dx9 {
 	}
 
 
-	bool DXDrawManager::DrawCircle(RectF &rectArea, Color & color) {
+	bool DXDrawManager::DrawCircle(RectF rectArea, const Color & color) {
 		return DrawCircle(
 			(rectArea.left+rectArea.right)/2.0f,
 			(rectArea.top+rectArea.bottom)/2.0f,
@@ -500,7 +500,7 @@ namespace dx9 {
 			);
 	}
 
-	bool DXDrawManager::DrawCircle(float x, float y, float w, float h, Color & color) {
+	bool DXDrawManager::DrawCircle(float x, float y, float w, float h, const Color & color) {
 		if (w < 0.0f || h < 0.0f) {
 			return false;
 		}

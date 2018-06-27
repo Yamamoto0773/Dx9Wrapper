@@ -33,7 +33,7 @@ namespace dx9 {
 		public:
 
 			// ARGB‚Ì‡
-			void SetFontColor(Color &color);
+			void SetFontColor(const Color &color);
 
 
 			// šŠÔ‚Ìw’è pixel’PˆÊ‚Åw’è

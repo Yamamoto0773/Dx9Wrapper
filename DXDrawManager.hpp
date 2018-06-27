@@ -68,30 +68,30 @@ namespace dx9 {
 		// 図形の描画
 
 		// 直線描画
-		bool DrawLine(PointF &begin, PointF &end, Color & color, float lineWidth=1.0f);
-		bool DrawLine(float begin_x, float begin_y, float end_x, float end_y, Color & color, float lineWidth=1.0f);
+		bool DrawLine(PointF begin, PointF end, const Color & color, float lineWidth=1.0f);
+		bool DrawLine(float begin_x, float begin_y, float end_x, float end_y, const Color & color, float lineWidth=1.0f);
 
 		// 長方形の輪郭の描画
-		bool DrawRectFrame(RectF &rect, Color & color, float lineWidth=1.0f);
-		bool DrawRectFrame(PointF &topLeft, PointF &bottomRight, Color & color, float lineWidth=1.0f);
-		bool DrawRectFrame(float x, float y, float w, float h, Color & color, float lineWidth=1.0f);
+		bool DrawRectFrame(RectF rect, const Color & color, float lineWidth=1.0f);
+		bool DrawRectFrame(PointF topLeft, PointF bottomRight, const Color & color, float lineWidth=1.0f);
+		bool DrawRectFrame(float x, float y, float w, float h, const Color & color, float lineWidth=1.0f);
 
 		// 長方形の描画
-		bool DrawRect(RectF &rect, Color & color);
-		bool DrawRect(PointF &topLeft, PointF &bottomRight, Color & color);
-		bool DrawRect(float x, float y, float w, float h, Color & color);
+		bool DrawRect(RectF rect, const Color & color);
+		bool DrawRect(PointF topLeft, PointF bottomRight, const Color & color);
+		bool DrawRect(float x, float y, float w, float h, const Color & color);
 
 
 		// 円の輪郭の描画
-		bool DrawCircleFrame(float x, float y, float w, float h, Color & color, float lineWidth=1.0f);
+		bool DrawCircleFrame(float x, float y, float w, float h, const Color & color, float lineWidth=1.0f);
 		// 円の輪郭の描画
 		// reatAreaで指定した矩形領域内にピッタリ収まる円の輪郭を描画します
-		bool DrawCircleFrame(RectF &rectArea, Color & color, float lineWidth=1.0f); 
+		bool DrawCircleFrame(RectF rectArea, const Color & color, float lineWidth=1.0f); 
 
 		// 円の描画
-		bool DrawCircle(float x, float y, float w, float h, Color & color);
+		bool DrawCircle(float x, float y, float w, float h, const Color & color);
 		// reatAreaで指定した矩形領域内にピッタリ収まる円を描画します
-		bool DrawCircle(RectF &rectArea, Color & color);	
+		bool DrawCircle(RectF rectArea, const Color & color);	
 
 
 

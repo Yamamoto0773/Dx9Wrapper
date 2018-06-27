@@ -82,7 +82,7 @@ namespace dx9 {
 		void SetDrawTexCoord(DrawTexCoord coord) { drawTexCoord = coord; }
 		DrawTexCoord GetDrawTexCoord() { return drawTexCoord; }
 
-		void SetColorFilter(Color &color, BLENDMODE blendmode);
+		void SetColorFilter(const Color &color, BLENDMODE blendmode);
 		
 		std::pair<ColorRGB, BLENDMODE> GetColorFilterRGB();
 		std::pair<ColorHSB, BLENDMODE> GetColorFilterHSB();
@@ -93,7 +93,7 @@ namespace dx9 {
 		// 描画を行う関数
 
 		bool DrawTexture(
-			Texture &tex,
+			const Texture &tex,
 			float x,
 			float y,
 			float scale_x = 1.0f,
@@ -104,7 +104,7 @@ namespace dx9 {
 		);
 
 		bool DrawTexture(
-			Texture &tex,
+			const Texture &tex,
 			RectF posArea,
 			float alpha = 1.0f,
 			int rotDeg = 0,
@@ -112,7 +112,7 @@ namespace dx9 {
 		);
 
 		bool DrawTexture(
-			Texture &tex,
+			const Texture &tex,
 			RectF posArea,
 			ClipArea clipArea,
 			float alpha = 1.0f,
@@ -127,7 +127,7 @@ namespace dx9 {
 
 	private:
 		bool DrawTexture_main(
-			Texture &tex,
+			const Texture &tex,
 			float x,
 			float y,
 			float uv_left,

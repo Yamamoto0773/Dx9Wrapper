@@ -39,9 +39,9 @@ namespace dx9 {
 		~Texture();
 
 		// 有効なテクスチャか返す
-		bool operator!();
+		bool operator!() const;
 
-		Size getSize() { return clipInfo.size; };
+		Size getSize() const { return clipInfo.size; };
 	};
 
 }
