@@ -36,11 +36,11 @@ namespace dx9 {
 		set((argb>>16)&0xff, (argb>>8)&&0xff, (argb)&0xff, (argb>>24)&0xff);
 	}
 
-	DWORD ColorRGB::getHex() {
+	DWORD ColorRGB::getHex() const {
 		return (color.a<<24 | color.r<<16 | color.g<<8 | color.b);
 	}
 
-	ColorHSB ColorRGB::getColorHSB() {
+	ColorHSB ColorRGB::getColorHSB() const {
 		int h, s, b;
 
 		// get max and min value in RGB
@@ -80,11 +80,11 @@ namespace dx9 {
 		return ColorHSB(h, s, b, (int)(color.a*100/255.f));
 	}
 
-	rgba_t ColorRGB::get() {
+	rgba_t ColorRGB::get() const {
 		return color;
 	}
 
-	rgba_float_t ColorRGB::getFloat() {
+	rgba_float_t ColorRGB::getFloat() const {
 		rgba_float_t col = {
 			color.a/255.f,
 			color.g/255.f,
@@ -95,7 +95,7 @@ namespace dx9 {
 		return col;
 	}
 
-	color_array_t ColorRGB::getRGBAFloat() {
+	color_array_t ColorRGB::getRGBAFloat() const {
 		color_array_t col = {
 			color.r/255.f, color.g/255.f, color.b/255.f, color.a/255.f
 		};
@@ -148,16 +148,16 @@ namespace dx9 {
 	}
 
 
-	ColorRGB ColorHSB::getColorRGB() {
+	ColorRGB ColorHSB::getColorRGB() const {
 		auto ary = getRGBAFloat();
 		return ColorRGB(ary[0], ary[1], ary[2], ary[3]);
 	}
 
-	hsba_t ColorHSB::get() {
+	hsba_t ColorHSB::get() const {
 		return color;
 	}
 
-	hsba_float_t ColorHSB::getFloat() {
+	hsba_float_t ColorHSB::getFloat() const {
 		hsba_float_t col = {
 			color.h/360.f,
 			color.s/100.f,
@@ -168,12 +168,12 @@ namespace dx9 {
 		return col;
 	}
 
-	DWORD ColorHSB::getHex() {
+	DWORD ColorHSB::getHex() const {
 		auto col = getColorRGB();
 		return col.getHex();
 	}
 
-	color_array_t ColorHSB::getRGBAFloat() {
+	color_array_t ColorHSB::getRGBAFloat() const {
 		float max = (float)color.b*255/100;
 		float min = max - color.s*max/100;
 		float r, g, b;

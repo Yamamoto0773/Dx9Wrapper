@@ -58,10 +58,10 @@ namespace dx9 {
 	public:
 		// htmlカラーコードの先頭にアルファ値を追加した値を返します
 		// 0xAARRGGBB (各成分は8bit)
-		virtual DWORD getHex() = 0;
+		virtual DWORD getHex() const = 0;
 
 		// rgbaの各成分を0.0-1.0fで表した配列を返します
-		virtual color_array_t getRGBAFloat() = 0;
+		virtual color_array_t getRGBAFloat() const = 0;
 
 
 	};
@@ -92,15 +92,15 @@ namespace dx9 {
 
 		// htmlカラーコードの先頭にアルファ値を追加した値を返します
 		// 0xAARRGGBB (各成分は8bit)
-		DWORD getHex() override;
+		DWORD getHex() const override;
 
 
-		ColorHSB getColorHSB();
+		ColorHSB getColorHSB() const;
 
-		rgba_t get();
-		rgba_float_t getFloat();
+		rgba_t get() const;
+		rgba_float_t getFloat() const;
 
-		color_array_t getRGBAFloat() override;
+		color_array_t getRGBAFloat() const override;
 
 	};
 
@@ -127,13 +127,13 @@ namespace dx9 {
 		// 各成分を0.0-1.0で指定
 		void set(float h, float s, float b, float a = 1.0f);
 	
-		ColorRGB getColorRGB();
-		hsba_t get();
-		hsba_float_t getFloat();
+		ColorRGB getColorRGB() const;
+		hsba_t get() const; 
+		hsba_float_t getFloat() const;
 
-		DWORD getHex() override;
+		DWORD getHex() const override;
 
-		color_array_t getRGBAFloat() override;
+		color_array_t getRGBAFloat() const override;
 	};
 
 }
