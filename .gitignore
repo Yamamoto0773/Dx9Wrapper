@@ -239,4 +239,7 @@ CDIPro81.cpp
 CDIPro81.h
 DirectXMovie.h
 DirectXMovie.cpp
-
+GameController.cpp
+GameController.hpp
+HighPrecisionTimer.cpp
+HighPrecisionTimer.hpp
