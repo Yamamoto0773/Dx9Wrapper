@@ -19,7 +19,7 @@ namespace dx9 {
 
 
 		bool RenderingManager::SetRenderingTarget(IDirect3DDevice9 * device, const RenderingTarget & rt) {
-			if (!device) return nullptr;
+			if (!device) return false;
 
 			const auto *destRTcon = RenderingTargetFactory::GetInstance().GetContainer(rt);
 
@@ -48,7 +48,7 @@ namespace dx9 {
 		}
 
 		bool RenderingManager::SetRenderingTarget(IDirect3DDevice9 * device) {
-			if (!device) return nullptr;
+			if (!device) return false;
 			
 			if (!currentUsrRT.expired()) {
 
