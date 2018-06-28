@@ -217,7 +217,7 @@ ModelManifest.xml
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
-
+*.props
 
 
 DEFINE/
@@ -243,3 +243,5 @@ GameController.cpp
 GameController.hpp
 HighPrecisionTimer.cpp
 HighPrecisionTimer.hpp
+
+
