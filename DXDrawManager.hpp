@@ -31,6 +31,7 @@
 #include "Singleton.hpp"
 #include "NonCopyable.hpp"
 #include "Texture.hpp"
+#include "Window.hpp"
 
 
 namespace dx9 {
@@ -52,7 +53,7 @@ namespace dx9 {
 	public:
 
 		// DirectXインターフェース群の生成
-		bool Create(HWND hwnd, Size size, MultiSampleLv level=MultiSampleLv::_4SAMPLES, bool isRightHand=false);
+		bool Create(const WindowPimpl* const window, Size size, MultiSampleLv level=MultiSampleLv::_4SAMPLES, bool isRightHand=false);
 
 
 		// 描画開始
@@ -100,9 +101,9 @@ namespace dx9 {
 		// 描画の設定を行う関数
 
 		// 描画をクリアする時の色(背景色)の指定 (各色成分は0-255の範囲で指定)
-		void SetBackGroundColor(size_t r, size_t g, size_t b);
-		// 描画をクリアする時の色(背景色)の指定 (rgbを24bitで指定)
-		void SetBackGroundColor(unsigned long rgb);
+		void SetClearColor(size_t r, size_t g, size_t b, size_t a = 255);
+		// 描画をクリアする時の色(背景色)の指定 (argbの並びで32bit指定)
+		void SetClearColor(unsigned long rgb);
 
 		// ブレンドモードの設定
 		void SetBlendMode(BLENDMODE mode);
@@ -174,7 +175,7 @@ namespace dx9 {
 		virtual ~DXDrawManager();
 	
 		bool Create(
-			HWND hwnd,
+			const WindowPimpl * const window,
 			bool isfull,
 			size_t w,
 			size_t h,

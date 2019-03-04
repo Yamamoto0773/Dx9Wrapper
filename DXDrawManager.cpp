@@ -10,6 +10,9 @@
 
 #include <DxErr.h>
 
+#include "WindowPimpl.hpp"
+
+
 namespace dx9 {
 
 
@@ -24,19 +27,19 @@ namespace dx9 {
 	DXDrawManager::~DXDrawManager() {
 	}
 
-	bool DXDrawManager::Create(HWND hwnd, Size size, MultiSampleLv level, bool isRightHand) {
+	bool DXDrawManager::Create(const WindowPimpl* const window, Size size, MultiSampleLv level, bool isRightHand) {
 		if (!isResCreated) {
 			bool isFull = false;
 			
 			WINDOWINFO info;
 			info.cbSize = sizeof(info);
-			GetWindowInfo(hwnd, &info);
+			GetWindowInfo(window->hWnd, &info);
 			
 			if ((info.dwStyle&WS_POPUP) == WS_POPUP) {
 				isFull = true;
 			}
 		
-			if (!Create(hwnd, isFull, size.w, size.h, level, isRightHand)) {
+			if (!Create(window, isFull, size.w, size.h, level, isRightHand)) {
 				Clear();
 				Delete();
 				return false;
@@ -139,18 +142,19 @@ namespace dx9 {
 	
 
 
-	void DXDrawManager::SetBackGroundColor(size_t r, size_t g, size_t b) {
+	void DXDrawManager::SetClearColor(size_t r, size_t g, size_t b, size_t a) {
 		// 最大値を255までにする
 		r &= 0xff;
 		g &= 0xff;
 		b &= 0xff;
-		SetBackGroundColor((unsigned long)(r<<16|g<<8|b));
+		a &= 0xff;
+		SetClearColor((unsigned long)((a << 24) | (r<<16) | (g<<8) | b));
 	}
 
 
-	void DXDrawManager::SetBackGroundColor(unsigned long rgb) {
-		rgb &= 0xffffff;
-		backGroundColor = rgb;
+	void DXDrawManager::SetClearColor(unsigned long argb) {
+		argb &= 0xffffffff;
+		backGroundColor = argb;
 	}
 
 
@@ -529,7 +533,7 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::Create(HWND hwnd, bool isfull, size_t w, size_t h, MultiSampleLv level, bool isRightHand) {
+	bool DXDrawManager::Create(const WindowPimpl* const window, bool isfull, size_t w, size_t h, MultiSampleLv level, bool isRightHand) {
 		Delete();
 		Clear();
 
@@ -675,7 +679,7 @@ namespace dx9 {
 
 
 			IDirect3DDevice9 *ptr;
-			ret = d3d9->CreateDevice(D3DADAPTER_DEFAULT, devtype, hwnd, behaviorFlags, &d3dpresent, &ptr);
+			ret = d3d9->CreateDevice(D3DADAPTER_DEFAULT, devtype, window->hWnd, behaviorFlags, &d3dpresent, &ptr);
 			if (SUCCEEDED(ret)) {
 				d3ddev9.Attach(ptr);
 
