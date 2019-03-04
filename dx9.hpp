@@ -9,6 +9,9 @@ namespace dx9 {
 
 	
 	struct RectF {
+		RectF(float left, float top, float right, float bottom) : 
+			left(left), top(top), right(right), bottom(bottom) {}
+
 		float left;
 		float top;
 		float right;

@@ -29,6 +29,16 @@ namespace dx9 {
 
 	public:
 		DirectXFont();
+		DirectXFont(
+			const std::wstring&	fontName,
+			size_t			fontSize,
+			FontWeight		fontWeight = FontWeight::NORMAL,
+			bool			isItalic = false,
+			bool			isUnderLine = false,
+			bool			isStrikeOut = false,
+			AntialiasLevel	level = AntialiasLevel::_15STEPS
+		);
+
 		~DirectXFont();
 
 

@@ -441,9 +441,11 @@ namespace dx9 {
 
 	DirectXFont::DirectXFont() {}
 
-	DirectXFont::~DirectXFont() {
-
+	DirectXFont::DirectXFont(const std::wstring & fontName, size_t fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
+		Create(fontName, fontSize, fontWeight, isItalic, isUnderLine, isStrikeOut, level);
 	}
+
+	DirectXFont::~DirectXFont() {}
 
 
 	bool DirectXFont::Delete(unsigned int code) {

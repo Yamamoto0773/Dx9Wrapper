@@ -26,6 +26,16 @@ namespace dx9 {
 
 	public:
 		DirectXFontAscii();
+		DirectXFontAscii(
+			const char*		fontName,
+			size_t			fontSize,
+			FontWeight		fontWeight = FontWeight::NORMAL,
+			bool			isItalic = false,
+			bool			isUnderLine = false,
+			bool			isStrikeOut = false,
+			AntialiasLevel	level = AntialiasLevel::_15STEPS
+		);
+
 		~DirectXFontAscii();
 
 		bool Create(
@@ -36,7 +46,7 @@ namespace dx9 {
 			bool			isUnderLine = false,
 			bool			isStrikeOut = false,
 			AntialiasLevel	level = AntialiasLevel::_15STEPS
-			);
+		);
 
 
 		//////////////////////////////////////////////

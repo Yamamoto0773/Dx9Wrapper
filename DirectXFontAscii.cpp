@@ -12,6 +12,10 @@ namespace dx9 {
 		fontColor = {0.0f, 0.0f, 0.0f, 1.0f};
 	}
 
+	DirectXFontAscii::DirectXFontAscii(const char * fontName, size_t fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
+		Create(fontName, fontSize, fontWeight, isItalic, isUnderLine, isStrikeOut, level);
+	}
+
 
 	DirectXFontAscii::~DirectXFontAscii() {
 	}
