@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <Windows.h>
+
 #include "template.hpp"
 #include "resource.h"
 #include "Color.hpp"
@@ -20,16 +20,21 @@ namespace dx9 {
 
 
 	struct PointF {
+		PointF(float x, float y) : x(x), y(y) {};
 		float x, y;
 	};
 	struct Point {
+		Point(int x, int y) : x(x), y(y) {};
 		int x, y;
 	};
 
 	struct Size {
+		Size(size_t w, size_t h) : w(w), h(h) {};
 		size_t w;
 		size_t h;
 	};
+
+	typedef PointF Vec2;
 
 	struct UVCoord {
 		float left;
