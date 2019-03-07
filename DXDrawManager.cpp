@@ -11,8 +11,8 @@
 #include <DxErr.h>
 #include <d3dx9.h>
 
-#include "WindowPimpl.hpp"
-#include "RTContainerPimpl.hpp"
+#include "noShared/WindowPimpl.hpp"
+#include "noShared/RTContainerPimpl.hpp"
 
 namespace dx9 {
 

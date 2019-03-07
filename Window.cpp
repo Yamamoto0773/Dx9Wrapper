@@ -1,5 +1,5 @@
 #include "Window.hpp"
-#include "WindowPimpl.hpp"
+#include "noShared/WindowPimpl.hpp"
 
 #include <Windows.h>
 #include <tchar.h>

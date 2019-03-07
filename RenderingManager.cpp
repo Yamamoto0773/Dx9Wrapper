@@ -1,7 +1,7 @@
 #include "RenderingManager.hpp"
 
 #include <d3dx9.h>
-#include "RTContainerPimpl.hpp"
+#include "noShared/RTContainerPimpl.hpp"
 
 namespace dx9 {
 

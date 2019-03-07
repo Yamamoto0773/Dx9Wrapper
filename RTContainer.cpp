@@ -1,6 +1,6 @@
 #include "RTContainer.hpp"
 
-#include "RTContainerPimpl.hpp"
+#include "noShared/RTContainerPimpl.hpp"
 
 namespace dx9 {
 	namespace renderer {
