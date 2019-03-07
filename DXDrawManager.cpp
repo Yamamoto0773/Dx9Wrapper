@@ -525,7 +525,7 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::Create(const WindowPimpl* const window, bool isfull, size_t w, size_t h, MultiSampleLv level, bool isRightHand) {
+	bool DXDrawManager::Create(const WindowPimpl* const window, bool isfull, size_t w, size_t h, MultiSampleLv level, bool _isRightHand) {
 		Delete();
 		Clear();
 
@@ -731,11 +731,11 @@ namespace dx9 {
 
 
 		// 頂点バッファ作成
-		this->isRightHand = isRightHand;
+		this->isRightHand = _isRightHand;
 
 		std::array<float, 20> vtx_rect;
 		std::array<std::array<float, 5>, resource::CIRCLE_VERTEXCNT+2> vtx_circle;
-		if (isRightHand) {
+		if (_isRightHand) {
 			vtx_rect = {
 				1.0f, 1.0f, 0.0f,   1.0f, 1.0f,  // 3
 				0.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // 2
@@ -839,7 +839,7 @@ namespace dx9 {
 
 		// デフォルトステートのセット
 		d3ddev9->SetRenderState(D3DRS_LIGHTING, FALSE);							// ライティング無効
-		if (isRightHand)
+		if (_isRightHand)
 			d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);				// 右回りを消去(右手系)
 		else
 			d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);				// 左回りを消去(左手系)
