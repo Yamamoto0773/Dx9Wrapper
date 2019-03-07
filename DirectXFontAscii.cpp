@@ -23,12 +23,12 @@ namespace dx9 {
 	}
 
 
-	bool DirectXFontAscii::Create(const char * fontName, size_t fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
+	bool DirectXFontAscii::Create(const char * fontName, size_t _fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
 		DeleteAll();
 
 		// フォントハンドルの生成
 		LOGFONTA	lf;
-		lf.lfHeight				= (LONG)fontSize;						// 文字の高さ
+		lf.lfHeight				= (LONG)_fontSize;						// 文字の高さ
 		lf.lfWidth				= 0;							// 文字幅
 		lf.lfEscapement			= 0;							// 文字方向とX軸との角度
 		lf.lfOrientation		= 0;							// 各文字とX軸との角度
@@ -49,7 +49,7 @@ namespace dx9 {
 		}
 
 
-		this->fontSize = fontSize;
+		this->fontSize = _fontSize;
 		antialiasLv = level;
 
 
@@ -123,17 +123,17 @@ namespace dx9 {
 	}
 
 
-	bool DirectXFontAscii::DrawInRect(RectF & rect, size_t startCharCnt, int drawCharCnt, size_t fontSize, const char * s, ...) {
+	bool DirectXFontAscii::DrawInRect(RectF & rect, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const char * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
-		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, fontSize, s, vlist);
+		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, _fontSize, s, vlist);
 		va_end(vlist);
 
 		return result;
 	}
 
 
-	bool DirectXFontAscii::DrawFont(RectF & rect, bool isAlign, size_t startCharCnt, int drawCharCnt, size_t fontSize, const char * s, va_list vlist) {
+	bool DirectXFontAscii::DrawFont(RectF & rect, bool isAlign, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const char * s, va_list vlist) {
 		if (!isDrawable()) {
 			return false;
 		}
@@ -148,9 +148,9 @@ namespace dx9 {
 		using namespace std;
 
 		// 書式文字列をchar型の文字列に変換
-		int len = _vsnprintf_s(&workBuf[0], CHARACTER_MAXCNT+1, CHARACTER_MAXCNT, s, vlist);
+		int numofChars = _vsnprintf_s(&workBuf[0], CHARACTER_MAXCNT+1, CHARACTER_MAXCNT, s, vlist);
 
-		if (len == 0) {
+		if (numofChars == 0) {
 			return true;
 		}
 
@@ -173,13 +173,13 @@ namespace dx9 {
 			int lineCnt;
 			for (lineCnt = 0; true; lineCnt++) {
 
-				if (isAlign && (int)fontSize*(lineCnt+1) > height)
+				if (isAlign && (int)_fontSize*(lineCnt+1) > height)
 					break;
 
 
 				// calc length of string
 				int len;
-				int offset = GetStrLength(workBuf.data(), totalOffset, letterSpace, fontSize, (float)width, len);
+				int offset = GetStrLength(workBuf.data(), totalOffset, letterSpace, _fontSize, (float)width, len);
 				if (offset <= 0) {
 					break;
 				}
@@ -220,11 +220,11 @@ namespace dx9 {
 
 
 			if (isAlign && textAlign == TextAlign::CENTERXY)
-				strArea.top = rect.top + (height - lineCnt*(int)fontSize)/2.0f;
+				strArea.top = rect.top + (height - lineCnt*(int)_fontSize)/2.0f;
 			else
 				strArea.top = rect.top;
 
-			strArea.bottom = strArea.top + lineCnt*fontSize;
+			strArea.bottom = strArea.top + lineCnt*_fontSize;
 
 
 
@@ -234,7 +234,7 @@ namespace dx9 {
 
 			// calc length of string
 			int len;
-			int offset = GetStrLength(workBuf.data(), totalOffset, letterSpace, fontSize, -1.0f, len);
+			int offset = GetStrLength(workBuf.data(), totalOffset, letterSpace, _fontSize, -1.0f, len);
 			if (offset <= 0) {
 				return false;
 			}
@@ -242,7 +242,7 @@ namespace dx9 {
 			// calc scale of string adjust
 			float scale_x = 1.0f, scale_y = 1.0f;
 			scale_x = (rect.right - rect.left)/len;
-			scale_y = (float)height/fontSize;
+			scale_y = (float)height/_fontSize;
 
 
 			switch (strAdjust) {
@@ -305,8 +305,8 @@ namespace dx9 {
 			// set string area
 			strArea.left = x;
 			strArea.right = x+len;
-			strArea.top = rect.top + (height - (int)fontSize*adjustScale.y)/2.0f;
-			strArea.bottom = strArea.top + (int)fontSize*adjustScale.y;
+			strArea.top = rect.top + (height - (int)_fontSize*adjustScale.y)/2.0f;
+			strArea.bottom = strArea.top + (int)_fontSize*adjustScale.y;
 
 			totalOffset += offset;
 
@@ -383,7 +383,7 @@ namespace dx9 {
 		PointF finalPos = {0, 0};	// 最終的な描画位置
 		auto nowHead = headPos.cbegin();
 		auto ch = workBuf.cbegin();
-		float fontscale = (float)fontSize/this->fontSize;
+		float fontscale = (float)_fontSize/this->fontSize;
 
 		// シェーダ開始
 		UINT numPass = 0;
@@ -407,7 +407,7 @@ namespace dx9 {
 			}
 			if (nowHead != headPos.cend() && i == nowHead->second) {
 				pos.x = nowHead->first;
-				pos.y = strArea.top + fontSize*distance(headPos.cbegin(), nowHead);
+				pos.y = strArea.top + _fontSize*distance(headPos.cbegin(), nowHead);
 				nowHead++;
 			}
 
@@ -469,7 +469,7 @@ namespace dx9 {
 		return true;
 	}
 
-	int DirectXFontAscii::GetStrLength(const char* str, size_t offset, int letterSpace, size_t fontSize, float limit, int & length) {
+	int DirectXFontAscii::GetStrLength(const char* str, size_t offset, int _letterSpace, size_t _fontSize, float limit, int & length) {
 		size_t strLength = strlen(str);
 
 		if (offset >= strLength) {
@@ -482,7 +482,7 @@ namespace dx9 {
 		bool isLimitOn = (limit >= 0.0f);
 		int charCnt = 0;
 
-		float scale = (float)fontSize/this->fontSize;
+		float scale = (float)_fontSize/this->fontSize;
 
 		float totalLen = 0;
 		unsigned code;
@@ -505,7 +505,7 @@ namespace dx9 {
 			if (isLimitOn && totalLen + texRes[subscr]->_chInfo().sizeW*scale > limit)
 				break;
 
-			totalLen += texRes[subscr]->_chInfo().AreaW*scale + letterSpace;
+			totalLen += texRes[subscr]->_chInfo().AreaW*scale + _letterSpace;
 			charCnt++;
 
 		}

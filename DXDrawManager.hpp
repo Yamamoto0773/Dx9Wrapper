@@ -55,7 +55,7 @@ namespace dx9 {
 		bool DrawEnd();
 
 
-		bool ClearDrawingTarget();
+		bool ClearRenderingTarget();
 
 		// ---------------------------------------
 		// 図形の描画

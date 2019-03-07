@@ -28,7 +28,7 @@ namespace dx9 {
 	DXDrawManager::~DXDrawManager() {
 	}
 
-	bool DXDrawManager::Create(const WindowPimpl* const window, Size size, MultiSampleLv level, bool isRightHand) {
+	bool DXDrawManager::Create(const WindowPimpl* const window, Size size, MultiSampleLv level, bool _isRightHand) {
 		if (!isResCreated) {
 			bool isFull = false;
 			
@@ -40,7 +40,7 @@ namespace dx9 {
 				isFull = true;
 			}
 		
-			if (!Create(window, isFull, size.w, size.h, level, isRightHand)) {
+			if (!Create(window, isFull, size.w, size.h, level, _isRightHand)) {
 				Clear();
 				Delete();
 				return false;
@@ -123,7 +123,7 @@ namespace dx9 {
 		return true;
 	}
 
-	bool DXDrawManager::ClearDrawingTarget() {
+	bool DXDrawManager::ClearRenderingTarget() {
 		if (!isResCreated) return false;
 
 		if (isDrawStarted) {
@@ -242,6 +242,8 @@ namespace dx9 {
 			case dx9::MaskType::NotDrawableMask:
 				maskCol = stencil::MaskColor::Fill;
 				break;
+			default:
+				return ;
 		}
 
 		renderMng->setMaskingColor(d3ddev9, maskCol);
@@ -250,19 +252,8 @@ namespace dx9 {
 	MaskType DXDrawManager::GetMaskType() {
 		stencil::MaskColor color = renderMng->getRefMaskColor();
 
-		MaskType type;
-		switch (color) {
-			case stencil::MaskColor::Trans:
-				type = MaskType::DrawableMask;
-				break;
-			case stencil::MaskColor::Fill:
-				type = MaskType::NotDrawableMask;
-				break;
-			case stencil::MaskColor::None:
-				break;
-		}
-		
-		return type;
+		return (color == stencil::MaskColor::Trans) ?
+			MaskType::DrawableMask : MaskType::NotDrawableMask;
 	}
 
 
@@ -597,7 +588,7 @@ namespace dx9 {
 		4.ソフトウェア処理&SW頂点処理
 		*/
 		for (int i=0; i<4; i++) {
-			D3DDEVTYPE devtype;
+			D3DDEVTYPE devtype = D3DDEVTYPE_HAL;
 			DWORD behaviorFlags;
 
 			switch (i) {

@@ -46,8 +46,8 @@ namespace dx9 {
 		Line::~Line() {
 		}
 
-		void Line::SetPos(PointF begin, PointF end) {
-			this->begin = begin;
+		void Line::SetPos(PointF _begin, PointF end) {
+			this->begin = _begin;
 			vec = {end.x - begin.x, end.y - begin.y};
 
 			// 線の傾きを求める
@@ -58,8 +58,8 @@ namespace dx9 {
 
 		}
 
-		void Line::SetLineWidth(float lineWidth) {
-			this->lineWidth = lineWidth;
+		void Line::SetLineWidth(float _lineWidth) {
+			this->lineWidth = _lineWidth;
 		}
 
 
@@ -130,10 +130,10 @@ namespace dx9 {
 
 
 
-		void Rect::SetPos(float x, float y, float w, float h) {
+		void Rect::SetPos(float x, float y, float _w, float _h) {
 			this->topLeft = {x, y};
-			this->w = w;
-			this->h = h;
+			this->w = _w;
+			this->h = _h;
 		}
 
 
@@ -197,8 +197,8 @@ namespace dx9 {
 		}
 
 
-		void RectFrame::SetLineWidth(float lineWidth) {
-			this->lineWidth = lineWidth;
+		void RectFrame::SetLineWidth(float _lineWidth) {
+			this->lineWidth = _lineWidth;
 		}
 
 
@@ -264,10 +264,10 @@ namespace dx9 {
 		Circle::~Circle() {
 		}
 
-		void Circle::SetPos(PointF center, float w, float h) {
-			this->center = center;
-			this->w = w;
-			this->h = h;
+		void Circle::SetPos(PointF _center, float _w, float _h) {
+			this->center = _center;
+			this->w = _w;
+			this->h = _h;
 		}
 
 
@@ -330,8 +330,8 @@ namespace dx9 {
 		CircleFrame::~CircleFrame() {
 		}
 
-		void CircleFrame::setLineWidth(float lineWidth) {
-			this->lineWidth = lineWidth;
+		void CircleFrame::setLineWidth(float _lineWidth) {
+			this->lineWidth = _lineWidth;
 		}
 
 		bool CircleFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, size_t layerPos) {
@@ -439,7 +439,7 @@ namespace dx9 {
 			world = world * rot;
 			world._41 += w/2.0f + center.x;
 			world._42 += h/2.0f + center.y;
-			world._43 += 0/1000.0f;
+			world._43 += layerPos/1000.0f;
 
 			// ラスタライゼーションルールを用いて，テクスチャをずらす
 			world._41 = ceil(world._41) - 0.5f;

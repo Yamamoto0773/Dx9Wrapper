@@ -65,7 +65,7 @@ namespace dx9 {
 				);
 
 			if (FAILED(ret)) {
-				WRITELOG("failed to create texture from \"%s\"", fileName);
+				WRITELOG("failed to create texture from \"%ls\"", fileName.c_str());
 				return false;
 			}
 
@@ -80,12 +80,12 @@ namespace dx9 {
 		}
 
 
-		bool DXTextureBase::Create(IDirect3DDevice9 * dev, size_t width, size_t height) {
+		bool DXTextureBase::Create(IDirect3DDevice9 * dev, size_t _w, size_t _h) {
 			IDirect3DTexture9 *ptr;
 
 			if (FAILED(dev->CreateTexture(
-				(UINT)width,
-				(UINT)height,
+				(UINT)_w,
+				(UINT)_h,
 				1,
 				0,
 				D3DFMT_A8R8G8B8,
@@ -99,8 +99,8 @@ namespace dx9 {
 			}
 
 			attach(ptr);
-			this->width = width;
-			this->height = height;
+			this->width = _w;
+			this->height = _h;
 
 			return true;
 		}

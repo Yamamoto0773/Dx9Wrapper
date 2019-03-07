@@ -56,7 +56,7 @@ bool Window::create(void* hInstance, const dx9::Size& size, const wchar_t* title
 	} else {
 		pimpl->hWnd = CreateWindow(
 			title, title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0,
-			size.w, size.h, NULL, NULL, (HINSTANCE)hInstance, NULL
+			static_cast<int>(size.w), static_cast<int>(size.h), NULL, NULL, (HINSTANCE)hInstance, NULL
 		);
 	}
 

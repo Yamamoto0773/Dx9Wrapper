@@ -62,7 +62,7 @@ namespace dx9 {
 			else if (max == color.g) {
 				h = (int)(60*(color.b - color.r)/(float)(max - min) + 120);
 			}
-			else if (max == color.b) {
+			else {
 				h = (int)(60*(color.r - color.g)/(float)(max - min) + 240);
 			}
 

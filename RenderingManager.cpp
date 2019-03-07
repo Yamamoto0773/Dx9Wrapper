@@ -123,13 +123,13 @@ namespace dx9 {
 
 				if (FAILED(device->GetRenderTarget(0, &rawPtr)))
 					return false;
-				defaultRTcon->texSurface.Attach(rawPtr);
+				rt.texSurface.Attach(rawPtr);
 
 				if (FAILED(device->GetDepthStencilSurface(&rawPtr)))
 					return false;
-				defaultRTcon->depthStencilBuffer.Attach(rawPtr);
+				rt.depthStencilBuffer.Attach(rawPtr);
 
-				if (FAILED(device->GetViewport(&defaultRTcon->viewPort)))
+				if (FAILED(device->GetViewport(&rt.viewPort)))
 					return false;
 
 			}

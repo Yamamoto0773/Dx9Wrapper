@@ -79,7 +79,7 @@ namespace dx9 {
 
 
 			// テクスチャへ名前を格納
-			void SetName(const std::wstring& name) { this->name = name; }
+			void SetName(const std::wstring& _name) { this->name = _name; }
 			// テクスチャ名を取得
 			const std::wstring& GetName() const { return name; }
 

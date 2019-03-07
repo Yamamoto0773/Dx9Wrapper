@@ -29,9 +29,9 @@ namespace dx9 {
 		std::shared_ptr<texture::DXTextureBase> tex;
 		texture::TexClip clipInfo;
 
-		void set(std::shared_ptr<texture::DXTextureBase> tex, texture::TexClip &clipInfo) {
-			this->tex = tex;
-			this->clipInfo = clipInfo;
+		void set(std::shared_ptr<texture::DXTextureBase> _tex, texture::TexClip &_clipInfo) {
+			this->tex = _tex;
+			this->clipInfo = _clipInfo;
 		}
 
 	public:

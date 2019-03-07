@@ -18,14 +18,13 @@ namespace stencil {
 	enum class MaskColor : UINT {
 		Trans = 0x00,	//! 透明色
 		Fill  = 0x01,	//! 塗りつぶし
-		None  = 0xff  //! 無効カラー
 	};
 
 	// モード
 	enum class Mode : UINT {
 		Masking,	//! マスク書き込みモード中
 		Draw,		//! 描画モード中
-		Idle		//! be idle 
+		Idle		//! 待機中
 	};
 
 	
