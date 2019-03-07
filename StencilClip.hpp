@@ -7,9 +7,10 @@
 #ifndef IKD_DIX_STENCILCLIP_H
 #define IKD_DIX_STENCILCLIP_H
 
-#include <d3d9.h>
 #include <atlbase.h>
 #include <array>
+
+#include "dx9interface.h"
 
 namespace stencil {
 

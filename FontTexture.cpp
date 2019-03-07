@@ -9,6 +9,7 @@
 #include <strsafe.h>
 #include <locale.h>
 
+#include <d3dx9.h>
 
 namespace dx9 {
 
@@ -110,7 +111,7 @@ namespace dx9 {
 				return false;
 			}
 
-			d3dtex9.Attach(ptr);
+			attach(ptr);
 			width = charInfo.sizeW;
 			height = charInfo.sizeH;
 
@@ -243,7 +244,7 @@ namespace dx9 {
 				return false;
 			}
 
-			d3dtex9.Attach(ptr);
+			attach(ptr);
 			width = charInfo.sizeW;
 			height = charInfo.sizeH;
 

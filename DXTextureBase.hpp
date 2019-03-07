@@ -11,15 +11,15 @@
 //////////////////////////////////////////////
 
 
-
-#include<d3dx9.h>
-
 #include<memory>
 #include<atlbase.h>
 #include<string>
+#include <functional>
 
 #include "LogManager.hpp"
 #include "dx9.hpp"
+
+#include "dx9interface.h"
 
 
 namespace dx9 {
@@ -28,7 +28,7 @@ namespace dx9 {
 
 		class DXTextureBase {
 		protected:
-			CComPtr<IDirect3DTexture9> d3dtex9;
+			std::shared_ptr<IDirect3DTexture9> d3dtex9;
 
 			std::wstring name;
 
@@ -38,6 +38,13 @@ namespace dx9 {
 			size_t height;
 			bool isLocked;
 
+
+
+			bool Lock(D3DLOCKED_RECT *rect);
+			bool Unlock();
+		
+			
+			void attach(IDirect3DTexture9* p);
 
 		public:
 			DXTextureBase();
@@ -65,10 +72,6 @@ namespace dx9 {
 			// テクスチャの明示的削除
 			virtual void Delete();
 
-
-			bool Lock(D3DLOCKED_RECT *rect);
-			bool Unlock();
-
 			// テクスチャの幅を取得
 			size_t GetWidth() const { return width; }
 			// テクスチャの高さを取得
@@ -82,9 +85,9 @@ namespace dx9 {
 
 
 			// Direct3DTexture9ポインタを取得
-			IDirect3DTexture9* GetPointer() const { return d3dtex9.p; };
+			IDirect3DTexture9* GetPointer() const { return d3dtex9.get(); };
 
-			CComPtr<IDirect3DTexture9> GetComPtr() const { return d3dtex9; }
+			std::shared_ptr<IDirect3DTexture9> GetSharedPtr() const { return d3dtex9; }
 
 
 			static void SetLogWriteDest(LogManager* dest);

@@ -3,6 +3,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#include <d3dx9.h>
+
 
 namespace dx9 {
 

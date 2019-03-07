@@ -3,6 +3,8 @@
 
 #include "DirectXFont.hpp"
 
+#include <d3dx9.h>
+
 
 namespace dx9 {
 

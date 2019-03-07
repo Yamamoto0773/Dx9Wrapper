@@ -15,14 +15,6 @@
 ////////////////////////////////////////////////////
 
 
-
-#include<d3dx9.h>
-
-
-#include<memory>
-#include<atlbase.h>
-#include<vector>
-
 #include "dx9.hpp"
 #include "LogManager.hpp"
 #include "RenderingManager.hpp"

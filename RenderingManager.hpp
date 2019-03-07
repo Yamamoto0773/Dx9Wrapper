@@ -6,8 +6,6 @@
 
 
 
-
-#include <d3d9.h>
 #include <atlbase.h>
 #include <array>
 #include <memory>
@@ -49,21 +47,21 @@ namespace dx9 {
 			// Get a current RT. If it is default one, this function return nullptr.
 			const RenderingTarget GetCurrentRT() { return currentUsrRT.lock(); };
 
-			const RTContainer::Container *GetRTContainer(const RenderingTarget &rt) { return RenderingTargetFactory::GetInstance().GetContainer(rt); };
+			const RTContainer::ContainerPimpl *GetRTContainer(const RenderingTarget &rt) { return RenderingTargetFactory::GetInstance().GetContainer(rt); };
 
 		protected:
-			RenderingManager() {};
-			~RenderingManager() {};
+			RenderingManager();
+			~RenderingManager();
 
 		private:
 			
-			RTContainer::Container		defaultRTcon;
+			std::unique_ptr<RTContainer::ContainerPimpl>	defaultRTcon;
 
 			// maintain current Rendering Target created by user
 			std::weak_ptr<renderer::RenderingTarget_class> currentUsrRT;
 
 
-			bool GetDefaultRT(IDirect3DDevice9 *device, RTContainer::Container &rt);
+			bool GetDefaultRT(IDirect3DDevice9 *device, RTContainer::ContainerPimpl &rt);
 
 
 		};

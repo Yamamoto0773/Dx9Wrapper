@@ -12,6 +12,9 @@ namespace dx9 {
 		RectF(float left, float top, float right, float bottom) : 
 			left(left), top(top), right(right), bottom(bottom) {}
 
+		RectF() {};
+		~RectF() {};
+
 		float left;
 		float top;
 		float right;
@@ -20,15 +23,21 @@ namespace dx9 {
 
 
 	struct PointF {
+		PointF() {};
+		~PointF() {};
 		PointF(float x, float y) : x(x), y(y) {};
 		float x, y;
 	};
 	struct Point {
+		Point() {};
+		~Point() {};
 		Point(int x, int y) : x(x), y(y) {};
 		int x, y;
 	};
 
 	struct Size {
+		Size() {};
+		~Size() {};
 		Size(size_t w, size_t h) : w(w), h(h) {};
 		size_t w;
 		size_t h;

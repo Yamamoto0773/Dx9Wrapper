@@ -1,5 +1,7 @@
 #include "RenderingManager.hpp"
 
+#include <d3dx9.h>
+#include "RTContainerPimpl.hpp"
 
 namespace dx9 {
 
@@ -31,7 +33,7 @@ namespace dx9 {
 				if (currentUsrRT.expired()) {
 					// preserve data for default RT
 
-					if (!GetDefaultRT(device, defaultRTcon))
+					if (!GetDefaultRT(device, *defaultRTcon.get()))
 						return false;
 				}
 
@@ -53,17 +55,17 @@ namespace dx9 {
 			if (!currentUsrRT.expired()) {
 
 				// change Rendering Target
-				if (FAILED(device->SetRenderTarget(0, defaultRTcon.texSurface))) {
+				if (FAILED(device->SetRenderTarget(0, defaultRTcon->texSurface))) {
 					return false;
 				}
 					
-				device->SetDepthStencilSurface(defaultRTcon.depthStencilBuffer);
-				device->SetViewport(&defaultRTcon.viewPort);
+				device->SetDepthStencilSurface(defaultRTcon->depthStencilBuffer);
+				device->SetViewport(&defaultRTcon->viewPort);
 
 
-				defaultRTcon.texSurface.Release();
-				defaultRTcon.depthStencilBuffer.Release();
-				ZeroMemory(&defaultRTcon, sizeof(defaultRTcon));
+				defaultRTcon->texSurface.Release();
+				defaultRTcon->depthStencilBuffer.Release();
+				ZeroMemory(&defaultRTcon->viewPort, sizeof(defaultRTcon->viewPort));
 
 				currentUsrRT.reset();
 			}
@@ -105,9 +107,15 @@ namespace dx9 {
 			return &con->texture;
 		}
 
+		RenderingManager::RenderingManager() :
+			defaultRTcon(std::make_unique<RTContainer::ContainerPimpl>()) {
+		}
+
+		RenderingManager::~RenderingManager() {}
+
 	
 
-		bool RenderingManager::GetDefaultRT(IDirect3DDevice9 * device, RTContainer::Container &rt) {
+		bool RenderingManager::GetDefaultRT(IDirect3DDevice9 * device, RTContainer::ContainerPimpl &rt) {
 			if (!device) return false;
 
 			{
@@ -115,13 +123,13 @@ namespace dx9 {
 
 				if (FAILED(device->GetRenderTarget(0, &rawPtr)))
 					return false;
-				defaultRTcon.texSurface.Attach(rawPtr);
+				defaultRTcon->texSurface.Attach(rawPtr);
 
 				if (FAILED(device->GetDepthStencilSurface(&rawPtr)))
 					return false;
-				defaultRTcon.depthStencilBuffer.Attach(rawPtr);
+				defaultRTcon->depthStencilBuffer.Attach(rawPtr);
 
-				if (FAILED(device->GetViewport(&defaultRTcon.viewPort)))
+				if (FAILED(device->GetViewport(&defaultRTcon->viewPort)))
 					return false;
 
 			}

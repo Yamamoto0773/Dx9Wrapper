@@ -4,6 +4,8 @@
 
 #include "StencilClip.hpp"
 
+#include <d3dx9.h>
+
 namespace stencil {
 	StencilClip::StencilClip() :
 		mode			( Mode::Idle ),

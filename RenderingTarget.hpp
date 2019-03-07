@@ -4,8 +4,6 @@
 
 
 
-
-#include <d3d9.h>
 #include <atlbase.h>
 #include <array>
 #include <memory>
@@ -14,6 +12,7 @@
 #include "NonCopyable.hpp"
 
 #include "DXTextureBase.hpp"
+#include "RTContainer.hpp"
 
 namespace dx9 {
 
@@ -21,20 +20,7 @@ namespace dx9 {
 		class RenderingTarget_class;
 		class RenderingTargetFactory;
 
-
 		constexpr unsigned RTRESOURCE_MAXCNT = 10;
-
-	
-
-		struct RTContainer {
-			unsigned user;
-			D3DSURFACE_DESC surfaceDesc;
-			struct Container {
-				texture::DXTextureBase texture;
-				CComPtr<IDirect3DSurface9> texSurface, depthStencilBuffer;
-				D3DVIEWPORT9 viewPort;
-			}res;
-		};
 
 
 		// This class is used to reference Rendering Target maintained in its factory.
@@ -74,7 +60,7 @@ namespace dx9 {
 			bool Restore(IDirect3DDevice9 *device);
 
 			// Get RT-resources specified with [rt]. If [rt] is invalid, return nullptr.
-			const RTContainer::Container* GetContainer(const RenderingTarget_sptr &rt);
+			const RTContainer::ContainerPimpl* GetContainer(const RenderingTarget_sptr &rt);
 
 
 		protected:
@@ -93,7 +79,7 @@ namespace dx9 {
 				IDirect3DDevice9			*device,
 				size_t						w,
 				size_t						h,
-				RTContainer::Container		&container
+				RTContainer::ContainerPimpl	&container
 				);
 
 

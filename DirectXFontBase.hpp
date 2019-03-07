@@ -1,6 +1,5 @@
 #pragma once
 
-#include "dx9.hpp"
 #include "DX9ShareContainer.hpp"
 
 namespace dx9 {

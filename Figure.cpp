@@ -6,6 +6,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>  
 
+#include <d3dx9.h>
+
 
 namespace dx9 {
 
@@ -52,7 +54,7 @@ namespace dx9 {
 			rotRad = atan2(vec.x, vec.y);
 
 			// 線の長さを求める
-			length = D3DXVec2Length(&vec);
+			length = sqrt(vec.x*vec.x + vec.y*vec.y);
 
 		}
 

@@ -1,5 +1,7 @@
 ﻿#include "RenderingManager.hpp"
 
+#include <d3dx9.h>
+#include "RTContainerPimpl.hpp"
 
 namespace dx9 {
 
@@ -26,16 +28,16 @@ namespace dx9 {
 
 				auto deleter = [this](RenderingTarget_class *rt) {
 					if (rt->isValid) {
-						RTpool[rt->index].user--;
+						RTpool[rt->index].pimpl->user--;
 
-						if (RTpool[rt->index].user == 0) {
+						if (RTpool[rt->index].pimpl->user == 0) {
 
 							// Release resource
-							RTpool[rt->index].res.texSurface.Release();
-							RTpool[rt->index].res.depthStencilBuffer.Release();
-							RTpool[rt->index].res.texture.Delete();
-							ZeroMemory(&RTpool[rt->index].res.viewPort, sizeof(RTpool[rt->index].res.viewPort));
-							ZeroMemory(&RTpool[rt->index].surfaceDesc, sizeof(RTpool[rt->index].surfaceDesc));
+							RTpool[rt->index].pimplRes->texSurface.Release();
+							RTpool[rt->index].pimplRes->depthStencilBuffer.Release();
+							RTpool[rt->index].pimplRes->texture.Delete();
+							ZeroMemory(&RTpool[rt->index].pimplRes->viewPort, sizeof(RTpool[rt->index].pimplRes->viewPort));
+							ZeroMemory(&RTpool[rt->index].pimpl->surfaceDesc, sizeof(RTpool[rt->index].pimpl->surfaceDesc));
 						}
 					}
 
@@ -46,13 +48,13 @@ namespace dx9 {
 
 
 				// create RT-resources
-				if (!CreateRTContainer(device, w, h, RTpool[pos].res)) {
+				if (!CreateRTContainer(device, w, h, *RTpool[pos].pimplRes.get())) {
 					return nullptr;
 				}
 
 
-				RTpool[pos].user = 1;	// increment number of users
-				RTpool[pos].res.texSurface->GetDesc(&RTpool[pos].surfaceDesc);
+				RTpool[pos].pimpl->user = 1;	// increment number of users
+				RTpool[pos].pimplRes->texSurface->GetDesc(&RTpool[pos].pimpl->surfaceDesc);
 
 				rt->index = pos;		// set index for the RT-resource
 				rt->isValid = true;
@@ -68,13 +70,13 @@ namespace dx9 {
 		void RenderingTargetFactory::ReleaseAll() {
 
 			for (auto &it : RTpool) {
-				if (it.user > 0) {
+				if (it.pimpl->user > 0) {
 
 					// Release All RT-resources
-					it.res.texSurface.Release();
-					it.res.depthStencilBuffer.Release();
-					it.res.texture.Delete();
-					ZeroMemory(&it.res.viewPort, sizeof(it.res.viewPort));
+					it.pimplRes->texSurface.Release();
+					it.pimplRes->depthStencilBuffer.Release();
+					it.pimplRes->texture.Delete();
+					ZeroMemory(&it.pimplRes->viewPort, sizeof(it.pimplRes->viewPort));
 
 					//logmng->tlnwrite("Release RT");
 				}
@@ -87,8 +89,8 @@ namespace dx9 {
 
 			for (auto &it : RTpool) {
 				// Create All RT-resources
-				if (it.user > 0) {
-					if (!CreateRTContainer(device, it.surfaceDesc.Width, it.surfaceDesc.Height, it.res))
+				if (it.pimpl->user > 0) {
+					if (!CreateRTContainer(device, it.pimpl->surfaceDesc.Width, it.pimpl->surfaceDesc.Height, *it.pimplRes.get()))
 						return false;
 				}
 			}
@@ -97,24 +99,24 @@ namespace dx9 {
 		}
 
 
-		const RTContainer::Container* RenderingTargetFactory::GetContainer(const RenderingTarget_sptr &rt) {
+		const RTContainer::ContainerPimpl* RenderingTargetFactory::GetContainer(const RenderingTarget_sptr &rt) {
 			if (!rt->isValid) return nullptr;
 
-			return &RTpool[rt->index].res;
+			return RTpool[rt->index].pimplRes.get();
 		}
 
 
 		int RenderingTargetFactory::searchEmptyRTPool() {
 
 			for (int i = 0; i < RTRESOURCE_MAXCNT; i++) {
-				if (RTpool[i].user == 0) return i;
+				if (RTpool[i].pimpl->user == 0) return i;
 			}
 
 			return -1;
 		}
 
 
-		bool RenderingTargetFactory::CreateRTContainer(IDirect3DDevice9 *device, size_t w, size_t h, RTContainer::Container &container) {
+		bool RenderingTargetFactory::CreateRTContainer(IDirect3DDevice9 *device, size_t w, size_t h, RTContainer::ContainerPimpl &container) {
 			if (!device) return false;
 			
 			HRESULT hr;

@@ -9,9 +9,10 @@
 #define WRITELOG(x, ...) { if (log != nullptr) { log->tlnwrite(x, __VA_ARGS__); } }
 
 #include <DxErr.h>
+#include <d3dx9.h>
 
 #include "WindowPimpl.hpp"
-
+#include "RTContainerPimpl.hpp"
 
 namespace dx9 {
 

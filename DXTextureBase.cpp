@@ -5,13 +5,24 @@
 
 #define WRITELOG(x, ...) { if (log != nullptr) { log->tlnwrite(x, __VA_ARGS__); } }
 
+#include <d3dx9.h>
+
 namespace dx9 {
 
 	namespace texture {
 
 		LogManager* DXTextureBase::log;
 
-		DXTextureBase::DXTextureBase() {
+		void deleter(IDirect3DTexture9* p) {
+			if (p) {
+				p->Release();
+				p = nullptr;
+			}
+		}
+
+		DXTextureBase::DXTextureBase() : 
+			d3dtex9(nullptr, deleter) // d3dtex9
+		{
 		}
 
 		DXTextureBase::~DXTextureBase() {
@@ -34,7 +45,6 @@ namespace dx9 {
 			}
 
 			D3DXIMAGE_INFO imgInfo;
-			ZeroMemory(&imgInfo, sizeof(D3DXIMAGE_INFO));
 			IDirect3DTexture9 *ptr;
 
 			HRESULT ret = D3DXCreateTextureFromFileExW(
@@ -60,7 +70,7 @@ namespace dx9 {
 			}
 
 			// オブジェクトをセット
-			d3dtex9.Attach(ptr);
+			attach(ptr);
 
 			width = imgInfo.Width;
 			height = imgInfo.Height;
@@ -88,7 +98,7 @@ namespace dx9 {
 				return false;
 			}
 
-			d3dtex9.Attach(ptr);
+			attach(ptr);
 			this->width = width;
 			this->height = height;
 
@@ -104,7 +114,7 @@ namespace dx9 {
 			width = desc.Width;
 			height = desc.Height;
 			
-			d3dtex9.Attach(tex);
+			attach(tex);
 			this->isLocked = false;
 
 			return true;
@@ -160,7 +170,7 @@ namespace dx9 {
 
 
 		void DXTextureBase::Delete() {
-			d3dtex9.Release();
+			d3dtex9.reset();
 			name.clear();
 
 			width = 0;
@@ -170,6 +180,9 @@ namespace dx9 {
 		}
 
 
+		void DXTextureBase::attach(IDirect3DTexture9 * p) {
+			d3dtex9.reset(p, deleter);
+		}
 
 	}
 

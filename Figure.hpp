@@ -40,7 +40,7 @@ namespace dx9 {
 
 		protected:
 			PointF begin;
-			D3DXVECTOR2 vec;
+			Vec2 vec;
 
 			float length;
 

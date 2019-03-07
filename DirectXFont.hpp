@@ -5,7 +5,6 @@
 #include "DirectXFontBase.hpp"
 #include <array>
 
-
 namespace dx9 {
 
 	// 文字列描画クラス

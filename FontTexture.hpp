@@ -1,9 +1,5 @@
 ﻿#pragma once
 
-#pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "d3d9.lib")
-#pragma comment(lib, "d3dx9.lib")
-
 
 //////////////////////////////////
 // DirectX9.0を用いて文字を描画するクラスです．
@@ -12,11 +8,6 @@
 
 
 
-#include <windows.h>
-#include <tchar.h>
-#include <d3dx9.h>
-#include <d3d9.h>
-#include <stdio.h>
 #include <string>
 #include <vector>
 
@@ -50,7 +41,7 @@ namespace dx9 {
 
 		public:
 			FontTextureW();
-			~FontTextureW();
+			virtual ~FontTextureW();
 
 
 			// 指定したフォントの1文字分のテクスチャを作成
@@ -67,7 +58,7 @@ namespace dx9 {
 			const wchar_t& _ch() { return ch; };
 
 			void Delete() {
-				d3dtex9.Release();
+				d3dtex9.reset();
 				name.clear();
 
 				width = 0;
@@ -107,7 +98,7 @@ namespace dx9 {
 			const char& _ch() { return ch; };
 
 			void Delete() {
-				d3dtex9.Release();
+				d3dtex9.reset();
 				name.clear();
 
 				width = 0;

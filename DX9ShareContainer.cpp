@@ -1,5 +1,7 @@
 ﻿#include "DX9ShareContainer.hpp"
 
+#include <d3dx9.h>
+
 namespace dx9 {
 
 	namespace resource {

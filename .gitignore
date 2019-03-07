@@ -245,3 +245,6 @@ HighPrecisionTimer.cpp
 HighPrecisionTimer.hpp
 
 
+/Macintosh HD.lnk
+/tmp
+*.DS_Store

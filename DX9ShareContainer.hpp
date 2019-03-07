@@ -1,18 +1,17 @@
 ﻿#pragma once
 
-#include <d3dx9.h>
 #include <atlbase.h>
 
 #include "LogManager.hpp"
 #include "dx9.hpp"
-
+#include "dx9interface.h"
 
 
 namespace dx9 {
 
 	namespace resource {
 
-		constexpr unsigned CIRCLE_VERTEXCNT = 128; // the number of vertex for circle vertex buffer
+		constexpr unsigned CIRCLE_VERTEXCNT = 128; // the number of vertexes for circle vertex buffer
 
 		class DX9ShareContainer {
 		protected:
