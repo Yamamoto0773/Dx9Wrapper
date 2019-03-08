@@ -70,7 +70,7 @@ namespace dx9 {
 
 		// 指定領域内へ文字描画
 		bool DrawInRect(
-			RectF &rect,	
+			const RectF &rect,	
 			const wchar_t* s, ...
 			);
 
@@ -87,7 +87,7 @@ namespace dx9 {
 		// 文字送りx指定領域内描画
 		// note:最後の文字まで描画する時は，drawChCntに負数を指定
 		bool DrawInRect(
-			RectF &rect,		
+			const RectF &rect,		
 			size_t startCharCnt,
 			int drawCharCnt,
 			const wchar_t* s, ...
@@ -96,7 +96,7 @@ namespace dx9 {
 
 		// カスタム描画
 		bool DrawInRect(
-			RectF &rect,
+			const RectF &rect,
 			size_t startCharCnt,
 			int drawCharCnt,
 			size_t fontSize,
@@ -117,7 +117,7 @@ namespace dx9 {
 
 		// 描画を管理する関数
 		bool DrawFont(
-			RectF &rect,
+			const RectF &rect,
 			bool isAlign,
 			size_t startCharCnt,
 			int drawCharCnt,

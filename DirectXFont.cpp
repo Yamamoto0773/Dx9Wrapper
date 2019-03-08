@@ -71,7 +71,7 @@ namespace dx9 {
 	}
 
 
-	bool DirectXFont::DrawInRect(RectF& rect, const wchar_t * s, ...) {
+	bool DirectXFont::DrawInRect(const RectF& rect, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, 0, -1, fontSize, s, vlist);
@@ -91,7 +91,7 @@ namespace dx9 {
 		return result;
 	}
 
-	bool DirectXFont::DrawInRect(RectF & rect, size_t startCharCnt, int drawCharCnt, const wchar_t * s, ...) {
+	bool DirectXFont::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, fontSize, s, vlist);
@@ -100,7 +100,7 @@ namespace dx9 {
 		return result;
 	}
 
-	bool DirectXFont::DrawInRect(RectF & rect, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const wchar_t * s, ...) {
+	bool DirectXFont::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, _fontSize, s, vlist);
@@ -111,7 +111,7 @@ namespace dx9 {
 
 
 
-	bool DirectXFont::DrawFont(RectF & rect, bool isAlign, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const wchar_t * s, va_list vlist) {
+	bool DirectXFont::DrawFont(const RectF & rect, bool isAlign, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const wchar_t * s, va_list vlist) {
 		if (!isDrawable()) {
 			return false;
 		}

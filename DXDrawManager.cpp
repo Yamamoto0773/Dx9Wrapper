@@ -143,19 +143,8 @@ namespace dx9 {
 	
 
 
-	void DXDrawManager::SetClearColor(size_t r, size_t g, size_t b, size_t a) {
-		// 最大値を255までにする
-		r &= 0xff;
-		g &= 0xff;
-		b &= 0xff;
-		a &= 0xff;
-		SetClearColor((unsigned long)((a << 24) | (r<<16) | (g<<8) | b));
-	}
-
-
-	void DXDrawManager::SetClearColor(unsigned long argb) {
-		argb &= 0xffffffff;
-		backGroundColor = argb;
+	void DXDrawManager::SetClearColor(const Color& color) {
+		backGroundColor = color.getHex();
 	}
 
 
@@ -189,7 +178,7 @@ namespace dx9 {
 		return renderMng->drawBegin(d3ddev9);
 	}
 
-	bool DXDrawManager::SetRectMask(RectF maskArea) {
+	bool DXDrawManager::SetRectMask(const RectF& maskArea) {
 		if (!d3ddev9) return false;
 
 		renderMng->regionBegin(d3ddev9);
@@ -203,7 +192,7 @@ namespace dx9 {
 		return true;
 	}
 
-	bool DXDrawManager::SetCircleMask(RectF maskArea) {
+	bool DXDrawManager::SetCircleMask(const RectF& maskArea) {
 		if (!d3ddev9) return false;
 
 		renderMng->regionBegin(d3ddev9);
@@ -295,7 +284,7 @@ namespace dx9 {
 		return DrawLine(begin, end, color, lineWidth);
 	}
 
-	bool DXDrawManager::DrawLine(PointF begin, PointF end, const Color & color, float lineWidth) {
+	bool DXDrawManager::DrawLine(const PointF& begin, const PointF& end, const Color & color, float lineWidth) {
 		if (lineWidth < 0.0f) {
 			return false;
 		}
@@ -317,11 +306,11 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawRectFrame(PointF topLeft, PointF bottomRight, const Color & color, float lineWidth) {
+	bool DXDrawManager::DrawRectFrame(const PointF& topLeft, const PointF& bottomRight, const Color & color, float lineWidth) {
 		return DrawRectFrame(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y, color, lineWidth);
 	}
 
-	bool DXDrawManager::DrawRectFrame(RectF rect, const Color & color, float lineWidth) {
+	bool DXDrawManager::DrawRectFrame(const RectF& rect, const Color & color, float lineWidth) {
 		return DrawRectFrame(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, color, lineWidth);
 	}
 
@@ -349,11 +338,11 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawRect(RectF rect, const Color & color) {
+	bool DXDrawManager::DrawRect(const RectF& rect, const Color & color) {
 		return DrawRect(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, color);
 	}
 
-	bool DXDrawManager::DrawRect(PointF topLeft, PointF bottomRight, const Color & color) {
+	bool DXDrawManager::DrawRect(const PointF& topLeft, const PointF& bottomRight, const Color & color) {
 		return DrawRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, color);
 	}
 
@@ -376,7 +365,7 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawCircleFrame(RectF rectArea, const Color & color, float lineWidth) {
+	bool DXDrawManager::DrawCircleFrame(const RectF& rectArea, const Color & color, float lineWidth) {
 		return DrawCircleFrame(
 			(rectArea.left+rectArea.right)/2.0f,
 			(rectArea.top+rectArea.bottom)/2.0f,
@@ -486,7 +475,7 @@ namespace dx9 {
 	}
 
 
-	bool DXDrawManager::DrawCircle(RectF rectArea, const Color & color) {
+	bool DXDrawManager::DrawCircle(const RectF& rectArea, const Color & color) {
 		return DrawCircle(
 			(rectArea.left+rectArea.right)/2.0f,
 			(rectArea.top+rectArea.bottom)/2.0f,

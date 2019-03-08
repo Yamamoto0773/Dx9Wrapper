@@ -31,9 +31,6 @@ public:
 
 	const WindowPimpl * const getDetail() const;
 
-	void init();
-
-
 private:
 
 	std::unique_ptr<WindowPimpl> pimpl;

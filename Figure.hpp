@@ -52,7 +52,7 @@ namespace dx9 {
 
 			void SetRot(int) = delete;
 
-			void SetPos(PointF begin, PointF end);
+			void SetPos(const PointF& begin, const PointF& end);
 			void SetLineWidth(float lineWidth);
 
 			bool Draw(
@@ -126,7 +126,7 @@ namespace dx9 {
 			Circle();
 			~Circle();
 
-			void SetPos(PointF center, float w, float h);
+			void SetPos(const PointF& center, float w, float h);
 			
 			bool Draw(
 				IDirect3DDevice9 * dev,

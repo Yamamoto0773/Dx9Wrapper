@@ -46,7 +46,7 @@ namespace dx9 {
 		Line::~Line() {
 		}
 
-		void Line::SetPos(PointF _begin, PointF end) {
+		void Line::SetPos(const PointF& _begin, const PointF& end) {
 			this->begin = _begin;
 			vec = {end.x - begin.x, end.y - begin.y};
 
@@ -264,7 +264,7 @@ namespace dx9 {
 		Circle::~Circle() {
 		}
 
-		void Circle::SetPos(PointF _center, float _w, float _h) {
+		void Circle::SetPos(const PointF& _center, float _w, float _h) {
 			this->center = _center;
 			this->w = _w;
 			this->h = _h;

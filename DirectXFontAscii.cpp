@@ -93,7 +93,7 @@ namespace dx9 {
 	}
 
 
-	bool DirectXFontAscii::DrawInRect(RectF& rect, const char * s, ...) {
+	bool DirectXFontAscii::DrawInRect(const RectF& rect, const char * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, 0, -1, fontSize, s, vlist);
@@ -113,7 +113,7 @@ namespace dx9 {
 		return result;
 	}
 
-	bool DirectXFontAscii::DrawInRect(RectF & rect, size_t startCharCnt, int drawCharCnt, const char * s, ...) {
+	bool DirectXFontAscii::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, const char * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, fontSize, s, vlist);
@@ -123,7 +123,7 @@ namespace dx9 {
 	}
 
 
-	bool DirectXFontAscii::DrawInRect(RectF & rect, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const char * s, ...) {
+	bool DirectXFontAscii::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const char * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, _fontSize, s, vlist);
@@ -133,7 +133,7 @@ namespace dx9 {
 	}
 
 
-	bool DirectXFontAscii::DrawFont(RectF & rect, bool isAlign, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const char * s, va_list vlist) {
+	bool DirectXFontAscii::DrawFont(const RectF & rect, bool isAlign, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const char * s, va_list vlist) {
 		if (!isDrawable()) {
 			return false;
 		}
@@ -327,7 +327,7 @@ namespace dx9 {
 
 
 		// 文字列回転の原点を設定 
-		PointF rotOriginPt;
+		PointF rotOriginPt = { 0.0f, 0.0f };
 		switch (fontRotOrigin) {
 			case FontRotOrigin::TOP_L:
 				rotOriginPt.x = strArea.left;

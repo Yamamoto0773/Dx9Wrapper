@@ -126,7 +126,7 @@ namespace dx9 {
 
 
 		// 描画位置の算出
-		PointF pos;
+		PointF pos(0.0f, 0.0f);
 		Size size = tex.getSize();
 		switch (drawTexCoord) {
 		case DrawTexCoord::TOP_L:
