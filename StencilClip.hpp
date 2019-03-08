@@ -10,7 +10,7 @@
 #include <atlbase.h>
 #include <array>
 
-#include "dx9interface.h"
+#include "dx9interface.hpp"
 
 namespace stencil {
 

@@ -4,7 +4,7 @@
 
 #include "LogManager.hpp"
 #include "dx9.hpp"
-#include "dx9interface.h"
+#include "dx9interface.hpp"
 
 
 namespace dx9 {

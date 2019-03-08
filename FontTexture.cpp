@@ -163,7 +163,7 @@ namespace dx9 {
 		}
 
 
-		bool FontTextureA::Create(IDirect3DDevice9* dev, HDC hdc, char ch, AntialiasLevel level, TEXTMETRICA *tm) {
+		bool FontTextureA::Create(IDirect3DDevice9* dev, HDC hdc, char _ch, AntialiasLevel level, TEXTMETRICA *tm) {
 			using namespace std;
 
 			Delete();
@@ -196,7 +196,7 @@ namespace dx9 {
 			DWORD size = 0;
 
 			// 文字コード取得
-			UINT code = (UINT)ch;
+			UINT code = (UINT)_ch;
 
 
 			///// 例外文字の処理 ////
@@ -227,7 +227,7 @@ namespace dx9 {
 			charInfo.originY		= gm.gmptGlyphOrigin.y - tm->tmAscent;		// 左上原点
 
 
-			this->ch = ch;
+			this->ch = _ch;
 
 
 			// 空テクスチャ作成
