@@ -781,9 +781,10 @@ namespace dx9 {
 			HRESULT hr;
 			LPWSTR srcRes = MAKEINTRESOURCE(RESID_EFFECT_FX);
 
-  			if (FAILED(hr = D3DXCreateEffectFromFile(
+  			if (FAILED(hr = D3DXCreateEffectFromResource(
 				d3ddev9,
-				L"shader/sprite2.fx",
+				0,
+				srcRes,
 				0,
 				0,
 				D3DXSHADER_SKIPVALIDATION,
