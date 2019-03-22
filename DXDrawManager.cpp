@@ -780,18 +780,18 @@ namespace dx9 {
 			ID3DXEffect *ptr = nullptr;
 			HRESULT hr;
 			LPWSTR srcRes = MAKEINTRESOURCE(RESID_EFFECT_FX);
-  			if (FAILED(hr = D3DXCreateEffectFromResource(
+
+  			if (FAILED(hr = D3DXCreateEffectFromFile(
 				d3ddev9,
-				NULL,
-				srcRes,
+				L"shader/sprite2.fx",
 				0,
 				0,
-				0,
+				D3DXSHADER_SKIPVALIDATION,
 				0,
 				&ptr,
 				&error
 				))) {
-				OutputDebugStringA((const char*)error->GetBufferPointer());
+				WRITELOG("failed to create effect");
 				return false;
 			}
 
