@@ -11,9 +11,9 @@
 //////////////////////////////////////////////
 
 
-#include<memory>
-#include<atlbase.h>
-#include<string>
+#include <memory>
+#include <atlbase.h>
+#include <string>
 #include <functional>
 
 #include "LogManager.hpp"
@@ -26,7 +26,7 @@ namespace dx9 {
 
 	namespace texture {
 
-		class DXTextureBase {
+		class TextureBase {
 		protected:
 			std::shared_ptr<IDirect3DTexture9> d3dtex9;
 
@@ -47,14 +47,14 @@ namespace dx9 {
 			void attach(IDirect3DTexture9* p);
 
 		public:
-			DXTextureBase();
-			virtual ~DXTextureBase();
+			TextureBase();
+			virtual ~TextureBase();
 
-			DXTextureBase(const DXTextureBase&);
-			DXTextureBase& operator=(const DXTextureBase&);
+			TextureBase(const TextureBase&);
+			TextureBase& operator=(const TextureBase&);
 			// ムーブはOK
-			DXTextureBase(DXTextureBase&&) = default;
-			DXTextureBase& operator=(DXTextureBase&&) = default;
+			TextureBase(TextureBase&&) = default;
+			TextureBase& operator=(TextureBase&&) = default;
 
 			// ファイルからテクスチャ作成
 			bool Create(IDirect3DDevice9* dev, const std::wstring& fileName);
@@ -63,7 +63,7 @@ namespace dx9 {
 			// Create texture from IDirect3DTexture9. ownership of [tex] move.
 			bool Create(IDirect3DTexture9 *tex);
 
-			void CopyFrom(const DXTextureBase &src);
+			void CopyFrom(const TextureBase &src);
 
 
 			bool operator!(); 

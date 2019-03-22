@@ -6,7 +6,7 @@ namespace dx9 {
 
 	namespace font {
 
-		class DirectXFontBase : public resource::DX9ShareContainer {
+		class FontBase : public resource::DX9ShareContainer {
 
 		protected:
 			HFONT					hFont;			// 設定中のフォントのハンドル
@@ -24,8 +24,8 @@ namespace dx9 {
 			TextAlign textAlign;
 			TextureAdjust strAdjust;
 
-			DirectXFontBase();
-			~DirectXFontBase();
+			FontBase();
+			~FontBase();
 
 			void Clear();
 			

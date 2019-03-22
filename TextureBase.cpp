@@ -1,4 +1,4 @@
-﻿#include "DXTextureBase.hpp"
+﻿#include "TextureBase.hpp"
 
 #define Successful (1)
 #define Failed (0)
@@ -11,7 +11,7 @@ namespace dx9 {
 
 	namespace texture {
 
-		LogManager* DXTextureBase::log;
+		LogManager* TextureBase::log;
 
 		void deleter(IDirect3DTexture9* p) {
 			if (p) {
@@ -20,26 +20,26 @@ namespace dx9 {
 			}
 		}
 
-		DXTextureBase::DXTextureBase() : 
+		TextureBase::TextureBase() : 
 			d3dtex9(nullptr, deleter) // d3dtex9
 		{
 		}
 
-		DXTextureBase::~DXTextureBase() {
+		TextureBase::~TextureBase() {
 		}
 
-		DXTextureBase::DXTextureBase(const DXTextureBase &t) {
+		TextureBase::TextureBase(const TextureBase &t) {
 			CopyFrom(t);
 		}
 
-		DXTextureBase & DXTextureBase::operator=(const DXTextureBase &t) {
+		TextureBase & TextureBase::operator=(const TextureBase &t) {
 			CopyFrom(t);
 			return *this;
 		}
 
 
 
-		bool DXTextureBase::Create(IDirect3DDevice9* dev, const std::wstring& fileName) {
+		bool TextureBase::Create(IDirect3DDevice9* dev, const std::wstring& fileName) {
 			if (dev == nullptr) {
 				return false;
 			}
@@ -80,7 +80,7 @@ namespace dx9 {
 		}
 
 
-		bool DXTextureBase::Create(IDirect3DDevice9 * dev, size_t _w, size_t _h) {
+		bool TextureBase::Create(IDirect3DDevice9 * dev, size_t _w, size_t _h) {
 			IDirect3DTexture9 *ptr;
 
 			if (FAILED(dev->CreateTexture(
@@ -105,7 +105,7 @@ namespace dx9 {
 			return true;
 		}
 
-		bool DXTextureBase::Create(IDirect3DTexture9 * tex) {
+		bool TextureBase::Create(IDirect3DTexture9 * tex) {
 			if (!tex) return false;
 
 			D3DSURFACE_DESC desc;
@@ -121,7 +121,7 @@ namespace dx9 {
 		}
 
 
-		void DXTextureBase::CopyFrom(const DXTextureBase &src) {
+		void TextureBase::CopyFrom(const TextureBase &src) {
 			this->d3dtex9 =	src.d3dtex9;
 			this->name = src.name;	
 			this->width = src.width;
@@ -129,12 +129,12 @@ namespace dx9 {
 			this->isLocked = src.isLocked;
 		}
 
-		bool DXTextureBase::operator!() {
+		bool TextureBase::operator!() {
 			return !d3dtex9;
 		}
 
 
-		void DXTextureBase::SetLogWriteDest(LogManager* dest) {
+		void TextureBase::SetLogWriteDest(LogManager* dest) {
 			if (dest == nullptr) {
 				return;
 			}
@@ -143,7 +143,7 @@ namespace dx9 {
 		}
 
 
-		bool DXTextureBase::Lock(D3DLOCKED_RECT *rect) {
+		bool TextureBase::Lock(D3DLOCKED_RECT *rect) {
 			if (isLocked) {
 				return true;
 			}
@@ -156,7 +156,7 @@ namespace dx9 {
 			return true;
 		}
 
-		bool DXTextureBase::Unlock() {
+		bool TextureBase::Unlock() {
 			if (!isLocked) {
 				return true;
 			}
@@ -169,7 +169,7 @@ namespace dx9 {
 		}
 
 
-		void DXTextureBase::Delete() {
+		void TextureBase::Delete() {
 			d3dtex9.reset();
 			name.clear();
 
@@ -180,7 +180,7 @@ namespace dx9 {
 		}
 
 
-		void DXTextureBase::attach(IDirect3DTexture9 * p) {
+		void TextureBase::attach(IDirect3DTexture9 * p) {
 			d3dtex9.reset(p, deleter);
 		}
 

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "DXTextureBase.hpp"
+#include "TextureBase.hpp"
 #include "DX9ShareContainer.hpp"
 #include "Texture.hpp"
 #include "Singleton.hpp"
@@ -15,18 +15,18 @@
 namespace dx9 {
 
 
-	using tex_vector = std::vector<std::shared_ptr<texture::DXTextureBase>>;
+	using tex_vector = std::vector<std::shared_ptr<texture::TextureBase>>;
 
-	class DXTextureManager :
+	class TextureManager :
 		private resource::DX9ShareContainer,
-		public Singleton<DXTextureManager> {
+		public Singleton<TextureManager> {
 
-		friend class Singleton<DXTextureManager>;
+		friend class Singleton<TextureManager>;
 
 
 	private:
-		DXTextureManager();
-		~DXTextureManager();
+		TextureManager();
+		~TextureManager();
 
 
 		// 画像ファイル用のテクスチャプール
@@ -69,7 +69,7 @@ namespace dx9 {
 		// ownership of [texbase] is moved
 		bool CreateFromD3DTex9(
 			Texture &tex,
-			const texture::DXTextureBase &texbase
+			const texture::TextureBase &texbase
 		);
 
 

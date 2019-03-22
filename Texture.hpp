@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "DXTextureBase.hpp"
+#include "TextureBase.hpp"
 
 
 // テクスチャを通常の変数のように扱えるクラスです．
@@ -10,7 +10,7 @@
 
 namespace dx9 {
 
-	class DXTextureManager;
+	class TextureManager;
 
 	namespace texture {
 		
@@ -23,13 +23,13 @@ namespace dx9 {
 	}
 
 	class Texture {
-		friend class DXTextureManager;
+		friend class TextureManager;
 
 	private:
-		std::shared_ptr<texture::DXTextureBase> tex;
+		std::shared_ptr<texture::TextureBase> tex;
 		texture::TexClip clipInfo;
 
-		void set(std::shared_ptr<texture::DXTextureBase> _tex, texture::TexClip &_clipInfo) {
+		void set(std::shared_ptr<texture::TextureBase> _tex, texture::TexClip &_clipInfo) {
 			this->tex = _tex;
 			this->clipInfo = _clipInfo;
 		}

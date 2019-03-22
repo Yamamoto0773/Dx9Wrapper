@@ -42,7 +42,7 @@ namespace dx9 {
 			bool OnResetDevice(IDirect3DDevice9 *device);
 
 			// Get a texture from [rt].
-			const texture::DXTextureBase* GetTexture(const RenderingTarget &rt);
+			const texture::TextureBase* GetTexture(const RenderingTarget &rt);
 
 			// Get a current RT. If it is default one, this function return nullptr.
 			const RenderingTarget GetCurrentRT() { return currentUsrRT.lock(); };

@@ -97,7 +97,7 @@ namespace dx9 {
 		}
 
 
-		const texture::DXTextureBase *RenderingManager::GetTexture(const RenderingTarget & rt) {
+		const texture::TextureBase *RenderingManager::GetTexture(const RenderingTarget & rt) {
 
 			const auto *con = RenderingTargetFactory::GetInstance().GetContainer(rt);
 

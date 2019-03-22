@@ -1,6 +1,6 @@
-﻿#include "DXDrawManager.hpp"
+﻿#include "Graphic.hpp"
 
-#include "DXTextureManager.hpp"
+#include "TextureManager.hpp"
 
 #define _USE_MATH_DEFINES
 #include <math.h>  
@@ -17,18 +17,18 @@
 namespace dx9 {
 
 
-	size_t DXDrawManager::topLayerPos = 0;
+	size_t Graphic::topLayerPos = 0;
 
 
-	DXDrawManager::DXDrawManager() : 
+	Graphic::Graphic() : 
 		renderMng(&renderer::RenderingManager::GetInstance())
 	{
 	}
 
-	DXDrawManager::~DXDrawManager() {
+	Graphic::~Graphic() {
 	}
 
-	bool DXDrawManager::Create(const WindowPimpl* const window, Size size, MultiSampleLv level, bool _isRightHand) {
+	bool Graphic::Create(const WindowPimpl* const window, Size size, MultiSampleLv level, bool _isRightHand) {
 		if (!isResCreated) {
 			bool isFull = false;
 			
@@ -53,16 +53,16 @@ namespace dx9 {
 
 
 
-	Texture DXDrawManager::GetTextureFromRT(const RenderingTarget & rt) {
-		const texture::DXTextureBase *texbase = renderMng->GetTexture(rt);
+	Texture Graphic::GetTextureFromRT(const RenderingTarget & rt) {
+		const texture::TextureBase *texbase = renderMng->GetTexture(rt);
 		Texture tex;
-		DXTextureManager::GetInstance().CreateFromD3DTex9(tex, *texbase);
+		TextureManager::GetInstance().CreateFromD3DTex9(tex, *texbase);
 		return std::move(tex);
 	}
 
 
 
-	bool DXDrawManager::DrawBegin(bool isClear) {
+	bool Graphic::DrawBegin(bool isClear) {
 		if (!d3ddev9) {
 			return false;
 		}
@@ -97,7 +97,7 @@ namespace dx9 {
 		return true;
 	}
 
-	bool DXDrawManager::DrawEnd() {
+	bool Graphic::DrawEnd() {
 		if (!isDrawStarted) {
 			return false;
 		}
@@ -123,7 +123,7 @@ namespace dx9 {
 		return true;
 	}
 
-	bool DXDrawManager::ClearRenderingTarget() {
+	bool Graphic::ClearRenderingTarget() {
 		if (!isResCreated) return false;
 
 		if (isDrawStarted) {
@@ -143,12 +143,12 @@ namespace dx9 {
 	
 
 
-	void DXDrawManager::SetClearColor(const Color& color) {
+	void Graphic::SetClearColor(const Color& color) {
 		backGroundColor = color.getHex();
 	}
 
 
-	void DXDrawManager::SetBlendMode(BLENDMODE mode) {
+	void Graphic::SetBlendMode(BLENDMODE mode) {
 		switch (mode) {
 			case BLENDMODE::NORMAL:
 				blendMode = mode;
@@ -162,23 +162,23 @@ namespace dx9 {
 
 	}
 
-	void DXDrawManager::SetTextureSamplerState(TextureFilter mode) {
+	void Graphic::SetTextureSamplerState(TextureFilter mode) {
 		texFilter = mode;
 	}
 
-	bool DXDrawManager::CreateMaskBegin() {
+	bool Graphic::CreateMaskBegin() {
 		return renderMng->regionBegin(d3ddev9);
 	}
 
-	bool DXDrawManager::CreateMaskEnd() {
+	bool Graphic::CreateMaskEnd() {
 		return renderMng->regionEnd(d3ddev9);
 	}
 
-	bool DXDrawManager::SetMask() {
+	bool Graphic::SetMask() {
 		return renderMng->drawBegin(d3ddev9);
 	}
 
-	bool DXDrawManager::SetRectMask(const RectF& maskArea) {
+	bool Graphic::SetRectMask(const RectF& maskArea) {
 		if (!d3ddev9) return false;
 
 		renderMng->regionBegin(d3ddev9);
@@ -192,7 +192,7 @@ namespace dx9 {
 		return true;
 	}
 
-	bool DXDrawManager::SetCircleMask(const RectF& maskArea) {
+	bool Graphic::SetCircleMask(const RectF& maskArea) {
 		if (!d3ddev9) return false;
 
 		renderMng->regionBegin(d3ddev9);
@@ -206,22 +206,22 @@ namespace dx9 {
 		return true;
 	}
 
-	bool DXDrawManager::SetCircleMask(float x, float y, float w, float h) {
+	bool Graphic::SetCircleMask(float x, float y, float w, float h) {
 		if (w < 0) return false;
 		if (h < 0) return false;
 
 		return SetCircleMask({x-w/2, y-h/2, x+w/2, y+h/2});
 	}
 
-	void DXDrawManager::ClearMask() {
+	void Graphic::ClearMask() {
 		renderMng->clear(d3ddev9);
 	}
 
-	bool DXDrawManager::RemoveMask() {
+	bool Graphic::RemoveMask() {
 		return renderMng->drawEnd(d3ddev9);
 	}
 
-	void DXDrawManager::SetMaskType(MaskType type) {
+	void Graphic::SetMaskType(MaskType type) {
 		stencil::MaskColor maskCol;
 
 		switch (type) {
@@ -238,7 +238,7 @@ namespace dx9 {
 		renderMng->setMaskingColor(d3ddev9, maskCol);
 	}
 
-	MaskType DXDrawManager::GetMaskType() {
+	MaskType Graphic::GetMaskType() {
 		stencil::MaskColor color = renderMng->getRefMaskColor();
 
 		return (color == stencil::MaskColor::Trans) ?
@@ -247,11 +247,11 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::CreateRenderingTarget(RenderingTarget & rt, size_t w, size_t h) {
+	bool Graphic::CreateRenderingTarget(RenderingTarget & rt, size_t w, size_t h) {
 		 return renderMng->CreateRenderingTarget(d3ddev9, rt, w, h); 
 	}
 
-	bool DXDrawManager::SetRenderingTarget(const RenderingTarget & rt) {
+	bool Graphic::SetRenderingTarget(const RenderingTarget & rt) {
 		bool r = renderMng->SetRenderingTarget(d3ddev9, rt);
 
 		const auto *con = renderMng->GetRTContainer(rt);
@@ -265,7 +265,7 @@ namespace dx9 {
 		return r;
 	}
 
-	bool DXDrawManager::ResetRenderingTarget() {
+	bool Graphic::ResetRenderingTarget() {
 		bool r = renderMng->SetRenderingTarget(d3ddev9);
 
 		D3DXMatrixIdentity(&projMat);
@@ -278,13 +278,13 @@ namespace dx9 {
 	}
 
 
-	bool DXDrawManager::DrawLine(float begin_x, float begin_y, float end_x, float end_y, const Color & color, float lineWidth) {
+	bool Graphic::DrawLine(float begin_x, float begin_y, float end_x, float end_y, const Color & color, float lineWidth) {
 		PointF begin = {begin_x, begin_y};
 		PointF end = {end_x, end_y};
 		return DrawLine(begin, end, color, lineWidth);
 	}
 
-	bool DXDrawManager::DrawLine(const PointF& begin, const PointF& end, const Color & color, float lineWidth) {
+	bool Graphic::DrawLine(const PointF& begin, const PointF& end, const Color & color, float lineWidth) {
 		if (lineWidth < 0.0f) {
 			return false;
 		}
@@ -306,15 +306,15 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawRectFrame(const PointF& topLeft, const PointF& bottomRight, const Color & color, float lineWidth) {
+	bool Graphic::DrawRectFrame(const PointF& topLeft, const PointF& bottomRight, const Color & color, float lineWidth) {
 		return DrawRectFrame(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y, color, lineWidth);
 	}
 
-	bool DXDrawManager::DrawRectFrame(const RectF& rect, const Color & color, float lineWidth) {
+	bool Graphic::DrawRectFrame(const RectF& rect, const Color & color, float lineWidth) {
 		return DrawRectFrame(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, color, lineWidth);
 	}
 
-	bool DXDrawManager::DrawRectFrame(float x, float y, float w, float h, const Color & color, float lineWidth) {
+	bool Graphic::DrawRectFrame(float x, float y, float w, float h, const Color & color, float lineWidth) {
 		if (lineWidth < 0.0f) {
 			return false;
 		}
@@ -338,15 +338,15 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawRect(const RectF& rect, const Color & color) {
+	bool Graphic::DrawRect(const RectF& rect, const Color & color) {
 		return DrawRect(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, color);
 	}
 
-	bool DXDrawManager::DrawRect(const PointF& topLeft, const PointF& bottomRight, const Color & color) {
+	bool Graphic::DrawRect(const PointF& topLeft, const PointF& bottomRight, const Color & color) {
 		return DrawRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, color);
 	}
 
-	bool DXDrawManager::DrawRect(float x, float y, float w, float h, const Color & color) {
+	bool Graphic::DrawRect(float x, float y, float w, float h, const Color & color) {
 		if (w < 0.0f || h < 0.0f) {
 			return false;
 		}
@@ -365,7 +365,7 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::DrawCircleFrame(const RectF& rectArea, const Color & color, float lineWidth) {
+	bool Graphic::DrawCircleFrame(const RectF& rectArea, const Color & color, float lineWidth) {
 		return DrawCircleFrame(
 			(rectArea.left+rectArea.right)/2.0f,
 			(rectArea.top+rectArea.bottom)/2.0f,
@@ -376,7 +376,7 @@ namespace dx9 {
 			);
 	}
 
-	bool DXDrawManager::DrawCircleFrame(float x, float y, float w, float h, const Color & color, float lineWidth) {
+	bool Graphic::DrawCircleFrame(float x, float y, float w, float h, const Color & color, float lineWidth) {
 		if (w < 0.0f || h < 0.0f) {
 			return false;
 		}
@@ -446,7 +446,7 @@ namespace dx9 {
 
 
 		//Texture tex = GetTextureFromRT(textureRT);
-		//auto &texMng = DXTextureManager::GetInstance();
+		//auto &texMng = TextureManager::GetInstance();
 		//auto texFilter = texMng.GetColorFilterRGB();
 
 		//RectF drawArea = {
@@ -475,7 +475,7 @@ namespace dx9 {
 	}
 
 
-	bool DXDrawManager::DrawCircle(const RectF& rectArea, const Color & color) {
+	bool Graphic::DrawCircle(const RectF& rectArea, const Color & color) {
 		return DrawCircle(
 			(rectArea.left+rectArea.right)/2.0f,
 			(rectArea.top+rectArea.bottom)/2.0f,
@@ -485,7 +485,7 @@ namespace dx9 {
 			);
 	}
 
-	bool DXDrawManager::DrawCircle(float x, float y, float w, float h, const Color & color) {
+	bool Graphic::DrawCircle(float x, float y, float w, float h, const Color & color) {
 		if (w < 0.0f || h < 0.0f) {
 			return false;
 		}
@@ -503,7 +503,7 @@ namespace dx9 {
 
 
 
-	void DXDrawManager::SetLogWriteDest(LogManager* dest) {
+	void Graphic::SetLogWriteDest(LogManager* dest) {
 		if (dest == nullptr) {
 			return;
 		}
@@ -514,7 +514,7 @@ namespace dx9 {
 
 
 
-	bool DXDrawManager::Create(const WindowPimpl* const window, bool isfull, size_t w, size_t h, MultiSampleLv level, bool _isRightHand) {
+	bool Graphic::Create(const WindowPimpl* const window, bool isfull, size_t w, size_t h, MultiSampleLv level, bool _isRightHand) {
 		Delete();
 		Clear();
 
@@ -849,7 +849,7 @@ namespace dx9 {
 		return true;
 	}
 
-	void DXDrawManager::Delete() {
+	void Graphic::Delete() {
 		verDecl.Release();
 		effect.Release();
 		vertex_rect.Release();
@@ -860,7 +860,7 @@ namespace dx9 {
 		isResCreated = false;
 	}
 
-	void DXDrawManager::Clear() {
+	void Graphic::Clear() {
 		isLost = false;
 		isDrawStarted = false;
 		isRightHand = false;
@@ -873,7 +873,7 @@ namespace dx9 {
 	}
 
 
-	bool DXDrawManager::DeviceLost() {
+	bool Graphic::DeviceLost() {
 
 		// Release all resources specified by D3DPOOL_DEFAULT
 		renderMng->OnLostDevice(d3ddev9);
@@ -883,7 +883,7 @@ namespace dx9 {
 		return true;
 	}
 
-	bool DXDrawManager::DeviceReset() {
+	bool Graphic::DeviceReset() {
 		if (!isResCreated) {
 			return false;
 		}

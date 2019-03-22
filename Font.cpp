@@ -1,6 +1,7 @@
-﻿#define _USE_MATH_DEFINES
-#include <math.h>  
-#include "DirectXFontAscii.hpp"
+﻿
+#include <string>
+
+#include "Font.hpp"
 
 #include <d3dx9.h>
 
@@ -9,42 +10,28 @@ namespace dx9 {
 
 
 
-	DirectXFontAscii::DirectXFontAscii() {
-		hFont = nullptr;
-		fontColor = {0.0f, 0.0f, 0.0f, 1.0f};
-	}
-
-	DirectXFontAscii::DirectXFontAscii(const char * fontName, size_t fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
-		Create(fontName, fontSize, fontWeight, isItalic, isUnderLine, isStrikeOut, level);
-	}
-
-
-	DirectXFontAscii::~DirectXFontAscii() {
-	}
-
-
-	bool DirectXFontAscii::Create(const char * fontName, size_t _fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
+	bool Font::Create(const std::wstring &fontName, size_t _fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
 		DeleteAll();
 
 		// フォントハンドルの生成
-		LOGFONTA	lf;
-		lf.lfHeight				= (LONG)_fontSize;						// 文字の高さ
-		lf.lfWidth				= 0;							// 文字幅
-		lf.lfEscapement			= 0;							// 文字方向とX軸との角度
-		lf.lfOrientation		= 0;							// 各文字とX軸との角度
-		lf.lfWeight				= (LONG)fontWeight;					// 太さ
-		lf.lfItalic				= isItalic;						// イタリック体
-		lf.lfUnderline			= isUnderLine;					// 下線
-		lf.lfStrikeOut			= isStrikeOut;					// 打ち消し線
-		lf.lfCharSet			= ANSI_CHARSET;					// キャラクタセット
-		lf.lfOutPrecision		= OUT_DEFAULT_PRECIS;			// 出力精度
-		lf.lfClipPrecision		= CLIP_DEFAULT_PRECIS;			// クリッピングの精度
-		lf.lfQuality			= PROOF_QUALITY;				// 出力品質
-		lf.lfPitchAndFamily		= DEFAULT_PITCH | FF_MODERN;	// ピッチとファミリ
-		strcpy_s(lf.lfFaceName, 32, fontName);
+		LOGFONTW	lf;
+		lf.lfHeight = (LONG)_fontSize;						// 文字の高さ
+		lf.lfWidth = 0;							// 文字幅
+		lf.lfEscapement = 0;							// 文字方向とX軸との角度
+		lf.lfOrientation = 0;							// 各文字とX軸との角度
+		lf.lfWeight = (LONG)fontWeight;					// 太さ
+		lf.lfItalic = isItalic;						// イタリック体
+		lf.lfUnderline = isUnderLine;					// 下線
+		lf.lfStrikeOut = isStrikeOut;					// 打ち消し線
+		lf.lfCharSet = DEFAULT_CHARSET;				// キャラクタセット
+		lf.lfOutPrecision = OUT_DEFAULT_PRECIS;			// 出力精度
+		lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;			// クリッピングの精度
+		lf.lfQuality = PROOF_QUALITY;				// 出力品質
+		lf.lfPitchAndFamily = DEFAULT_PITCH | FF_MODERN;	// ピッチとファミリ
+		wcscpy_s(lf.lfFaceName, fontName.c_str());
 
-		hFont = CreateFontIndirectA(&lf);
-		if (hFont == nullptr) {
+		hFont = CreateFontIndirectW(&lf);
+		if (hFont == NULL) {
 			return false;
 		}
 
@@ -53,26 +40,17 @@ namespace dx9 {
 		antialiasLv = level;
 
 
+
 		// デバイスにフォントを設定
 		HDC hdc = GetDC(NULL);
 		HFONT oldFont = (HFONT)SelectObject(hdc, hFont);
 
 		// フォント情報を取得
-		GetTextMetricsA(hdc, &tm);
+		GetTextMetricsW(hdc, &tm);
 
-		// ASCII文字のテクスチャを作成
-		texRes.resize('~'-' '+1);
-
-		for (size_t i=0; i<texRes.size(); i++) {
-			if (!texRes[i]) {
-				texRes[i] = std::make_unique<texture::FontTextureA>();
-				if (!texRes[i]->Create(d3ddev9, hdc, (char)(' ' + i), antialiasLv, &tm)) {
-					texRes[i].reset();
-					return false;
-				}
-			}
-		}
-
+		// 定義文字数分の要素を確保
+		const UINT defineCharCnt = static_cast<UINT>(tm.tmLastChar - tm.tmFirstChar);
+		texRes.resize(defineCharCnt);
 
 		// 元のフォントに戻す
 		SelectObject(hdc, oldFont);
@@ -81,8 +59,8 @@ namespace dx9 {
 		return true;
 	}
 
-	bool DirectXFontAscii::Draw(float x, float y, const char* s, ...) {
-		RectF rect = {x, y, 0.0f, 0.0f};
+	bool Font::Draw(float x, float y, const wchar_t* s, ...) {
+		RectF rect = { x, y, 0.0f, 0.0f };
 
 		va_list vlist;
 		va_start(vlist, s);
@@ -93,7 +71,7 @@ namespace dx9 {
 	}
 
 
-	bool DirectXFontAscii::DrawInRect(const RectF& rect, const char * s, ...) {
+	bool Font::DrawInRect(const RectF& rect, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, 0, -1, fontSize, s, vlist);
@@ -102,8 +80,8 @@ namespace dx9 {
 		return result;
 	}
 
-	bool DirectXFontAscii::Draw(float x, float y, size_t startCharCnt, int drawCharCnt, const char * s, ...) {
-		RectF rect = {x, y, 0.0f, 0.0f};
+	bool Font::Draw(float x, float y, size_t startCharCnt, int drawCharCnt, const wchar_t * s, ...) {
+		RectF rect = { x, y, 0.0f, 0.0f };
 
 		va_list vlist;
 		va_start(vlist, s);
@@ -113,7 +91,7 @@ namespace dx9 {
 		return result;
 	}
 
-	bool DirectXFontAscii::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, const char * s, ...) {
+	bool Font::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, fontSize, s, vlist);
@@ -122,8 +100,7 @@ namespace dx9 {
 		return result;
 	}
 
-
-	bool DirectXFontAscii::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const char * s, ...) {
+	bool Font::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, _fontSize, s, vlist);
@@ -133,13 +110,15 @@ namespace dx9 {
 	}
 
 
-	bool DirectXFontAscii::DrawFont(const RectF & rect, bool isAlign, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const char * s, va_list vlist) {
+
+	bool Font::DrawFont(const RectF & rect, bool isAlign, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const wchar_t * s, va_list vlist) {
 		if (!isDrawable()) {
 			return false;
 		}
 		if (!hFont) {
 			return false;
 		}
+
 		if (isAlign) {
 			if (rect.left > rect.right || rect.top > rect.bottom)
 				return false;
@@ -147,21 +126,25 @@ namespace dx9 {
 
 		using namespace std;
 
-		// 書式文字列をchar型の文字列に変換
-		int numofChars = _vsnprintf_s(&workBuf[0], CHARACTER_MAXCNT+1, CHARACTER_MAXCNT, s, vlist);
+
+		int numofChars = _vsnwprintf_s(workBuf.data(), CHARACTER_MAXCNT+1, CHARACTER_MAXCNT, s, vlist);
 
 		if (numofChars == 0) {
 			return true;
 		}
 
 
+	
+		StoreFontTex(workBuf.data());
+
+
 		// 描画位置の算出 
 		vector<pair<float, size_t>> headPos; // first:行頭のx座標 second:行頭文字が何番目か
-		RectF strArea = { rect.right, rect.bottom, rect.left, rect.top };
+		RectF strArea = { 0.0f, 0.0f, 0.0f, 0.0f };
 		size_t totalOffset = 0;
 		int width = (int)(rect.right - rect.left);
 		int height = (int)(rect.bottom - rect.top);
-		PointF adjustScale = {1.0f, 1.0f};
+		PointF adjustScale = { 1.0f, 1.0f };
 
 
 		if (strAdjust == TextureAdjust::NONE || !isAlign) {
@@ -175,7 +158,6 @@ namespace dx9 {
 
 				if (isAlign && (int)_fontSize*(lineCnt+1) > height)
 					break;
-
 
 				// calc length of string
 				int len;
@@ -215,9 +197,7 @@ namespace dx9 {
 
 
 				totalOffset += offset;
-
 			}
-
 
 			if (isAlign && textAlign == TextAlign::CENTERXY)
 				strArea.top = rect.top + (height - lineCnt*(int)_fontSize)/2.0f;
@@ -228,9 +208,7 @@ namespace dx9 {
 
 
 
-		}
-		else {
-
+		} else {
 
 			// calc length of string
 			int len;
@@ -264,7 +242,7 @@ namespace dx9 {
 
 			if (strAdjust == TextureAdjust::ASPECT_FIXED_REDUCEONLY ||
 				strAdjust == TextureAdjust::ASPECT_UNFIXED_REDUCEONLY) {
-
+				
 				if (adjustScale.x > 1.0f)
 					adjustScale.x = 1.0f;
 
@@ -308,11 +286,12 @@ namespace dx9 {
 			strArea.top = rect.top + (height - (int)_fontSize*adjustScale.y)/2.0f;
 			strArea.bottom = strArea.top + (int)_fontSize*adjustScale.y;
 
-			totalOffset += offset;
+			
 
+			totalOffset += offset;
 		}
 
-			
+
 		if (totalOffset == 0) return true;
 
 
@@ -320,35 +299,34 @@ namespace dx9 {
 		size_t endCharCnt = 0;
 		if (drawCharCnt < 0 || startCharCnt + drawCharCnt > totalOffset) {
 			endCharCnt = totalOffset;
-		}
-		else {
+		} else {
 			endCharCnt = startCharCnt + drawCharCnt;
 		}
 
 
 		// 文字列回転の原点を設定 
-		PointF rotOriginPt = { 0.0f, 0.0f };
+		PointF rotOriginPt;
 		switch (fontRotOrigin) {
-			case FontRotOrigin::TOP_L:
-				rotOriginPt.x = strArea.left;
-				rotOriginPt.y = strArea.top;
-				break;
-			case FontRotOrigin::TOP_R:
-				rotOriginPt.x = strArea.right;
-				rotOriginPt.y = strArea.top;
-				break;
-			case FontRotOrigin::BOTTOM_L:
-				rotOriginPt.x = strArea.left;
-				rotOriginPt.y = strArea.bottom;
-				break;
-			case FontRotOrigin::BOTTOM_R:
-				rotOriginPt.x = strArea.right;
-				rotOriginPt.y = strArea.bottom;
-				break;
-			case FontRotOrigin::CENTER:
-				rotOriginPt.x = (strArea.left + strArea.right)/2.0f;
-				rotOriginPt.y = (strArea.top + strArea.bottom)/2.0f;
-				break;
+		case FontRotOrigin::TOP_L:
+			rotOriginPt.x = strArea.left;
+			rotOriginPt.y = strArea.top;
+			break;
+		case FontRotOrigin::TOP_R:
+			rotOriginPt.x = strArea.right;
+			rotOriginPt.y = strArea.top;
+			break;
+		case FontRotOrigin::BOTTOM_L:
+			rotOriginPt.x = strArea.left;
+			rotOriginPt.y = strArea.bottom;
+			break;
+		case FontRotOrigin::BOTTOM_R:
+			rotOriginPt.x = strArea.right;
+			rotOriginPt.y = strArea.bottom;
+			break;
+		case FontRotOrigin::CENTER:
+			rotOriginPt.x = (strArea.left + strArea.right)/2.0f;
+			rotOriginPt.y = (strArea.top + strArea.bottom)/2.0f;
+			break;
 		}
 
 
@@ -362,28 +340,30 @@ namespace dx9 {
 		d3ddev9->SetSamplerState(0, D3DSAMP_MINFILTER, static_cast<DWORD>(texFilter));
 		d3ddev9->SetSamplerState(0, D3DSAMP_MAGFILTER, static_cast<DWORD>(texFilter));
 
+
 		// ブレンドモードを設定
 		switch (blendMode) {
-			case BLENDMODE::NORMAL:
-				d3ddev9->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-				d3ddev9->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-				break;
-			case BLENDMODE::ADD:
-				d3ddev9->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-				d3ddev9->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-				break;
+		case BLENDMODE::NORMAL:
+			d3ddev9->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			d3ddev9->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+			break;
+		case BLENDMODE::ADD:
+			d3ddev9->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			d3ddev9->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+			break;
 		}
+
 
 		// 板ポリゴンを登録
 		d3ddev9->SetStreamSource(0, vertex_rect, 0, sizeof(float)*5);
 
-
 		D3DXMATRIX world, rot;
-		PointF pos = {0, 0};
-		PointF finalPos = {0, 0};	// 最終的な描画位置
+		PointF pos = { 0, 0 };
+		PointF finalPos = { 0, 0 };
 		auto nowHead = headPos.cbegin();
 		auto ch = workBuf.cbegin();
 		float fontscale = (float)_fontSize/this->fontSize;
+
 
 		// シェーダ開始
 		UINT numPass = 0;
@@ -398,11 +378,11 @@ namespace dx9 {
 		effect->SetMatrix("proj", &projMat);
 		effect->SetFloatArray("color", fontColor.data(), 4);
 
-		for (size_t i=startCharCnt; i<endCharCnt; i++) {
-			UINT subscr = *ch - ' ';
+		for (size_t i = 0; i<endCharCnt; i++) {
+			UINT code = static_cast<UINT>(*ch);
 			ch++;
 
-			if (subscr<0 || subscr>=texRes.size() || !texRes[subscr]) {
+			if (!texRes[code]) {
 				continue;
 			}
 			if (nowHead != headPos.cend() && i == nowHead->second) {
@@ -414,19 +394,18 @@ namespace dx9 {
 			if (i < startCharCnt)
 				continue;
 
-			finalPos.x = pos.x + texRes[subscr]->_chInfo().originX*fontscale*adjustScale.x;
-			finalPos.y = pos.y - texRes[subscr]->_chInfo().originY*fontscale*adjustScale.y;
+			finalPos.x = pos.x + texRes[code]->_chInfo().originX*fontscale*adjustScale.x;
+			finalPos.y = pos.y - texRes[code]->_chInfo().originY*fontscale*adjustScale.y;
 
 			PointF origin = {
 				rotOriginPt.x - finalPos.x,
 				rotOriginPt.y - finalPos.y
 			};
 
-
 			D3DXMatrixScaling(
 				&world,
-				(float)texRes[subscr]->GetWidth()*fontscale*adjustScale.x, 
-				(float)texRes[subscr]->GetHeight()*fontscale*adjustScale.y, 
+				(float)texRes[code]->GetWidth()*fontscale*adjustScale.x, 
+				(float)texRes[code]->GetHeight()*fontscale*adjustScale.y, 
 				1.0f
 			);	// ポリゴンサイズに
 			D3DXMatrixRotationZ(&rot, charTravelAngle_rad);						// 回転
@@ -441,13 +420,13 @@ namespace dx9 {
 			world._41 = ceil(world._41) - 0.5f;
 			world._42 = floor(world._42) + 0.5f;
 
+
 			effect->SetMatrix("world", &world);
-			effect->SetTexture("tex", texRes[subscr]->GetPointer());
+			effect->SetTexture("tex", texRes[code]->GetPointer());
 			effect->CommitChanges();
 			d3ddev9->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
-
-			pos.x += texRes[subscr]->_chInfo().AreaW*fontscale*adjustScale.x + letterSpace;
+			pos.x += texRes[code]->_chInfo().AreaW*fontscale*adjustScale.x + letterSpace;
 		}
 
 		effect->EndPass();
@@ -457,7 +436,29 @@ namespace dx9 {
 	}
 
 
-	bool DirectXFontAscii::DeleteAll() {
+
+
+
+	Font::Font() {}
+
+	Font::Font(const std::wstring & fontName, size_t fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
+		Create(fontName, fontSize, fontWeight, isItalic, isUnderLine, isStrikeOut, level);
+	}
+
+	Font::~Font() {}
+
+
+	bool Font::Delete(unsigned int code) {
+		if (code < 0 || code >= texRes.size()) {
+			return false;
+		}
+
+		texRes[code].reset();
+
+		return true;
+	}
+
+	bool Font::DeleteAll() {
 		Clear();
 
 		if (hFont != nullptr) {
@@ -469,8 +470,10 @@ namespace dx9 {
 		return true;
 	}
 
-	int DirectXFontAscii::GetStrLength(const char* str, size_t offset, int _letterSpace, size_t _fontSize, float limit, int & length) {
-		size_t strLength = strlen(str);
+
+
+	int Font::GetStrLength(const wchar_t* str, size_t offset, int _letterSpace, size_t _fontSize, float limit, int & length) {
+		size_t strLength = wcslen(str);
 
 		if (offset >= strLength) {
 			return -1;
@@ -485,33 +488,83 @@ namespace dx9 {
 		float scale = (float)_fontSize/this->fontSize;
 
 		float totalLen = 0;
-		unsigned code;
-		for (size_t i=offset; i<strLength; i++) {
+		for (size_t i = offset; i<strLength; i++) {
 
+			unsigned code = (unsigned)(str[i]);
 
-			code = (unsigned)(str[i]);
-
-			if (code == '\n') {
+			if (code == L'\n') {
 				charCnt++;
 				break;
 			}
 
-			// ASCII文字かチェック
-			if (code < ' ' || code > '~')
+			switch (code) {
+			case L'\t':
+			case L'\a':
+			case L'\b':
+			case L'\f':
+			case L'\r':
+			case L'\v':
+				charCnt++;
 				continue;
+			}
 
-			unsigned subscr = code - ' ';
-
-			if (isLimitOn && totalLen + texRes[subscr]->_chInfo().sizeW*scale > limit)
+			if (isLimitOn && totalLen + texRes[code]->_chInfo().sizeW*scale > limit)
 				break;
 
-			totalLen += texRes[subscr]->_chInfo().AreaW*scale + _letterSpace;
+			totalLen += texRes[code]->_chInfo().AreaW*scale + _letterSpace;
 			charCnt++;
 
 		}
+
 		length = (int)totalLen;
 
 		return charCnt;
 	}
+
+
+	bool Font::StoreFontTex(const wchar_t* wstr) {
+		using namespace std;
+
+		// デバイスにフォントを設定
+		HDC hdc = GetDC(NULL);
+		HFONT oldFont = (HFONT)SelectObject(hdc, hFont);
+
+		// 文字テクスチャ作成
+		size_t len = wcslen(wstr);
+		for (size_t i = 0; i<len; i++) {
+
+			UINT code = static_cast<UINT>(wstr[i]);
+
+			switch (code) {
+			case L'\t':
+			case L'\a':
+			case L'\b':
+			case L'\f':
+			case L'\r':
+			case L'\v':
+			case L'\n':
+				continue;
+
+			}
+
+			if (!texRes[code]) {
+				texRes[code] = make_unique<texture::FontTextureW>();
+				if (!texRes[code]->Create(d3ddev9, hdc, wstr[i], antialiasLv, &tm)) {
+					texRes[code].reset();
+					return false;
+				}
+			}
+		}
+
+		// 元のフォントに戻す
+		SelectObject(hdc, oldFont);
+		ReleaseDC(NULL, hdc);
+
+		return true;
+	}
+
+
+
+
 
 }

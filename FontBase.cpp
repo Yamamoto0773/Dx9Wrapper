@@ -1,4 +1,4 @@
-#include "DirectXFontBase.hpp"
+#include "FontBase.hpp"
 
 #define _USE_MATH_DEFINES
 #include <math.h>  
@@ -7,13 +7,13 @@ namespace dx9 {
 
 	namespace font {
 
-		DirectXFontBase::DirectXFontBase() {
+		FontBase::FontBase() {
 			hFont = nullptr;
 		}
 
-		DirectXFontBase::~DirectXFontBase() {}
+		FontBase::~FontBase() {}
 
-		void DirectXFontBase::Clear() {
+		void FontBase::Clear() {
 			fontSize = 0;
 			antialiasLv = AntialiasLevel::_15STEPS;
 			fontColor = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -27,19 +27,19 @@ namespace dx9 {
 			strAdjust = TextureAdjust::NONE;
 		}
 
-		void DirectXFontBase::SetFontColor(const Color &color) {
+		void FontBase::SetFontColor(const Color &color) {
 			fontColor = color.getRGBAFloat();
 		}
 
-		void DirectXFontBase::SetCharTravelDirection(int deg) {
+		void FontBase::SetCharTravelDirection(int deg) {
 			charTravelAngle_rad = deg*(float)M_PI/180.0f;
 		}
 
-		void DirectXFontBase::SetCharTravelDirection(float rad) {
+		void FontBase::SetCharTravelDirection(float rad) {
 			charTravelAngle_rad = rad;
 		}
 
-		void DirectXFontBase::SetStringAdjust(TextureAdjust adjust) {
+		void FontBase::SetStringAdjust(TextureAdjust adjust) {
 			strAdjust = adjust;
 		}
 

@@ -1,4 +1,4 @@
-﻿#include "DXTextureManager.hpp"
+﻿#include "TextureManager.hpp"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -9,22 +9,22 @@
 namespace dx9 {
 
 
-	DXTextureManager::DXTextureManager() :
+	TextureManager::TextureManager() :
 		drawTexCoord(DrawTexCoord::TOP_L),
 		filterColor({ 1.0f, 1.0f, 1.0f }),
 		filterBlendMode(BLENDMODE::NORMAL),
 		textureAdjust(TextureAdjust::ASPECT_FIXED) {}
 
-	DXTextureManager::~DXTextureManager() {}
+	TextureManager::~TextureManager() {}
 
 
 
-	bool DXTextureManager::CreateFromFile(Texture &tex, const std::wstring& fileName) {
+	bool TextureManager::CreateFromFile(Texture &tex, const std::wstring& fileName) {
 		return CreateFromFile(tex, fileName, { 0, 0, 0, 0 });
 	}
 
 
-	bool DXTextureManager::CreateFromFile(Texture &tex, const std::wstring& fileName, ClipArea clipArea) {
+	bool TextureManager::CreateFromFile(Texture &tex, const std::wstring& fileName, ClipArea clipArea) {
 
 		// 既に生成された画像ファイルであるかチェック
 		auto texPos = FindTexture(fileName);
@@ -35,10 +35,10 @@ namespace dx9 {
 			texPos = FindEmptyPool();
 
 			if (texPos == texPool.end()) {
-				texPool.push_back(std::make_shared<texture::DXTextureBase>());
+				texPool.push_back(std::make_shared<texture::TextureBase>());
 				texPos = texPool.end() - 1;
 			} else {
-				*texPos = std::make_shared<texture::DXTextureBase>();
+				*texPos = std::make_shared<texture::TextureBase>();
 			}
 
 			if (!(*texPos)->Create(d3ddev9, fileName)) {
@@ -82,10 +82,10 @@ namespace dx9 {
 		return true;
 	}
 
-	bool DXTextureManager::CreateEmptyTex(Texture &tex, size_t w, size_t h) {
+	bool TextureManager::CreateEmptyTex(Texture &tex, size_t w, size_t h) {
 		using namespace texture;
 
-		std::shared_ptr<DXTextureBase> emptyTex(std::make_shared<DXTextureBase>());
+		std::shared_ptr<TextureBase> emptyTex(std::make_shared<TextureBase>());
 		if (!emptyTex->Create(d3ddev9, w, h))
 			return false;
 
@@ -98,7 +98,7 @@ namespace dx9 {
 		return true;
 	}
 
-	bool DXTextureManager::CreateFromD3DTex9(Texture & tex, const texture::DXTextureBase &texbase) {
+	bool TextureManager::CreateFromD3DTex9(Texture & tex, const texture::TextureBase &texbase) {
 		if (texbase.GetPointer() == nullptr) return false;
 
 		D3DSURFACE_DESC desc;
@@ -109,14 +109,14 @@ namespace dx9 {
 		clip.size.h = desc.Height;
 		clip.uv = { 0.0f, 0.0f, 1.0f, 1.0f };
 
-		tex.set(std::make_shared<texture::DXTextureBase>(texbase), clip);
+		tex.set(std::make_shared<texture::TextureBase>(texbase), clip);
 
 		return true;
 	}
 
 
 
-	bool DXTextureManager::DrawTexture(const Texture & tex, float x, float y, float scale_x, float scale_y, float alpha, int rotDeg, bool isClip) {
+	bool TextureManager::DrawTexture(const Texture & tex, float x, float y, float scale_x, float scale_y, float alpha, int rotDeg, bool isClip) {
 		if (!tex) {
 			return false;
 		}
@@ -159,7 +159,7 @@ namespace dx9 {
 		return DrawTexture_main(tex, pos.x, pos.y, uv.left, uv.top, uv.w, uv.h, scale_x, scale_y, alpha, rotDeg, isClip);
 	}
 
-	bool DXTextureManager::DrawTexture(const Texture & tex, RectF posArea, float alpha, int rotDeg, bool isClip) {
+	bool TextureManager::DrawTexture(const Texture & tex, RectF posArea, float alpha, int rotDeg, bool isClip) {
 		if (!tex) {
 			return false;
 		}
@@ -185,7 +185,7 @@ namespace dx9 {
 		return DrawTexture(tex, posArea, clipArea, alpha, rotDeg, isClip);
 	}
 
-	bool DXTextureManager::DrawTexture(const Texture &tex, RectF posArea, ClipArea clipArea, float alpha, int rotDeg, bool isClip) {
+	bool TextureManager::DrawTexture(const Texture &tex, RectF posArea, ClipArea clipArea, float alpha, int rotDeg, bool isClip) {
 		if (!tex) {
 			return false;
 		}
@@ -260,7 +260,7 @@ namespace dx9 {
 		return DrawTexture_main(tex, pos.x, pos.y, uv.left, uv.top, uv.w, uv.h, xscale, yscale, alpha, rotDeg, isClip);
 	}
 
-	int DXTextureManager::CleanTexPool() {
+	int TextureManager::CleanTexPool() {
 		int releasedCnt = 0;
 		for (size_t i = 0; i<texPool.size(); i++) {
 			if (texPool[i] && texPool[i].use_count() == 1) {
@@ -272,7 +272,7 @@ namespace dx9 {
 		return releasedCnt;
 	}
 
-	void DXTextureManager::SetColorFilter(const Color &color, BLENDMODE blendmode) {
+	void TextureManager::SetColorFilter(const Color &color, BLENDMODE blendmode) {
 		auto ary = color.getRGBAFloat();
 		filterColor = {
 			ary[0], ary[1], ary[2]
@@ -280,26 +280,26 @@ namespace dx9 {
 		filterBlendMode = blendmode;
 	}
 
-	std::pair<ColorRGB, BLENDMODE> DXTextureManager::GetColorFilterRGB() {
+	std::pair<ColorRGB, BLENDMODE> TextureManager::GetColorFilterRGB() {
 		return std::pair<ColorRGB, BLENDMODE>(
 			{ColorRGB(filterColor[0], filterColor[1], filterColor[2]), blendMode }
 		);
 	}
 
-	std::pair<ColorHSB, BLENDMODE> DXTextureManager::GetColorFilterHSB() {
+	std::pair<ColorHSB, BLENDMODE> TextureManager::GetColorFilterHSB() {
 		auto ary = ColorRGB(filterColor[0], filterColor[1], filterColor[2]).getColorHSB().getFloat();
 		return std::pair<ColorHSB, BLENDMODE>(
 			{ ColorHSB(ary.h, ary.s, ary.b), blendMode }
 		);
 	}
 
-	void DXTextureManager::RemoveColorFilter() {
+	void TextureManager::RemoveColorFilter() {
 		SetColorFilter(ColorRGB(255, 255, 255), BLENDMODE::NORMAL);
 	}
 
 
 
-	bool DXTextureManager::DrawTexture_main(const Texture & tex, float x, float y, float uv_left, float uv_top, float uv_w, float uv_h, float scale_x, float scale_y, float alpha, int rotDeg, bool isClip) {
+	bool TextureManager::DrawTexture_main(const Texture & tex, float x, float y, float uv_left, float uv_top, float uv_w, float uv_h, float scale_x, float scale_y, float alpha, int rotDeg, bool isClip) {
 		if (!tex) {
 			return false;
 		}
@@ -400,7 +400,7 @@ namespace dx9 {
 
 
 
-	tex_vector::iterator DXTextureManager::FindTexture(const std::wstring& fileName) {
+	tex_vector::iterator TextureManager::FindTexture(const std::wstring& fileName) {
 		for (auto it = texPool.begin(); it!=texPool.end(); it++) {
 			if (*it && (*it)->GetName() == fileName) {
 				return it;
@@ -410,7 +410,7 @@ namespace dx9 {
 		return texPool.end();
 	}
 
-	tex_vector::iterator DXTextureManager::FindEmptyPool() {
+	tex_vector::iterator TextureManager::FindEmptyPool() {
 		for (auto it = texPool.begin(); it!=texPool.end(); it++) {
 			if (*it == nullptr) {
 				return it;

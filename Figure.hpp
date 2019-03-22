@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 
-#include "DXDrawManager.hpp"
-#include "DXTextureBase.hpp"
+#include "Graphic.hpp"
+#include "TextureBase.hpp"
 #include <array>
 
 namespace dx9 {

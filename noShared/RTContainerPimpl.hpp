@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "NonCopyable.hpp"
-#include "DXTextureBase.hpp"
+#include "TextureBase.hpp"
 
 
 namespace dx9 {
@@ -18,7 +18,7 @@ namespace dx9 {
 		};
 
 		struct RTContainer::ContainerPimpl {
-			dx9::texture::DXTextureBase texture;
+			dx9::texture::TextureBase texture;
 			CComPtr<IDirect3DSurface9> texSurface, depthStencilBuffer;
 			D3DVIEWPORT9 viewPort;
 		};

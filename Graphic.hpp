@@ -28,12 +28,12 @@
 
 namespace dx9 {
 
-	class DXDrawManager : 
+	class Graphic : 
 		private resource::DX9ShareContainer,
-		public Singleton<DXDrawManager>,
+		public Singleton<Graphic>,
 		public Noncopyable {
 		
-		friend class Singleton<DXDrawManager>;
+		friend class Singleton<Graphic>;
 
 		dx9::renderer::RenderingManager *renderMng;
 
@@ -161,8 +161,8 @@ namespace dx9 {
 		
 
 	private:
-		DXDrawManager();
-		virtual ~DXDrawManager();
+		Graphic();
+		virtual ~Graphic();
 	
 		bool Create(
 			const WindowPimpl * const window,

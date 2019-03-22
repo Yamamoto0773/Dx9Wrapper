@@ -11,7 +11,7 @@
 #include "Singleton.hpp"
 #include "NonCopyable.hpp"
 
-#include "DXTextureBase.hpp"
+#include "TextureBase.hpp"
 #include "RTContainer.hpp"
 
 namespace dx9 {

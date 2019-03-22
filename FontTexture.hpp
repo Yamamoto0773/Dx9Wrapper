@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "DXTextureBase.hpp"
+#include "TextureBase.hpp"
 
 
 namespace dx9 {
@@ -33,7 +33,7 @@ namespace dx9 {
 	namespace texture {
 
 		// フォントビットマップテクスチャを作成するクラス
-		class FontTextureW : public DXTextureBase {
+		class FontTextureW : public TextureBase {
 
 		private:
 			CharInfo	charInfo;
@@ -73,7 +73,7 @@ namespace dx9 {
 
 
 		// フォントビットマップテクスチャを作成するクラス
-		class FontTextureA : public DXTextureBase {
+		class FontTextureA : public TextureBase {
 
 		private:
 			CharInfo	charInfo;
