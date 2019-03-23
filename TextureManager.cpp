@@ -282,15 +282,18 @@ namespace dx9 {
 
 	std::pair<ColorRGB, BLENDMODE> TextureManager::GetColorFilterRGB() {
 		return std::pair<ColorRGB, BLENDMODE>(
-			{ColorRGB(filterColor[0], filterColor[1], filterColor[2]), blendMode }
+			{ ColorRGB(filterColor[0], filterColor[1], filterColor[2]), blendMode }
 		);
 	}
 
 	std::pair<ColorHSB, BLENDMODE> TextureManager::GetColorFilterHSB() {
-		auto ary = ColorRGB(filterColor[0], filterColor[1], filterColor[2]).getColorHSB().getFloat();
 		return std::pair<ColorHSB, BLENDMODE>(
-			{ ColorHSB(ary.h, ary.s, ary.b), blendMode }
+			{ ColorRGB(filterColor[0], filterColor[1], filterColor[2]).getColorHSB(), blendMode }
 		);
+	}
+
+	void TextureManager::SetTextureSamplerState(TextureFilter mode) {
+		texFilter = mode;
 	}
 
 	void TextureManager::RemoveColorFilter() {

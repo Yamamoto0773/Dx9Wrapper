@@ -45,7 +45,7 @@ namespace dx9 {
 	public:
 
 		// DirectXインターフェース群の生成
-		bool Create(const WindowPimpl* const window, Size size, MultiSampleLv level=MultiSampleLv::_4SAMPLES, bool isRightHand=false);
+		bool Create(const WindowPimpl* const window, Size size, MultiSampleLv level=MultiSampleLv::_4SAMPLES);
 
 
 		// 描画開始
@@ -97,10 +97,6 @@ namespace dx9 {
 
 		// ブレンドモードの設定
 		void SetBlendMode(BLENDMODE mode);
-
-		// テクスチャサンプラの設定
-		// note:テクスチャにジャギがかかる場合に設定してください
-		void SetTextureSamplerState(TextureFilter mode);
 
 		
 		// ------------------------------------------

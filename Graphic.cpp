@@ -28,7 +28,7 @@ namespace dx9 {
 	Graphic::~Graphic() {
 	}
 
-	bool Graphic::Create(const WindowPimpl* const window, Size size, MultiSampleLv level, bool _isRightHand) {
+	bool Graphic::Create(const WindowPimpl* const window, Size size, MultiSampleLv level) {
 		if (!isResCreated) {
 			bool isFull = false;
 			
@@ -40,7 +40,7 @@ namespace dx9 {
 				isFull = true;
 			}
 		
-			if (!Create(window, isFull, size.w, size.h, level, _isRightHand)) {
+			if (!Create(window, isFull, size.w, size.h, level, false)) {
 				Clear();
 				Delete();
 				return false;
@@ -160,10 +160,6 @@ namespace dx9 {
 				break;
 		}
 
-	}
-
-	void Graphic::SetTextureSamplerState(TextureFilter mode) {
-		texFilter = mode;
 	}
 
 	bool Graphic::CreateMaskBegin() {
@@ -540,21 +536,23 @@ namespace dx9 {
 
 
 		// Direct3D9デバイス取得のための引数を設定
-		d3dpresent.Windowed						= !isfull;
-		d3dpresent.BackBufferWidth				= (UINT)w;
-		d3dpresent.BackBufferHeight				= (UINT)h;
+		D3DDISPLAYMODE dispMode;
+		ret = d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &dispMode);
+		if (FAILED(ret)) {
+			WRITELOG("Failed to Get D3DDISPLAYMODE");
+			return false;
+		}
+		
 		if (isfull) {
-			d3dpresent.BackBufferFormat			= D3DFMT_X8R8G8B8;
+			d3dpresent.BackBufferWidth		= (UINT)dispMode.Width;
+			d3dpresent.BackBufferHeight		= (UINT)dispMode.Height;
+			d3dpresent.BackBufferFormat		= dispMode.Format;
+		} else {
+			d3dpresent.BackBufferWidth		= (UINT)w;
+			d3dpresent.BackBufferHeight		= (UINT)h;
+			d3dpresent.BackBufferFormat		= dispMode.Format;
 		}
-		else {
-			D3DDISPLAYMODE dispMode;
-			ret = d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &dispMode);
-			if (FAILED(ret)) {
-				WRITELOG("Failed to Get D3DDISPLAYMODE");
-				return false;
-			}
-			d3dpresent.BackBufferFormat			= dispMode.Format;
-		}
+		d3dpresent.Windowed						= !isfull;
 		d3dpresent.BackBufferCount				= 1;
 		d3dpresent.MultiSampleType				= static_cast<D3DMULTISAMPLE_TYPE>(level);
 		d3dpresent.MultiSampleQuality			= 0;
@@ -621,14 +619,14 @@ namespace dx9 {
 							))
 						&&
 						SUCCEEDED(
-							d3d9->CheckDeviceMultiSampleType(
-								D3DADAPTER_DEFAULT,
-								devtype,
-								d3dpresent.AutoDepthStencilFormat,
-								d3dpresent.Windowed,
-								d3dpresent.MultiSampleType,
-								&ZBufferLevel
-								))) {
+						d3d9->CheckDeviceMultiSampleType(
+							D3DADAPTER_DEFAULT,
+							devtype,
+							d3dpresent.AutoDepthStencilFormat,
+							d3dpresent.Windowed,
+							d3dpresent.MultiSampleType,
+							&ZBufferLevel
+							))) {
 						// バックバッファと深度ステンシルバッファがともに対応している場合
 
 						if (backBufferLevel < ZBufferLevel) {
@@ -724,7 +722,7 @@ namespace dx9 {
 
 		std::array<float, 20> vtx_rect;
 		std::array<std::array<float, 5>, resource::CIRCLE_VERTEXCNT+2> vtx_circle;
-		if (_isRightHand) {
+		if (isRightHand) {
 			vtx_rect = {
 				1.0f, 1.0f, 0.0f,   1.0f, 1.0f,  // 3
 				0.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // 2
@@ -821,15 +819,13 @@ namespace dx9 {
 
 		// 2D描画用射影変換行列を作成
 		D3DXMatrixIdentity(&projMat);
-		projMat._41 = -1.0f;
-		projMat._42 =  1.0f;
 		projMat._11 =  2.0f / d3dpresent.BackBufferWidth;
-		projMat._22 = -2.0f / d3dpresent.BackBufferHeight;
+		projMat._22 = 2.0f / d3dpresent.BackBufferHeight;
 
 
 		// デフォルトステートのセット
 		d3ddev9->SetRenderState(D3DRS_LIGHTING, FALSE);							// ライティング無効
-		if (_isRightHand)
+		if (isRightHand)
 			d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);				// 右回りを消去(右手系)
 		else
 			d3ddev9->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);				// 左回りを消去(左手系)

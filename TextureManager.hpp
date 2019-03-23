@@ -87,6 +87,8 @@ namespace dx9 {
 		std::pair<ColorRGB, BLENDMODE> GetColorFilterRGB();
 		std::pair<ColorHSB, BLENDMODE> GetColorFilterHSB();
 
+		void SetTextureSamplerState(TextureFilter mode);
+
 		void RemoveColorFilter();
 
 		// ---------------------------------------
