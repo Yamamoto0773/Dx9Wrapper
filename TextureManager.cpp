@@ -292,9 +292,6 @@ namespace dx9 {
 		);
 	}
 
-	void TextureManager::SetTextureSamplerState(TextureFilter mode) {
-		texFilter = mode;
-	}
 
 	void TextureManager::RemoveColorFilter() {
 		SetColorFilter(ColorRGB(255, 255, 255), BLENDMODE::NORMAL);

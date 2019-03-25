@@ -81,6 +81,9 @@ namespace dx9 {
 
 
 		bool TextureBase::Create(IDirect3DDevice9 * dev, size_t _w, size_t _h) {
+			if (!dev)
+				return false;
+
 			IDirect3DTexture9 *ptr;
 
 			if (FAILED(dev->CreateTexture(
@@ -184,6 +187,14 @@ namespace dx9 {
 			d3dtex9.reset(p, deleter);
 		}
 
+
+		IDirect3DTexture9* TextureBase::GetPointer() const { 
+			return d3dtex9.get();
+		}
+
+		std::shared_ptr<IDirect3DTexture9> TextureBase::GetSharedPtr() const { 
+			return d3dtex9;
+		}
 	}
 
 }

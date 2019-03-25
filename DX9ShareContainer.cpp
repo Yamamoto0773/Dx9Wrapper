@@ -22,9 +22,8 @@ namespace dx9 {
 		bool									DX9ShareContainer::isDrawStarted = false;
 		bool									DX9ShareContainer::isLost = false;
 		bool									DX9ShareContainer::isRightHand = false;
-		unsigned long							DX9ShareContainer::backGroundColor = 0xffffff;
-		TextureFilter							DX9ShareContainer::texFilter = TextureFilter::LINEAR;
-	}
+		unsigned long							DX9ShareContainer::clearColor = 0xffffff;
+		TextureFilter							DX9ShareContainer::texFilter = TextureFilter::LINEAR;	}
 
 }
 

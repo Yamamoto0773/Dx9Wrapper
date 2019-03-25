@@ -8,6 +8,8 @@ namespace dx9 {
 	namespace renderer {
 
 		bool RenderingManager::CreateRenderingTarget(IDirect3DDevice9 * device, RenderingTarget & rt, size_t w, size_t h) {
+			if (!device) return false;
+
 			auto &fac = RenderingTargetFactory::GetInstance();
 
 			rt = fac.CreateRT(device, w, h);
@@ -75,6 +77,8 @@ namespace dx9 {
 
 
 		bool RenderingManager::OnLostDevice(IDirect3DDevice9 *device) {
+			if (!device) return false;
+
 			auto *fac = &RenderingTargetFactory::GetInstance();
 
 			

@@ -50,12 +50,11 @@ namespace dx9 {
 			this->begin = _begin;
 			vec = {end.x - begin.x, end.y - begin.y};
 
-			// 線の傾きを求める
-			rotRad = atan2(vec.x, vec.y);
-
 			// 線の長さを求める
 			length = sqrt(vec.x*vec.x + vec.y*vec.y);
 
+			// 線の傾きを求める
+			rotRad = (length < 1e-3) ? 0.0 : atan2(vec.y, vec.x);
 		}
 
 		void Line::SetLineWidth(float _lineWidth) {
@@ -64,6 +63,12 @@ namespace dx9 {
 
 
 		bool Line::Draw(IDirect3DDevice9 *dev, ID3DXEffect *effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX *projMat, BLENDMODE blendMode, size_t layerPos) {
+			if (!dev)		return false;
+			if (!effect)	return false;
+			if (!vtx)		return false;
+			if (!projMat)	return false;
+
+
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -89,11 +94,9 @@ namespace dx9 {
 			D3DXMATRIX world, rot;
 			D3DXMatrixScaling(&world, (float)length, lineWidth, 1.0f);	// ポリゴンサイズに
 			D3DXMatrixRotationZ(&rot, rotRad);						// 回転
-			world._41 = -length/2.0f;
-			world._42 = -lineWidth/2.0f;
 			world = world * rot;
-			world._41 += length/2.0f + begin.x;
-			world._42 += lineWidth/2.0f + begin.y;
+			world._41 = begin.x;
+			world._42 = begin.y;
 			world._43 += layerPos/1000.0f;
 
 			// ラスタライゼーションルールを用いて，テクスチャをずらす
@@ -138,6 +141,11 @@ namespace dx9 {
 
 
 		bool Rect::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, size_t layerPos) {
+			if (!dev)		return false;
+			if (!effect)	return false;
+			if (!vtx)		return false;
+			if (!projMat)	return false;
+
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -203,6 +211,11 @@ namespace dx9 {
 
 
 		bool RectFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 *vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, size_t layerPos) {
+			if (!dev)		return false;
+			if (!effect)	return false;
+			if (!vtx)		return false;
+			if (!projMat)	return false;
+
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -272,6 +285,11 @@ namespace dx9 {
 
 
 		bool Circle::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, size_t layerPos) {
+			if (!dev)		return false;
+			if (!effect)	return false;
+			if (!vtx)		return false;
+			if (!projMat)	return false;
+
 			// ブレンドモードを設定
 			switch (blendMode) {
 				case BLENDMODE::NORMAL:
@@ -335,6 +353,10 @@ namespace dx9 {
 		}
 
 		bool CircleFrame::Draw(IDirect3DDevice9 * dev, ID3DXEffect * effect, IDirect3DVertexBuffer9 * vtx, D3DXMATRIX * projMat, BLENDMODE blendMode, size_t layerPos) {
+			if (!dev)		return false;
+			if (!effect)	return false;
+			if (!vtx)		return false;
+			if (!projMat)	return false;
 
 			//auto *renderMng = &renderer::RenderingManager::GetInstance();
 

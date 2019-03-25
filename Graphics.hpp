@@ -28,12 +28,11 @@
 
 namespace dx9 {
 
-	class Graphic : 
+	class Graphics : 
 		private resource::DX9ShareContainer,
-		public Singleton<Graphic>,
-		public Noncopyable {
+		public Singleton<Graphics> {
 		
-		friend class Singleton<Graphic>;
+		friend class Singleton<Graphics>;
 
 		dx9::renderer::RenderingManager *renderMng;
 
@@ -47,12 +46,11 @@ namespace dx9 {
 		// DirectXインターフェース群の生成
 		bool Create(const WindowPimpl* const window, Size size, MultiSampleLv level=MultiSampleLv::_4SAMPLES);
 
-
 		// 描画開始
-		bool DrawBegin(bool isClear);
+		bool StartDrawing(bool isClear = true);
 
 		// 描画終了
-		bool DrawEnd();
+		bool EndDrawing();
 
 
 		bool ClearRenderingTarget();
@@ -98,15 +96,16 @@ namespace dx9 {
 		// ブレンドモードの設定
 		void SetBlendMode(BLENDMODE mode);
 
+		void SetTextureSamplerState(TextureFilter mode);
 		
 		// ------------------------------------------
 		// マスク描画を管理する関数
 
 		// マスクの作成スタート
-		bool CreateMaskBegin();
+		bool StartMaskWriting(bool isClear = true);
 
 		// マスクの作成終了
-		bool CreateMaskEnd();
+		bool EndMaskWriting();
 
 		// 作成したマスクを適用
 		bool SetMask();
@@ -117,14 +116,15 @@ namespace dx9 {
 		// 円形のマスクを適用
 		bool SetCircleMask(float x, float y, float w, float h);
 		// マスク内容のクリア
-		void ClearMask();
+		void ClearMask(); 
 
 		// マスクを解除
 		bool RemoveMask();
 
 		// マスクの種類を変更
-		void SetMaskType(MaskType type = MaskType::DrawableMask);
+		void SetMaskType(MaskType type = MaskType::Drawable);
 		MaskType GetMaskType();
+
 
 
 		// ---------------------------------------
@@ -142,6 +142,24 @@ namespace dx9 {
 
 		// レンダリングターゲットをデフォルトに戻す
 		bool ResetRenderingTarget();
+
+
+		// --------------------------------------
+		// 状態の取得
+
+		bool IsDrawable();
+
+		bool IsReady();
+
+		Size GetNumOfPixels();
+
+		size_t GetMultiSampleLevel();
+		
+		size_t GetMultiSampleQuality();
+
+		DeviceType GetDeviceType();
+
+		VertexProcessType GetVertexProcessType();
 	
 		// ---------------------------------------
 
@@ -157,8 +175,8 @@ namespace dx9 {
 		
 
 	private:
-		Graphic();
-		virtual ~Graphic();
+		Graphics();
+		~Graphics();
 	
 		bool Create(
 			const WindowPimpl * const window,

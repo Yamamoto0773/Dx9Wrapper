@@ -100,6 +100,7 @@ namespace dx9 {
 
 
 		const RTContainer::ContainerPimpl* RenderingTargetFactory::GetContainer(const RenderingTarget_sptr &rt) {
+			if (!rt) return nullptr;
 			if (!rt->isValid) return nullptr;
 
 			return RTpool[rt->index].pimplRes.get();

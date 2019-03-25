@@ -118,6 +118,9 @@ namespace dx9 {
 		if (!hFont) {
 			return false;
 		}
+		if (!s) {
+			return false;
+		}
 
 		if (isAlign) {
 			if (rect.left > rect.right || rect.top > rect.bottom)
@@ -523,6 +526,9 @@ namespace dx9 {
 
 
 	bool Font::StoreFontTex(const wchar_t* wstr) {
+		if (!wstr) return false;
+		if (!isResCreated) return false;
+
 		using namespace std;
 
 		// デバイスにフォントを設定

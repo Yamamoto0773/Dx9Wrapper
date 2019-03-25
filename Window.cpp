@@ -39,6 +39,8 @@ Window::~Window() {}
 
 
 bool Window::create(void* hInstance, const dx9::Size& size, const wchar_t* title, bool isFull) {
+	if (!hInstance)	return false;
+	if (!title)		return false;
 	
 	WNDCLASSEX wcex = { 
 		sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, WndProc, 0, 0, 

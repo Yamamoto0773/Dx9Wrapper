@@ -144,8 +144,19 @@ namespace dx9 {
 
 
 	enum class MaskType : UINT {
-		DrawableMask = 0u,	// this mask which express drawble area
-		NotDrawableMask		// this mask which express NOT drawable area
+		Drawable = 0u,	// this mask which express drawble area
+		NotDrawable		// this mask which express NOT drawable area
+	};
+
+
+	enum class DeviceType : UINT {
+		Hardware = 0,
+		Reference = 1
+	};
+
+	enum class VertexProcessType : UINT {
+		Hardware = 0,
+		Software = 1
 	};
 
 

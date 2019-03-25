@@ -24,6 +24,8 @@ namespace dx9 {
 
 
 	bool AsciiFont::Create(const char * fontName, size_t _fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
+		if (!isResCreated) return false;
+
 		DeleteAll();
 
 		// フォントハンドルの生成
@@ -140,6 +142,10 @@ namespace dx9 {
 		if (!hFont) {
 			return false;
 		}
+		if (!s) {
+			return false;
+		}
+
 		if (isAlign) {
 			if (rect.left > rect.right || rect.top > rect.bottom)
 				return false;

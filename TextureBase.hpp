@@ -85,9 +85,9 @@ namespace dx9 {
 
 
 			// Direct3DTexture9ポインタを取得
-			IDirect3DTexture9* GetPointer() const { return d3dtex9.get(); };
+			IDirect3DTexture9* GetPointer() const;
 
-			std::shared_ptr<IDirect3DTexture9> GetSharedPtr() const { return d3dtex9; }
+			std::shared_ptr<IDirect3DTexture9> GetSharedPtr() const;
 
 
 			static void SetLogWriteDest(LogManager* dest);
