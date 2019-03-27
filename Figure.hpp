@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-#include "Graphic.hpp"
+#include "Graphics.hpp"
 #include "TextureBase.hpp"
 #include <array>
 
