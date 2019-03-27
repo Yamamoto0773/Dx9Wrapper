@@ -39,6 +39,9 @@ namespace dx9 {
 		RenderingTarget textureRT;
 		
 		static size_t topLayerPos;
+		
+		DeviceType deviceType;
+		VertexProcessType vtxProcessType;
 	
 
 	public:

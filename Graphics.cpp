@@ -21,8 +21,7 @@ namespace dx9 {
 
 
 	Graphics::Graphics() : 
-		renderMng(&renderer::RenderingManager::GetInstance())
-	{
+		renderMng(&renderer::RenderingManager::GetInstance()) {
 	}
 
 	Graphics::~Graphics() {
@@ -167,24 +166,11 @@ namespace dx9 {
 	}
 
 	DeviceType Graphics::GetDeviceType() {
-		D3DDEVICE_CREATION_PARAMETERS param;
-		d3ddev9->GetCreationParameters(&param);
-
-		DeviceType type = 
-			(param.DeviceType == D3DDEVTYPE_HAL) ? 
-			DeviceType::Hardware : DeviceType::Reference;
-
-		return type;
+		return deviceType;
 	}
 
 	VertexProcessType Graphics::GetVertexProcessType() {
-		D3DDEVICE_CREATION_PARAMETERS param;
-		d3ddev9->GetCreationParameters(&param);
-
-		if (param.BehaviorFlags & D3DCREATE_HARDWARE_VERTEXPROCESSING == D3DCREATE_HARDWARE_VERTEXPROCESSING)
-			return VertexProcessType::Hardware;
-		else
-			return VertexProcessType::Software;
+		return vtxProcessType;
 	}
 
 
@@ -711,6 +697,13 @@ namespace dx9 {
 			if (SUCCEEDED(ret)) {
 				d3ddev9.Attach(ptr);
 
+				deviceType = (devtype == D3DDEVTYPE_HAL) 
+					? DeviceType::Hardware : DeviceType::Reference;
+
+				vtxProcessType = (behaviorFlags & D3DCREATE_HARDWARE_VERTEXPROCESSING) ?
+					VertexProcessType::Hardware : VertexProcessType::Software;
+
+
 				switch (i) {
 					case 0: WRITELOG("Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:GPU VertexProcessing:Hardware\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
 					case 1: WRITELOG("Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:GPU VertexProcessing:Software\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
@@ -726,6 +719,7 @@ namespace dx9 {
 				return false;
 			}
 		}
+
 
 
 		WRITELOG("D3D Present Parameters\n"
@@ -916,6 +910,8 @@ namespace dx9 {
 		isRightHand = false;
 		clearColor = 0xffffff;
 		blendMode = BLENDMODE::NORMAL;
+		deviceType = DeviceType::Hardware;
+		vtxProcessType = VertexProcessType::Hardware;
 
 		ZeroMemory(&d3dcaps9, sizeof(d3dcaps9));
 		ZeroMemory(&d3dpresent, sizeof(d3dpresent));
