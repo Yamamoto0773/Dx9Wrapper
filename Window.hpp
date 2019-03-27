@@ -27,7 +27,7 @@ public:
 
 	bool create(void * hInstance, const dx9::Size & size, const wchar_t* title, bool isFull);
 
-	bool loop();
+	bool update();
 
 	const WindowPimpl * const getDetail() const;
 

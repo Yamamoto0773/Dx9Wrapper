@@ -71,7 +71,7 @@ bool Window::create(void* hInstance, const dx9::Size& size, const wchar_t* title
 }
 
 
-bool Window::loop() {
+bool Window::update() {
 	while (PeekMessage(&pimpl->msg, NULL, 0, 0, PM_REMOVE)) {
 		if (pimpl->msg.message == WM_QUIT)
 			return false;
