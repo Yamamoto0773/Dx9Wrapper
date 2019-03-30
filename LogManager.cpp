@@ -9,41 +9,41 @@ LogManager::~LogManager() {
 }
 
 
-void LogManager::getTimeStamp(std::string &str) {
+void LogManager::getTimeStamp(std::wstring &str) {
 	using namespace std;
 
-	char strTime[128];
+	wchar_t strTime[128];
 	SYSTEMTIME time;
 	GetLocalTime(&time);
-	sprintf_s(strTime, "[%02d/%02d/%02d %02d:%02d:%02d.%03d]",
+	swprintf_s(strTime, L"[%02d/%02d/%02d %02d:%02d:%02d.%03d]",
 		time.wYear%100, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds);
 
 	str = strTime;
 }
 
 
-void LogManager::write(const char * msg, ...) {
+void LogManager::write(const wchar_t * msg, ...) {
 	va_list list;
 	va_start(list, msg);
 	writeLog(false, false, msg, list);
 	va_end(list);
 }
 
-void LogManager::lnwrite(const char * msg, ...) {
+void LogManager::lnwrite(const wchar_t * msg, ...) {
 	va_list list;
 	va_start(list, msg);
 	writeLog(false, true, msg, list);
 	va_end(list);
 }
 
-void LogManager::twrite(const char * msg, ...) {
+void LogManager::twrite(const wchar_t * msg, ...) {
 	va_list list;
 	va_start(list, msg);
 	writeLog(true, false, msg, list);
 	va_end(list);
 }
 
-void LogManager::tlnwrite(const char * msg, ...) {
+void LogManager::tlnwrite(const wchar_t * msg, ...) {
 	va_list list;
 	va_start(list, msg);
 	writeLog(true, true, msg, list);
@@ -67,21 +67,21 @@ bool LogBuffer::clear() {
 	logBuffer.clear();
 	logBuffer.reserve(1024);
 
-	tlnwrite("LOG CLEAR");
+	tlnwrite(L"LOG CLEAR");
 
 	return true;
 }
 
 
-void LogBuffer::writeLog(bool isTimeStamp, bool isLF, const char * msg, va_list list) {
-	char str[1024];
+void LogBuffer::writeLog(bool isTimeStamp, bool isLF, const wchar_t * msg, va_list list) {
+	wchar_t str[1024];
 
 	// 可変長引数を文字列に変換
-	vsnprintf(str, 1024, msg, list);
+	_vsnwprintf(str, 1024, msg, list);
 
 	if (isTimeStamp) {
 		// タイムスタンプ書き込み
-		std::string timeStamp;
+		std::wstring timeStamp;
 		LogManager::getTimeStamp(timeStamp);
 		logBuffer += timeStamp;
 		logBuffer += ' ';
@@ -95,7 +95,7 @@ void LogBuffer::writeLog(bool isTimeStamp, bool isLF, const char * msg, va_list 
 }
 
 
-const char* LogBuffer::get() const {
+const wchar_t* LogBuffer::get() const {
 	return logBuffer.c_str();
 }
 
@@ -111,7 +111,7 @@ LogFile::~LogFile() {
 }
 
 
-bool LogFile::init(const char *name) {
+bool LogFile::init(const wchar_t *name) {
 	if (name == nullptr) {
 		return false;
 	}
@@ -126,7 +126,7 @@ bool LogFile::init(const char *name) {
 	// ファイル名を保存
 	this->name = name;
 
-	tlnwrite("LOG CLEAR");
+	tlnwrite(L"LOG CLEAR");
 
 	logFile.close();
 
@@ -146,7 +146,7 @@ bool LogFile::clear() {
 		return false;
 	}
 
-	tlnwrite("LOG CLEAR");
+	tlnwrite(L"LOG CLEAR");
 
 	logFile.close();
 
@@ -154,18 +154,18 @@ bool LogFile::clear() {
 }
 
 
-void LogFile::writeLog(bool isTimeStamp, bool isLF, const char * msg, va_list list) {
-	char str[1024];
-	std::ofstream logFile;
+void LogFile::writeLog(bool isTimeStamp, bool isLF, const wchar_t * msg, va_list list) {
+	wchar_t str[1024];
+	std::wofstream logFile;
 
 	logFile.open(name, std::ios_base::app);
 
 	// 可変長引数を文字列に変換
-	vsnprintf(str, 1024, msg, list);
+	_vsnwprintf(str, 1024, msg, list);
 
 	if (isTimeStamp) {
 		// タイムスタンプ書き込み
-		std::string timeStamp;
+		std::wstring timeStamp;
 		getTimeStamp(timeStamp);
 		logFile << timeStamp;
 		logFile << ' ';

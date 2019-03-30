@@ -18,7 +18,7 @@ namespace dx9 {
 
 		TEXTMETRICW				tm;
 	
-		std::vector<std::unique_ptr<texture::FontTextureW>> texRes;
+		std::vector<std::unique_ptr<texture::FontTexture>> texRes;
 
 		std::array<wchar_t, CHARACTER_MAXCNT+1> workBuf;
 		

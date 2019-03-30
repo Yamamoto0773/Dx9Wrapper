@@ -19,7 +19,7 @@
 
 class LogManager {
 protected:
-	virtual void writeLog(bool isTimeStamp, bool isLF, const char *msg, va_list list) = 0;
+	virtual void writeLog(bool isTimeStamp, bool isLF, const wchar_t *msg, va_list list) = 0;
 
 	LogManager();
 	virtual ~LogManager();
@@ -29,15 +29,15 @@ public:
 	virtual bool clear() = 0;
 
 	// ログに書き込み
-	virtual void write(const char *msg, ...) final;
+	virtual void write(const wchar_t *msg, ...) final;
 	// 改行つきでログに書き込み
-	virtual void lnwrite(const char *msg, ...) final;
+	virtual void lnwrite(const wchar_t *msg, ...) final;
 	// タイムスタンプつきでログに書き込み
-	virtual void twrite(const char *msg, ...) final;
+	virtual void twrite(const wchar_t *msg, ...) final;
 	// 改行あり,タイムスタンプつきでログに書き込み
-	virtual void tlnwrite(const char *msg, ...) final;
+	virtual void tlnwrite(const wchar_t *msg, ...) final;
 
-	void getTimeStamp(std::string &str);
+	void getTimeStamp(std::wstring &str);
 
 };
 
@@ -46,9 +46,9 @@ public:
 
 class LogBuffer : public LogManager {
 private:
-	std::string logBuffer;
+	std::wstring logBuffer;
 	
-	void writeLog(bool isTimeStamp, bool isLF, const char *msg, va_list list) override;
+	void writeLog(bool isTimeStamp, bool isLF, const wchar_t *msg, va_list list) override;
 
 public:
 	LogBuffer();
@@ -58,7 +58,7 @@ public:
 	bool clear() override;
 
 	// ログ取得
-	const char* get() const;
+	const wchar_t* get() const;
 
 };
 
@@ -66,15 +66,15 @@ public:
 
 class LogFile : public LogManager {
 private:
-	std::string name;
+	std::wstring name;
 	
-	void writeLog(bool isTimeStamp, bool isLF, const char *msg, va_list list) override;
+	void writeLog(bool isTimeStamp, bool isLF, const wchar_t *msg, va_list list) override;
 	
 public:
 	LogFile();
 	~LogFile();
 
-	bool init(const char *name);
+	bool init(const wchar_t *name);
 
 	// ログをクリア
 	bool clear() override;

@@ -14,7 +14,7 @@ namespace dx9 {
 		fontColor = {0.0f, 0.0f, 0.0f, 1.0f};
 	}
 
-	AsciiFont::AsciiFont(const char * fontName, size_t fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
+	AsciiFont::AsciiFont(const wchar_t * fontName, size_t fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
 		Create(fontName, fontSize, fontWeight, isItalic, isUnderLine, isStrikeOut, level);
 	}
 
@@ -23,13 +23,13 @@ namespace dx9 {
 	}
 
 
-	bool AsciiFont::Create(const char * fontName, size_t _fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
+	bool AsciiFont::Create(const wchar_t * fontName, size_t _fontSize, FontWeight fontWeight, bool isItalic, bool isUnderLine, bool isStrikeOut, AntialiasLevel level) {
 		if (!isResCreated) return false;
 
 		DeleteAll();
 
 		// フォントハンドルの生成
-		LOGFONTA	lf;
+		LOGFONTW lf;
 		lf.lfHeight				= (LONG)_fontSize;						// 文字の高さ
 		lf.lfWidth				= 0;							// 文字幅
 		lf.lfEscapement			= 0;							// 文字方向とX軸との角度
@@ -43,9 +43,9 @@ namespace dx9 {
 		lf.lfClipPrecision		= CLIP_DEFAULT_PRECIS;			// クリッピングの精度
 		lf.lfQuality			= PROOF_QUALITY;				// 出力品質
 		lf.lfPitchAndFamily		= DEFAULT_PITCH | FF_MODERN;	// ピッチとファミリ
-		strcpy_s(lf.lfFaceName, 32, fontName);
+		wcscpy_s(lf.lfFaceName, 32, fontName);
 
-		hFont = CreateFontIndirectA(&lf);
+		hFont = CreateFontIndirectW(&lf);
 		if (hFont == nullptr) {
 			return false;
 		}
@@ -60,15 +60,15 @@ namespace dx9 {
 		HFONT oldFont = (HFONT)SelectObject(hdc, hFont);
 
 		// フォント情報を取得
-		GetTextMetricsA(hdc, &tm);
+		GetTextMetricsW(hdc, &tm);
 
 		// ASCII文字のテクスチャを作成
-		texRes.resize('~'-' '+1);
+		texRes.resize(L'~'-L' '+1);
 
 		for (size_t i=0; i<texRes.size(); i++) {
 			if (!texRes[i]) {
-				texRes[i] = std::make_unique<texture::FontTextureA>();
-				if (!texRes[i]->Create(d3ddev9, hdc, (char)(' ' + i), antialiasLv, &tm)) {
+				texRes[i] = std::make_unique<texture::FontTexture>();
+				if (!texRes[i]->Create(d3ddev9, hdc, static_cast<wchar_t>(L' ' + i), antialiasLv, &tm)) {
 					texRes[i].reset();
 					return false;
 				}
@@ -83,7 +83,7 @@ namespace dx9 {
 		return true;
 	}
 
-	bool AsciiFont::Draw(float x, float y, const char* s, ...) {
+	bool AsciiFont::Draw(float x, float y, const wchar_t* s, ...) {
 		RectF rect = {x, y, 0.0f, 0.0f};
 
 		va_list vlist;
@@ -95,7 +95,7 @@ namespace dx9 {
 	}
 
 
-	bool AsciiFont::DrawInRect(const RectF& rect, const char * s, ...) {
+	bool AsciiFont::DrawInRect(const RectF& rect, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, 0, -1, fontSize, s, vlist);
@@ -104,7 +104,7 @@ namespace dx9 {
 		return result;
 	}
 
-	bool AsciiFont::Draw(float x, float y, size_t startCharCnt, int drawCharCnt, const char * s, ...) {
+	bool AsciiFont::Draw(float x, float y, size_t startCharCnt, int drawCharCnt, const wchar_t * s, ...) {
 		RectF rect = {x, y, 0.0f, 0.0f};
 
 		va_list vlist;
@@ -115,7 +115,7 @@ namespace dx9 {
 		return result;
 	}
 
-	bool AsciiFont::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, const char * s, ...) {
+	bool AsciiFont::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, fontSize, s, vlist);
@@ -125,7 +125,7 @@ namespace dx9 {
 	}
 
 
-	bool AsciiFont::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const char * s, ...) {
+	bool AsciiFont::DrawInRect(const RectF & rect, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const wchar_t * s, ...) {
 		va_list vlist;
 		va_start(vlist, s);
 		bool result = DrawFont(rect, true, startCharCnt, drawCharCnt, _fontSize, s, vlist);
@@ -135,7 +135,7 @@ namespace dx9 {
 	}
 
 
-	bool AsciiFont::DrawFont(const RectF & rect, bool isAlign, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const char * s, va_list vlist) {
+	bool AsciiFont::DrawFont(const RectF & rect, bool isAlign, size_t startCharCnt, int drawCharCnt, size_t _fontSize, const wchar_t * s, va_list vlist) {
 		if (!isDrawable()) {
 			return false;
 		}
@@ -153,8 +153,8 @@ namespace dx9 {
 
 		using namespace std;
 
-		// 書式文字列をchar型の文字列に変換
-		int numofChars = _vsnprintf_s(&workBuf[0], CHARACTER_MAXCNT+1, CHARACTER_MAXCNT, s, vlist);
+		// 書式文字列をwchar_t型の文字列に変換
+		int numofChars = _vsnwprintf_s(&workBuf[0], CHARACTER_MAXCNT+1, CHARACTER_MAXCNT, s, vlist);
 
 		if (numofChars == 0) {
 			return true;
@@ -405,7 +405,7 @@ namespace dx9 {
 		effect->SetFloatArray("color", fontColor.data(), 4);
 
 		for (size_t i=startCharCnt; i<endCharCnt; i++) {
-			UINT subscr = *ch - ' ';
+			UINT subscr = *ch - L' ';
 			ch++;
 
 			if (subscr<0 || subscr>=texRes.size() || !texRes[subscr]) {
@@ -475,8 +475,8 @@ namespace dx9 {
 		return true;
 	}
 
-	int AsciiFont::GetStrLength(const char* str, size_t offset, int _letterSpace, size_t _fontSize, float limit, int & length) {
-		size_t strLength = strlen(str);
+	int AsciiFont::GetStrLength(const wchar_t* str, size_t offset, int _letterSpace, size_t _fontSize, float limit, int & length) {
+		size_t strLength = wcslen(str);
 
 		if (offset >= strLength) {
 			return -1;
@@ -497,16 +497,16 @@ namespace dx9 {
 
 			code = (unsigned)(str[i]);
 
-			if (code == '\n') {
+			if (code == L'\n') {
 				charCnt++;
 				break;
 			}
 
 			// ASCII文字かチェック
-			if (code < ' ' || code > '~')
+			if (code < L' ' || code > L'~')
 				continue;
 
-			unsigned subscr = code - ' ';
+			unsigned subscr = code - L' ';
 
 			if (isLimitOn && totalLen + texRes[subscr]->_chInfo().sizeW*scale > limit)
 				break;

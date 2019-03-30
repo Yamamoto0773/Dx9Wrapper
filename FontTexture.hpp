@@ -33,15 +33,15 @@ namespace dx9 {
 	namespace texture {
 
 		// フォントビットマップテクスチャを作成するクラス
-		class FontTextureW : public TextureBase {
+		class FontTexture : public TextureBase {
 
 		private:
 			CharInfo	charInfo;
 			wchar_t		ch;
 
 		public:
-			FontTextureW();
-			virtual ~FontTextureW();
+			FontTexture();
+			virtual ~FontTexture();
 
 
 			// 指定したフォントの1文字分のテクスチャを作成
@@ -70,45 +70,6 @@ namespace dx9 {
 
 		};
 
-
-
-		// フォントビットマップテクスチャを作成するクラス
-		class FontTextureA : public TextureBase {
-
-		private:
-			CharInfo	charInfo;
-			char		ch;
-
-		public:
-			FontTextureA();
-			~FontTextureA();
-
-
-			// 指定したフォントの1文字分のテクスチャを作成
-			// note:現在デバイスに設定されているフォントが使用される
-			bool Create(
-				IDirect3DDevice9* dev,
-				HDC hdc,
-				char ch,
-				AntialiasLevel level=AntialiasLevel::_15STEPS,
-				TEXTMETRICA* tm = nullptr
-				);
-
-			const CharInfo& _chInfo() { return charInfo; };
-			const char& _ch() { return ch; };
-
-			void Delete() {
-				d3dtex9.reset();
-				name.clear();
-
-				width = 0;
-				height = 0;
-				isLocked = false;
-
-				ZeroMemory(&charInfo, sizeof(charInfo));
-			}
-
-		};
 
 	}
 

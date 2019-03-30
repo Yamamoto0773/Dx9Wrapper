@@ -65,7 +65,7 @@ namespace dx9 {
 				);
 
 			if (FAILED(ret)) {
-				WRITELOG("failed to create texture from \"%ls\"", fileName.c_str());
+				WRITELOG(L"failed to create texture from \"%ls\"", fileName.c_str());
 				return false;
 			}
 
@@ -97,7 +97,7 @@ namespace dx9 {
 				NULL
 				))
 				) {
-				WRITELOG("failed to create empty texture");
+				WRITELOG(L"failed to create empty texture");
 				return false;
 			}
 

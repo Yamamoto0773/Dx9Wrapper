@@ -18,16 +18,16 @@ namespace dx9 {
 		HFONT					hFont;			// 設定中のフォントのハンドル
 		AntialiasLevel			antialiasLv;
 
-		std::array<char, CHARACTER_MAXCNT+1> workBuf;
+		std::array<wchar_t, CHARACTER_MAXCNT+1> workBuf;
 
-		TEXTMETRICA				tm;	
+		TEXTMETRICW				tm;	
 
-		std::vector< std::unique_ptr<texture::FontTextureA> > texRes;
+		std::vector< std::unique_ptr<texture::FontTexture> > texRes;
 
 	public:
 		AsciiFont();
 		AsciiFont(
-			const char*		fontName,
+			const wchar_t*		fontName,
 			size_t			fontSize,
 			FontWeight		fontWeight = FontWeight::NORMAL,
 			bool			isItalic = false,
@@ -39,7 +39,7 @@ namespace dx9 {
 		~AsciiFont();
 
 		bool Create(
-			const char*		fontName,
+			const wchar_t*		fontName,
 			size_t			fontSize,
 			FontWeight		fontWeight = FontWeight::NORMAL,
 			bool			isItalic = false,
@@ -56,13 +56,13 @@ namespace dx9 {
 		bool Draw(
 			float x,
 			float y,		
-			const char* s, ...
+			const wchar_t* s, ...
 			);
 
 		// 指定領域内へ文字描画
 		bool DrawInRect(
 			const RectF &rect,	
-			const char* s, ...
+			const wchar_t* s, ...
 			);
 
 		// 文字送り
@@ -72,7 +72,7 @@ namespace dx9 {
 			float y,			
 			size_t startCharCnt,
 			int drawCharCnt,
-			const char* s, ...
+			const wchar_t* s, ...
 			);
 
 		// 文字送りx指定領域内描画
@@ -81,7 +81,7 @@ namespace dx9 {
 			const RectF &rect,	
 			size_t startCharCnt,
 			int drawCharCnt,
-			const char* s, ...
+			const wchar_t* s, ...
 			);
 
 	
@@ -91,7 +91,7 @@ namespace dx9 {
 			size_t startCharCnt,
 			int drawCharCnt,
 			size_t fontSize,
-			const char* s, ...
+			const wchar_t* s, ...
 			);
 
 
@@ -107,7 +107,7 @@ namespace dx9 {
 			size_t startCharCnt,
 			int drawCharCnt,
 			size_t fontSize,
-			const char* s,
+			const wchar_t* s,
 			va_list vlist
 			);
 
@@ -119,7 +119,7 @@ namespace dx9 {
 		// 文字列strのoffset番目の文字から，長さlimitに1行で入る文字数を取得
 		// 1行の長さは，lengthに書き込まれる
 		// limit < 0.0fの場合，長さの指定を無視する
-		int GetStrLength(const char* str, size_t offset, int letterSpace, size_t fontSize, float limit, int &length);
+		int GetStrLength(const wchar_t* str, size_t offset, int letterSpace, size_t fontSize, float limit, int &length);
 
 
 
