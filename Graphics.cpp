@@ -116,7 +116,7 @@ namespace dx9 {
 
 		// フリップ
 		if (d3ddev9->Present(NULL, NULL, NULL, NULL) == D3DERR_DEVICELOST) {
-			WRITELOG("Device Lost");
+			WRITELOG(L"Device Lost");
 			isLost = true;
 
 			DeviceLost();
@@ -557,7 +557,7 @@ namespace dx9 {
 		// Direct3D9オブジェクトの取得
 		d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
 		if (d3d9 == nullptr) {
-			WRITELOG("Failed to Create D3D9 Object");
+			WRITELOG(L"Failed to Create D3D9 Object");
 			return false;
 		}
 
@@ -565,7 +565,7 @@ namespace dx9 {
 		// ハードウェアの能力の取得
 		ret = d3d9->GetDeviceCaps(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, &d3dcaps9);
 		if (FAILED(ret)) {
-			WRITELOG("Failed to Get D3DCAPS9");
+			WRITELOG(L"Failed to Get D3DCAPS9");
 			return false;
 		}
 
@@ -574,7 +574,7 @@ namespace dx9 {
 		D3DDISPLAYMODE dispMode;
 		ret = d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &dispMode);
 		if (FAILED(ret)) {
-			WRITELOG("Failed to Get D3DDISPLAYMODE");
+			WRITELOG(L"Failed to Get D3DDISPLAYMODE");
 			return false;
 		}
 		
@@ -705,24 +705,24 @@ namespace dx9 {
 
 
 				switch (i) {
-					case 0: WRITELOG("Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:GPU VertexProcessing:Hardware\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
-					case 1: WRITELOG("Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:GPU VertexProcessing:Software\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
-					case 2: WRITELOG("Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:CPU VertexProcessing:Hardware\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
-					case 3: WRITELOG("Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:CPU VertexProcessing:Software\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
+					case 0: WRITELOG(L"Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:GPU VertexProcessing:Hardware\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
+					case 1: WRITELOG(L"Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:GPU VertexProcessing:Software\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
+					case 2: WRITELOG(L"Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:CPU VertexProcessing:Hardware\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
+					case 3: WRITELOG(L"Create D3DDevice9 ... OK\n  DeviceInfo>DeviceType:CPU VertexProcessing:Software\n  DeviceInfo>MultiSampleType:%dsamples MultiSampleQuality:%lu", static_cast<D3DMULTISAMPLE_TYPE>(d3dpresent.MultiSampleType), d3dpresent.MultiSampleQuality); break;
 				}
 
 				break;	// 作成終了
 			}
 
 			if (i==3) {	// 最終ループなら
-				WRITELOG("Failed to Create D3DDevice9");
+				WRITELOG(L"Failed to Create D3DDevice9");
 				return false;
 			}
 		}
 
 
 
-		WRITELOG("D3D Present Parameters\n"
+		WRITELOG(L"D3D Present Parameters\n"
 			"%-30s:%u\n"
 			"%-30s:%u\n"
 			"%-30s:%u\n"
@@ -798,7 +798,7 @@ namespace dx9 {
 			IDirect3DVertexBuffer9 *ptr_circle;
 			if (FAILED(d3ddev9->CreateVertexBuffer(sizeof(vtx_rect), 0, 0, D3DPOOL_MANAGED, &ptr_rect, 0)) ||
 				FAILED(d3ddev9->CreateVertexBuffer(sizeof(vtx_circle), 0, 0, D3DPOOL_MANAGED, &ptr_circle, 0))) {
-				WRITELOG("failed to create \"Vertex Buffer9\"");
+				WRITELOG(L"failed to create \"Vertex Buffer9\"");
 				return false;
 			}
 			float *p = nullptr;
@@ -833,7 +833,7 @@ namespace dx9 {
 				&ptr,
 				&error
 				))) {
-				WRITELOG("failed to create effect");
+				WRITELOG(L"failed to create effect");
 				return false;
 			}
 
@@ -850,7 +850,7 @@ namespace dx9 {
 			};
 
 			if (FAILED(d3ddev9->CreateVertexDeclaration(elems, &ptr))) {
-				WRITELOG("failed to create \"Bertex Declaration9\"");
+				WRITELOG(L"failed to create \"Bertex Declaration9\"");
 				return false;
 			}
 			verDecl.Attach(ptr);
@@ -859,7 +859,6 @@ namespace dx9 {
 		// 頂点宣言を登録
 		d3ddev9->SetVertexDeclaration(verDecl);
 
-
 		// 2D描画用射影変換行列を作成
 		D3DXMatrixIdentity(&projMat);
 		projMat._41 = -1.0f;
@@ -867,7 +866,7 @@ namespace dx9 {
 		projMat._11 =  2.0f / d3dpresent.BackBufferWidth;
 		projMat._22 = -2.0f / d3dpresent.BackBufferHeight;
 
-
+		d3ddev9->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_STENCIL, clearColor, 1.0f, 0);
 
 		// デフォルトステートのセット
 		d3ddev9->SetRenderState(D3DRS_LIGHTING, FALSE);							// ライティング無効
@@ -943,14 +942,14 @@ namespace dx9 {
 
 			HRESULT hr;
 			if (FAILED(hr = d3ddev9->Reset(&d3dpresent))) {
-				WRITELOG("failed reset %u", hr);
+				WRITELOG(L"failed reset %u", hr);
 				return false;
 			}
 
 			effect->OnResetDevice();
 
 			if (!renderMng->OnResetDevice(d3ddev9)) {
-				WRITELOG("failed restore RT");
+				WRITELOG(L"failed restore RT");
 				return false;
 			}
 
@@ -984,7 +983,7 @@ namespace dx9 {
 			
 
 		
-			WRITELOG("Device Reset ... OK");
+			WRITELOG(L"Device Reset ... OK");
 		}
 		
 		return true;
