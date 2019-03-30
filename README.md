@@ -19,23 +19,23 @@ DirectX9.0を用いた2D描画ライブラリです。
 	- `マルチスレッドデバッグ(/MTd)`(Debug環境の場合)
 	- `マルチスレッド(/MT)`(Release環境の場合)
 4. ダウンロードした`Dx9Wrapper`ディレクトリの中の`include`ディレクトリ内にある`effect.rc`をプロジェクトに追加
-5. 最後に次のコードをコピペして実行！※ パス内の`../../Dx9Wrapper_v0.20`は、ダウンロードしたディレクトリを指定して下さい
+5. 最後に次のコードをコピペして実行！※ パス内の`../../Dx9Wrapper_v0.01`は、ダウンロードしたディレクトリを指定して下さい
 
 ```cpp
-#include "../../Dx9Wrapper_v0.20/include/Dx9Wrapper.hpp"
+#include "../../Dx9Wrapper_v0.01/include/Dx9Wrapper.hpp"
 
 
 #ifdef _DEBUG
 #ifdef _WIN64
-#pragma comment (lib, "../../Dx9Wrapper_v0.20/lib/x64/debug/Dx9Wrapper.lib")   // Debug x64
+#pragma comment (lib, "../../Dx9Wrapper_v0.01/lib/x64/debug/Dx9Wrapper.lib")   // Debug x64
 #else
-#pragma comment (lib, "../../Dx9Wrapper_v0.20/lib/debug/Dx9Wrapper.lib")       // Debug x86
+#pragma comment (lib, "../../Dx9Wrapper_v0.01/lib/debug/Dx9Wrapper.lib")       // Debug x86
 #endif
 #else
 #ifdef _WIN64
-#pragma comment (lib, "../../Dx9Wrapper_v0.20/lib/x64/release/Dx9Wrapper.lib") // Release x64
+#pragma comment (lib, "../../Dx9Wrapper_v0.01/lib/x64/release/Dx9Wrapper.lib") // Release x64
 #else
-#pragma comment (lib, "../../Dx9Wrapper_v0.20/lib/release/Dx9Wrapper.lib")     // Release x86
+#pragma comment (lib, "../../Dx9Wrapper_v0.01/lib/release/Dx9Wrapper.lib")     // Release x86
 #endif
 #endif	// _DEBUG
 
