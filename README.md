@@ -61,6 +61,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	return 0;
 }
 ```
+実行すると、次のようなウィンドウが出現します。
+
 
 
 ### ライセンス (about License)
@@ -84,30 +86,3 @@ BSD 2-clause "Simplified" LicenseについてはLICENSE.mdを参照して下さ�
 
   
   
--------------
-
-#### コミットメッセージの書式
-1行目:コミットの種類
-
-2行目:改行
-
-3行目:コミットの要約
-
-
-#### コミットの種類
-add     新規追加
-
-fix     バグ修正
-
-update  バグではない変更
-
-disable コメントアウトなど、機能の無効化
-
-remove  ファイルやコードの削除
-
-clean   ファイルやコードの整理
-
-    
-#### バージョンナンバーについて
-タグに用いられているバージョンナンバーは，[Semantic Versioning 2.0.0](https://semver.org/)に従ってつけています．
-
