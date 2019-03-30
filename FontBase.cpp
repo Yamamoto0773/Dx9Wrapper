@@ -16,7 +16,7 @@ namespace dx9 {
 		void FontBase::Clear() {
 			fontSize = 0;
 			antialiasLv = AntialiasLevel::_15STEPS;
-			fontColor = { 0.0f, 0.0f, 0.0f, 0.0f };
+			fontColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 			letterSpace = 0;
 
