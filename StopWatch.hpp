@@ -14,7 +14,7 @@ StopWatchクラス
 
 #include <Windows.h>
 
-class StopWatch {
+class Stopwatch {
 private:
 	long long llFrequency;
 
@@ -29,8 +29,8 @@ private:
 
 
 public:
-	StopWatch();
-	~StopWatch();
+	Stopwatch();
+	~Stopwatch();
 
 	// タイマーをスタート
 	void Start();

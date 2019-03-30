@@ -1,6 +1,6 @@
-﻿#include "StopWatch.hpp"
+﻿#include "Stopwatch.hpp"
 
-StopWatch::StopWatch() {
+Stopwatch::Stopwatch() {
 	llStartCount = 0;
 	llPauseStCount = 0;
 	llFrequency = 0;
@@ -27,11 +27,11 @@ StopWatch::StopWatch() {
 }
 
 
-StopWatch::~StopWatch() {
+Stopwatch::~Stopwatch() {
 }
 
 
-void StopWatch::Start() {
+void Stopwatch::Start() {
 
 	if (bIsPaused) {
 		// タイマー開始の時間を変更
@@ -50,7 +50,7 @@ void StopWatch::Start() {
 }
 
 
-double StopWatch::Pause() {
+double Stopwatch::Pause() {
 
 	if (bIsPaused) {
 		return dTime;
@@ -71,7 +71,7 @@ double StopWatch::Pause() {
 }
 
 
-void StopWatch::Reset() {
+void Stopwatch::Reset() {
 	bool _isPaused = bIsPaused;
 
 	dTime = 0.0;
@@ -84,7 +84,7 @@ void StopWatch::Reset() {
 }
 
 
-double StopWatch::GetTime() {
+double Stopwatch::GetTime() {
 
 	if (bIsPaused == false) {
 
@@ -98,7 +98,7 @@ double StopWatch::GetTime() {
 
 
 
-long long StopWatch::_GetNowCount() {
+long long Stopwatch::_GetNowCount() {
 	LARGE_INTEGER now;
 
 	// 現在のカウントを取得
