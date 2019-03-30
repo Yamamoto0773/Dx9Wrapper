@@ -1,8 +1,12 @@
-# libClass
-自作音楽ゲーム[Amaoto](https://github.com/Yamamoto0773/musicGame)で使うクラスを開発するところです．
+# Dx9Wrapper
+DirectX9.0を用いた2D描画ライブラリです。
 
 ### 概要
-基本的にDirectX関係のクラスを扱っています．
+テクスチャや文字、簡単な図形の描画ができる2D描画ライブラリです。
+
+### 環境
+Visual Studio 2017らへん
+
 
 ### ライセンス (about License)
 (This software is released under the BSD 2-clause "Simplified" License, see LICENSE.md)
