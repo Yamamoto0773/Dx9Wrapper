@@ -31,6 +31,8 @@ public:
 
 	const WindowPimpl * const getDetail() const;
 
+	void postDestruction();
+
 private:
 
 	std::unique_ptr<WindowPimpl> pimpl;

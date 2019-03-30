@@ -87,3 +87,7 @@ bool Window::update() {
 const WindowPimpl* const Window::getDetail() const {
 	return pimpl.get();
 }
+
+void Window::postDestruction() {
+	PostMessage(pimpl->hWnd, WM_CLOSE, 0, 0);
+}
