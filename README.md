@@ -62,11 +62,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 }
 ```
 実行すると、次のようなウィンドウが出現します。
-![dx9_result](https://imgur.com/rOV8pVq)
 
+<img src="https://i.imgur.com/rOV8pVq.png" width=50%>
 
 ### ライセンス (about License)
-(This software is released under the BSD 2-clause "Simplified" License, see LICENSE.md)
+(This software is released under the BSD 2-clause "Simplified" License,  see LICENSE.md)
 
 このアプリはBSD 2-clause "Simplified" Licenseのもとで公開されています。
 BSD 2-clause "Simplified" LicenseについてはLICENSE.mdを参照して下さい。
