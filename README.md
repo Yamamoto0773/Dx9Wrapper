@@ -1,18 +1,18 @@
 # Dx9Wrapper
 DirectX9.0を用いた2D描画ライブラリです。
 
-### 概要
+## 概要
 テクスチャや文字、簡単な図形の描画ができる2D描画ライブラリです。
 
-### 環境
+## 環境
 - Visual Studio 2015以降
 - Windows SDK 10.0.16299.0以降
 - UNICODE文字セットのみ (マルチバイト文字セットにも後で対応します)
 
-### リファレンス
-[Wikiページ](https://github.com/Yamamoto0773/Dx9Wrapper/wiki)に載っけてます
+## リファレンス
+[Wikiページ](https://github.com/Yamamoto0773/Dx9Wrapper/wiki)を参照してください
 
-### 使い方 (VS 2017の場合)
+## 使い方 (VS 2017の場合)
 1. Visual Studioで`空のプロジェクト`でプロジェクトを作成します
 2. プロジェクトのプロパティから、`全般`→`文字セット`が`UNICODE文字セットを使用する`になっているか確認
 3. プロジェクトのプロパティから、`C/C++`→`ランタイムライブラリ`が次のようになっているか確認
@@ -65,7 +65,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 <img src="https://i.imgur.com/rOV8pVq.png" width=50%>
 
-### ライセンス (about License)
+## ライセンス (about License)
 (This software is released under the BSD 2-clause "Simplified" License,  see LICENSE.md)
 
 このアプリはBSD 2-clause "Simplified" Licenseのもとで公開されています。
