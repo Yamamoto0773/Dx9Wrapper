@@ -62,7 +62,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 }
 ```
 実行すると、次のようなウィンドウが出現します。
-
+<blockquote class="imgur-embed-pub" lang="en" data-id="a/daCZ5Zs"><a href="//imgur.com/daCZ5Zs"></a></blockquote><script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
 
 
 ### ライセンス (about License)
