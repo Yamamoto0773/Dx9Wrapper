@@ -36,7 +36,7 @@ DirectX9.0を用いた2D描画ライブラリです。
 #ifdef _WIN64
 #pragma comment (lib, "{DX9_DIR}lib/x64/release/Dx9Wrapper.lib") // Release x64
 #else
-#pragma comment (lib, "{DX9_DIR}release/Dx9Wrapper.lib")     // Release x86
+#pragma comment (lib, "{DX9_DIR}lib/release/Dx9Wrapper.lib")     // Release x86
 #endif
 #endif	// _DEBUG
 
